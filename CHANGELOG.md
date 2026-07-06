@@ -5,6 +5,15 @@ Het format volgt [Keep a Changelog](https://keepachangelog.com/nl/1.1.0/).
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-07-06
+
+### Toegevoegd
+- Inschrijvingen toevoegen in het beheer: formulier met evenement-keuze, naam, e-mail, telefoon, dochter(s) mee en opmerking — voor papa's die zich telefonisch of persoonlijk aanmelden
+- Inschrijvingen bewerken via een ✏️-knop per inschrijving; oude records met één contactveld worden automatisch in het juiste vak gezet (e-mail of telefoon)
+
+### Gewijzigd
+- Inschrijvingen-tab heeft nu dezelfde indeling als de andere tabs: formulier links, lijst rechts
+
 ## [0.9.0] - 2026-07-06
 
 ### Toegevoegd

@@ -295,17 +295,49 @@ textarea{resize:vertical;min-height:74px}
 
   <!-- TAB 2: inschrijvingen -->
   <div class="tabpane" id="tab-inschrijvingen">
-    <div class="lijst-kop">
-      <h2 style="margin:0">Inschrijvingen per evenement</h2>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <div class="mail-menu">
-          <button class="btn gold klein" id="mailAlleDeelnemers">📧 Mail alle deelnemers ▾</button>
-          <div class="keuzes" id="mailAlleKeuzes"></div>
+    <div class="ev-grid">
+      <div class="panel">
+        <h2 id="inschrijfFormTitel">🎟️ Nieuwe inschrijving</h2>
+        <p class="sub">Voor papa's die zich telefonisch of persoonlijk aanmelden.</p>
+        <form id="inschrijfBeheerForm">
+          <input type="hidden" id="inschrijfEditId">
+          <label for="inschrijfEvent">Evenement *</label>
+          <select id="inschrijfEvent" required></select>
+          <label for="inschrijfNaam">Naam *</label>
+          <input id="inschrijfNaam" required maxlength="60" placeholder="Voornaam (+ achternaam mag)">
+          <div class="rij">
+            <div>
+              <label for="inschrijfEmail">E-mail</label>
+              <input id="inschrijfEmail" type="email" maxlength="80" placeholder="papa@mail.nl">
+            </div>
+            <div>
+              <label for="inschrijfTelefoon">Telefoon</label>
+              <input id="inschrijfTelefoon" type="tel" maxlength="20" placeholder="06-12345678">
+            </div>
+          </div>
+          <label class="check"><input type="checkbox" id="inschrijfDochter"> Dochter(s) mee</label>
+          <label for="inschrijfOpmerking">Opmerking</label>
+          <textarea id="inschrijfOpmerking" maxlength="240" placeholder="Allergieën, vragen, bijzonderheden (optioneel)"></textarea>
+          <div class="form-acties">
+            <button type="submit" class="btn gold" id="inschrijfOpslaanBtn">Opslaan 🎉</button>
+            <button type="button" class="btn stil" id="inschrijfAnnuleerBtn" style="display:none">Annuleer</button>
+          </div>
+        </form>
+      </div>
+      <div class="lijst">
+        <div class="lijst-kop">
+          <h2 style="margin:0">Per evenement</h2>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <div class="mail-menu">
+              <button class="btn gold klein" id="mailAlleDeelnemers">📧 Mail alle deelnemers ▾</button>
+              <div class="keuzes" id="mailAlleKeuzes"></div>
+            </div>
+            <button class="btn stil klein" id="exportInschrijvingen">⬇ Exporteer Excel</button>
+          </div>
         </div>
-        <button class="btn stil klein" id="exportInschrijvingen">⬇ Exporteer Excel</button>
+        <div id="inschrijvingenLijst"></div>
       </div>
     </div>
-    <div id="inschrijvingenLijst"></div>
   </div>
 
   <!-- TAB 3: whatsapp -->
@@ -603,11 +635,82 @@ function renderInschrijvingen(){
             <div class="detail">${s.email?`<span>📧 ${esc(s.email)}</span>`:""}${(s.telefoon||s.contact)?`<span>📞 ${esc(s.telefoon||s.contact)}</span>`:""}${(parseInt(s.personen)||1)>1?`<span>👥 ${esc(s.personen)} papa's (oude inschrijving)</span>`:""}<span>🗓️ aangemeld ${fmtDatum(s.aangemeldOp)}</span></div>
             ${s.opmerking?`<div class="opm">"${esc(s.opmerking)}"</div>`:""}
           </div>
-          <button class="icoon-btn verwijder" title="Inschrijving verwijderen" onclick="verwijderInschrijving('${s.id}')">🗑️</button>
+          <div class="ev-acties">
+            <button class="icoon-btn bewerk" title="Inschrijving bewerken" onclick="bewerkInschrijving('${s.id}')">✏️</button>
+            <button class="icoon-btn verwijder" title="Inschrijving verwijderen" onclick="verwijderInschrijving('${s.id}')">🗑️</button>
+          </div>
         </div>`).join("")}
       </div>`;
     }).join("");
 }
+
+/* ---------- Inschrijvingen toevoegen & bewerken (voor telefonische/persoonlijke aanmeldingen) ---------- */
+function renderInschrijfEventOpties(){
+  const select = document.getElementById("inschrijfEvent");
+  const huidige = select.value;
+  const events = load().sort((a,b)=>a.datum.localeCompare(b.datum));
+  select.innerHTML = `<option value="" disabled ${huidige?"":"selected"}>Kies een evenement…</option>`
+    + events.map(e=>`<option value="${e.id}">${esc(e.titel)} — ${fmtDatum(e.datum+"T00:00:00")}</option>`).join("");
+  if(huidige && events.some(e=>e.id===huidige)) select.value = huidige;
+}
+
+document.getElementById("inschrijfBeheerForm").addEventListener("submit", ev=>{
+  ev.preventDefault();
+  const id = document.getElementById("inschrijfEditId").value;
+  const eventId = document.getElementById("inschrijfEvent").value;
+  const gekozenEvent = load().find(e=>e.id===eventId);
+  if(!gekozenEvent){ toast("Kies eerst een evenement 🗓️"); return; }
+  const bestaand = id ? loadList(SIGNUP_KEY).find(s=>s.id===id) : null;
+  const item = {
+    id: id || "in-"+Date.now(),
+    eventId: gekozenEvent.id,
+    eventTitel: gekozenEvent.titel,
+    eventDatum: gekozenEvent.datum,
+    naam: document.getElementById("inschrijfNaam").value.trim(),
+    email: document.getElementById("inschrijfEmail").value.trim(),
+    telefoon: document.getElementById("inschrijfTelefoon").value.trim(),
+    personen: "1",
+    dochterMee: document.getElementById("inschrijfDochter").checked,
+    opmerking: document.getElementById("inschrijfOpmerking").value.trim(),
+    aangemeldOp: bestaand ? bestaand.aangemeldOp : new Date().toISOString()
+  };
+  let signups = loadList(SIGNUP_KEY);
+  if(id){ signups = signups.map(s=>s.id===id?item:s); toast("Inschrijving bijgewerkt ✏️"); }
+  else{ signups.push(item); toast("Inschrijving toegevoegd 🎟️"); confetti(); }
+  saveList(SIGNUP_KEY, signups);
+  resetInschrijfForm();
+  renderAlles();
+});
+
+function bewerkInschrijving(id){
+  const s = loadList(SIGNUP_KEY).find(x=>x.id===id);
+  if(!s) return;
+  renderInschrijfEventOpties();
+  document.getElementById("inschrijfEditId").value = s.id;
+  document.getElementById("inschrijfEvent").value = s.eventId;
+  document.getElementById("inschrijfNaam").value = s.naam || "";
+  /* oude records hebben één 'contact'-veld: zet het in het juiste vak op basis van een @ */
+  const contact = s.contact || "";
+  document.getElementById("inschrijfEmail").value = s.email || (contact.includes("@") ? contact : "");
+  document.getElementById("inschrijfTelefoon").value = s.telefoon || (contact.includes("@") ? "" : contact);
+  document.getElementById("inschrijfDochter").checked = !!s.dochterMee;
+  document.getElementById("inschrijfOpmerking").value = s.opmerking || "";
+  document.getElementById("inschrijfFormTitel").textContent = "✏️ Inschrijving bewerken";
+  document.getElementById("inschrijfOpslaanBtn").textContent = "Bijwerken ✔";
+  document.getElementById("inschrijfAnnuleerBtn").style.display = "inline-flex";
+  document.querySelector("#tab-inschrijvingen .panel").scrollIntoView({behavior:"smooth", block:"start"});
+  document.getElementById("inschrijfNaam").focus();
+}
+
+function resetInschrijfForm(){
+  document.getElementById("inschrijfBeheerForm").reset();
+  document.getElementById("inschrijfEditId").value = "";
+  document.getElementById("inschrijfFormTitel").textContent = "🎟️ Nieuwe inschrijving";
+  document.getElementById("inschrijfOpslaanBtn").textContent = "Opslaan 🎉";
+  document.getElementById("inschrijfAnnuleerBtn").style.display = "none";
+  renderInschrijfEventOpties();
+}
+document.getElementById("inschrijfAnnuleerBtn").addEventListener("click", resetInschrijfForm);
 
 function verwijderInschrijving(id){
   const s = loadList(SIGNUP_KEY).find(x=>x.id===id);
@@ -949,7 +1052,7 @@ if(!localStorage.getItem(PP_KEY)){
   ]);
 }
 
-function renderAlles(){ renderStats(); renderEvents(); renderInschrijvingen(); renderWhatsapp(); renderSjablonen(); }
+function renderAlles(){ renderStats(); renderEvents(); renderInschrijvingen(); renderInschrijfEventOpties(); renderWhatsapp(); renderSjablonen(); }
 renderAlles();
 </script>
 </body>
