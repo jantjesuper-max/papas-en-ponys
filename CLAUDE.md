@@ -28,7 +28,7 @@ Community-website voor "meisjespapa's die leren vlechten". Statische site zonder
 | `pp_events` | Array van evenementen |
 | `pp_event_signups` | Array van inschrijvingen |
 | `pp_wa_signups` | Array van WhatsApp-aanmeldingen |
-| `pp_mail_sjablonen` | Array van mailsjablonen: `{id, naam, onderwerp, tekst}` met dynamische velden als `{naam}`, `{evenement}`, `{datum}`, `{tijd}`, `{locatie}`, `{link}` — ingevuld door `vulSjabloon()` in het beheer. Bij groepsmail (BCC) wordt `{naam}` "papa's" |
+| `pp_mail_sjablonen` | Array van mailsjablonen: `{id, naam, onderwerp, tekst}` met dynamische velden `{naam}`, `{voornaam}`, `{achternaam}`, `{evenement}`, `{datum}`, `{tijd}`, `{locatie}`, `{categorie}`, `{beschrijving}`, `{link}` — ingevuld door `vulSjabloon()` in het beheer. Bij groepsmail (BCC) worden `{naam}`/`{voornaam}` "papa's" en vervalt `{achternaam}` |
 
 ### Vorm van een evenement
 
@@ -85,6 +85,8 @@ Community-website voor "meisjespapa's die leren vlechten". Statische site zonder
 - **Elke pagina is zelfstandig**: eigen `<style>` en `<script>` inline, geen gedeelde bestanden. Gedeelde logica (zoals `evType()`, seeds, `esc()`) is dus **gedupliceerd** — wijzig je die, wijzig het dan op alle plekken (zie valkuilen).
 - **Toegankelijkheid**: `prefers-reduced-motion` respecteren, alt-teksten in het Nederlands, `aria-label`s op formuliervelden.
 - **Changelog**: bij elke feature een versie-entry in `CHANGELOG.md` (semver-achtig, datum erbij).
+- **Sjablonen groeien mee**: voeg je een veld toe aan (of wijzig je een veld van) inschrijvingen/contactpersonen of evenementen, werk dan óók de mailsjablonen bij: `SJABLOON_VELDEN` én `vulSjabloon()` in `admin/index.html`, de hint-tekst onder de veld-chips, en de sjablonenrij in dit document.
+- **Evenement-URL's**: de nette vorm is `evenement.html?e=<slug-van-titel>` (gemaakt door `slugify()`, gedupliceerd in alle drie de pagina's); `?id=` blijft als fallback werken en wordt via `history.replaceState` herschreven naar de slug. Let op: twee evenementen met exact dezelfde titel delen een slug — de eerste wint. Gebruik dus unieke titels.
 
 ## Valkuilen (echt lezen)
 

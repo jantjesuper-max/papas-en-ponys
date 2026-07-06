@@ -239,10 +239,12 @@ h2{font-size:clamp(1.8rem,3.4vw,2.5rem);font-weight:800;letter-spacing:-.02em;li
 .wa-form input:focus,.wa-form select:focus,.wa-form textarea:focus{outline:none;border-color:var(--accent);background:rgba(255,255,255,.11);box-shadow:0 0 0 3px rgba(232,160,32,.2)}
 .wa-form option{color:var(--ink)}
 .wa-form textarea{resize:vertical;min-height:60px}
-.wa-form .check{display:flex;align-items:center;gap:10px;font-size:.88rem;color:#d5dae4;cursor:pointer;user-select:none;text-align:left}
-.wa-form .check input{width:auto;accent-color:var(--accent);transform:scale(1.2);cursor:pointer;flex-shrink:0}
-.wa-form .check a{color:var(--accent);text-decoration:none;border-bottom:1px dashed var(--accent)}
-.modal .check a{color:var(--accent-deep);text-decoration:none;border-bottom:1px dashed var(--accent)}
+.wa-form .check{display:flex;align-items:flex-start;gap:10px;font-size:.88rem;line-height:1.5;color:#d5dae4;cursor:pointer;user-select:none;text-align:left}
+.wa-form .check input{width:auto;accent-color:var(--accent);transform:scale(1.2);cursor:pointer;flex-shrink:0;margin-top:4px}
+.wa-form .check a{color:var(--accent);text-decoration:none;border-bottom:1px dashed var(--accent);white-space:nowrap}
+.modal .check a{color:var(--accent-deep);text-decoration:none;border-bottom:1px dashed var(--accent);white-space:nowrap}
+.modal .check.akkoord{align-items:flex-start;line-height:1.5}
+.modal .check.akkoord input{margin-top:4px}
 .wa-form .btn.gold{width:100%;justify-content:center;margin-top:4px}
 .wa-succes{max-width:520px;margin:0 auto;text-align:center;padding:24px;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.15);border-radius:18px}
 .wa-succes .vink{font-size:2.4rem;display:inline-block;animation:pop .5s cubic-bezier(.34,1.56,.64,1)}
@@ -408,7 +410,7 @@ footer .admin-link:hover{color:var(--accent-deep);border-color:var(--accent)}
         </select>
       </div>
       <textarea id="waBericht" maxlength="240" placeholder="Vertel kort iets over jezelf (optioneel)" aria-label="Bericht"></textarea>
-      <label class="check"><input type="checkbox" id="waAkkoord" required> Ik ga akkoord met de <a href="voorwaarden.html" target="_blank" rel="noopener">algemene voorwaarden</a> *</label>
+      <label class="check"><input type="checkbox" id="waAkkoord" required><span>Ik ga akkoord met de <a href="voorwaarden.html" target="_blank" rel="noopener">algemene voorwaarden</a> *</span></label>
       <button type="submit" class="btn gold">Meld je aan <span class="arrow">→</span></button>
     </form>
     <div class="wa-succes" id="waSucces" style="display:none">
@@ -496,7 +498,7 @@ footer .admin-link:hover{color:var(--accent-deep);border-color:var(--accent)}
         <p class="modal-sub" style="margin-top:10px">Komt er een vriend mee? Dan schrijft hij zich ook even los in.</p>
         <label for="inOpmerking">Opmerking</label>
         <textarea id="inOpmerking" maxlength="240" placeholder="Allergieën, vragen, of gewoon iets leuks (optioneel)"></textarea>
-        <label class="check"><input type="checkbox" id="inAkkoord" required> Ik ga akkoord met de <a href="voorwaarden.html" target="_blank" rel="noopener">algemene voorwaarden</a>, waaronder betalen bij aanmelding *</label>
+        <label class="check akkoord"><input type="checkbox" id="inAkkoord" required><span>Ik ga akkoord met de <a href="voorwaarden.html" target="_blank" rel="noopener">algemene voorwaarden</a>, waaronder betalen bij aanmelding *</span></label>
         <button type="submit" class="btn gold">Schrijf me in 🎉</button>
       </form>
     </div>
@@ -546,6 +548,9 @@ function loadEvents(){
 const maanden = ["jan","feb","mrt","apr","mei","jun","jul","aug","sep","okt","nov","dec"];
 /* Evenementen van voor de tags krijgen er automatisch een o.b.v. hun categorie */
 function evType(e){ return e.type || (e.categorie === "Workshop" ? "vlechtworkshop" : "ander"); }
+/* Mooie leesbare evenement-URL op basis van de titel; ?id= blijft als fallback werken */
+function slugify(t){ return (t||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,""); }
+function eventUrl(e){ return `evenement.html?e=${slugify(e.titel)}`; }
 function renderEvents(){
   const list = document.getElementById("eventList");
   const today = new Date(); today.setHours(0,0,0,0);
@@ -563,7 +568,7 @@ function renderEvents(){
     return `<article class="event-card reveal" style="transition-delay:${i*80}ms">
       <div class="event-date"><div class="day">${d.getDate()}</div><div class="month">${maanden[d.getMonth()]}</div></div>
       <div class="event-info">
-        <h3><a href="evenement.html?id=${encodeURIComponent(e.id)}">${esc(e.titel)}</a>${e.uitgelicht ? '<span class="badge">uitgelicht</span>' : ''}</h3>
+        <h3><a href="${eventUrl(e)}">${esc(e.titel)}</a>${e.uitgelicht ? '<span class="badge">uitgelicht</span>' : ''}</h3>
         <div class="meta"><span>🕙 ${esc(e.tijd || "n.t.b.")}</span><span>📍 ${esc(e.locatie || "n.t.b.")}</span>${e.prijs ? `<span>💶 €${esc(e.prijs)}</span>` : ""}${aantal > 0 ? `<span>👥 ${aantal} aangemeld</span>` : ""}</div>
         ${e.beschrijving ? `<p class="beschrijving">${esc(e.beschrijving)}</p>` : ""}
       </div>
@@ -571,7 +576,7 @@ function renderEvents(){
         <span class="event-type ${evType(e)==="vlechtworkshop"?"":"ander"}">${evType(e)==="vlechtworkshop"?"🎀 vlechtworkshop":"🎪 ander evenement"}</span>
         <span class="event-cat">${esc(e.categorie || "Activiteit")}</span>
         <button class="btn-inschrijf" data-id="${e.id}">Inschrijven</button>
-        <a class="event-meer" href="evenement.html?id=${encodeURIComponent(e.id)}">meer info →</a>
+        <a class="event-meer" href="${eventUrl(e)}">meer info →</a>
       </div>
     </article>`;
   }).join("");

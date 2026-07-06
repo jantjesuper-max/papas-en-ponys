@@ -396,7 +396,7 @@ textarea{resize:vertical;min-height:74px}
           <textarea id="sjabloonTekst" required rows="9" style="min-height:180px" placeholder="Hoi {naam},&#10;&#10;Over twee weken is het zover..."></textarea>
           <label>Dynamische velden <span style="font-weight:400;color:var(--ink-soft)">(klik om in te voegen)</span></label>
           <div class="veld-chips" id="veldChips"></div>
-          <p class="foto-hint">Velden worden bij het versturen automatisch ingevuld met de gegevens van het evenement. {naam} wordt in een groepsmail "papa's".</p>
+          <p class="foto-hint">Velden worden bij het versturen automatisch ingevuld met de gegevens van het evenement. Omdat groepsmails via BCC gaan, worden {naam} en {voornaam} daarin "papa's" en vervalt {achternaam}.</p>
           <div class="form-acties">
             <button type="submit" class="btn gold" id="sjabloonOpslaanBtn">Opslaan 🎉</button>
             <button type="button" class="btn stil" id="sjabloonAnnuleerBtn" style="display:none">Annuleer</button>
@@ -448,6 +448,9 @@ function esc(s){ const d=document.createElement("div"); d.textContent=s??""; ret
 function vandaag(){ const t=new Date(); t.setHours(0,0,0,0); return t; }
 /* Evenementen van voor de tags krijgen er automatisch een o.b.v. hun categorie */
 function evType(e){ return e.type || (e.categorie === "Workshop" ? "vlechtworkshop" : "ander"); }
+/* Mooie leesbare evenement-URL op basis van de titel (zelfde functie als op de publieke pagina's) */
+function slugify(t){ return (t||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,""); }
+function openLanding(id){ const e = load().find(x=>x.id===id); if(e) window.open("../evenement.html?e="+slugify(e.titel), "_blank"); }
 function fmtDatum(iso){ const d=new Date(iso); return `${d.getDate()} ${maanden[d.getMonth()]} '${String(d.getFullYear()).slice(2)}`; }
 
 /* ---------- Stats + tabtellers ---------- */
@@ -515,7 +518,7 @@ function renderEvents(){
         <div class="meta"><span>🕙 ${esc(e.tijd||"n.t.b.")}</span><span>📍 ${esc(e.locatie||"n.t.b.")}</span><span>🎟️ ${n} inschrijving${n===1?"":"en"}</span><span>💶 ${e.prijs?"€"+esc(e.prijs):"gratis"}</span>${e.fotos&&e.fotos.length?`<span>📷 ${e.fotos.length}</span>`:""}</div>
       </div>
       <div class="ev-acties">
-        <button class="icoon-btn groen" title="Landingspagina openen" onclick="window.open('../evenement.html?id='+encodeURIComponent('${e.id}'),'_blank')">🔗</button>
+        <button class="icoon-btn groen" title="Landingspagina openen" onclick="openLanding('${e.id}')">🔗</button>
         <button class="icoon-btn bewerk" title="Bewerken" onclick="bewerk('${e.id}')">✏️</button>
         <button class="icoon-btn verwijder" title="Verwijderen" onclick="verwijder('${e.id}')">🗑️</button>
       </div>
@@ -803,7 +806,7 @@ function verwijderInschrijving(id){
    {naam} wordt in een groepsmail "papa's" (bij BCC kan er niet per
    ontvanger gepersonaliseerd worden). */
 const SJABLOON_KEY = "pp_mail_sjablonen";
-const SJABLOON_VELDEN = ["{naam}","{evenement}","{datum}","{tijd}","{locatie}","{categorie}","{beschrijving}","{link}"];
+const SJABLOON_VELDEN = ["{naam}","{voornaam}","{achternaam}","{evenement}","{datum}","{tijd}","{locatie}","{categorie}","{beschrijving}","{link}"];
 const SITE_URL = "https://jantjesuper-max.github.io/papas-en-ponys";
 
 const seedSjablonen = [
@@ -828,13 +831,15 @@ function fmtDatumLang(iso){ const d = new Date(iso+"T00:00:00"); return `${d.get
 function vulSjabloon(tekst, ev){
   const waarden = {
     "{naam}": "papa's",
+    "{voornaam}": "papa's",
+    "{achternaam}": "",
     "{evenement}": ev ? ev.titel : "Papa & Pony's",
     "{datum}": ev && ev.datum ? fmtDatumLang(ev.datum) : "",
     "{tijd}": ev ? (ev.tijd || "n.t.b.") : "",
     "{locatie}": ev ? (ev.locatie || "n.t.b.") : "",
     "{categorie}": ev ? (ev.categorie || "") : "",
     "{beschrijving}": ev ? (ev.beschrijving || "") : "",
-    "{link}": ev ? `${SITE_URL}/evenement.html?id=${encodeURIComponent(ev.id)}` : SITE_URL
+    "{link}": ev ? `${SITE_URL}/evenement.html?e=${slugify(ev.titel)}` : SITE_URL
   };
   return Object.entries(waarden).reduce((t,[veld,waarde]) => t.split(veld).join(waarde), tekst);
 }

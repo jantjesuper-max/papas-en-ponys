@@ -5,6 +5,16 @@ Het format volgt [Keep a Changelog](https://keepachangelog.com/nl/1.1.0/).
 
 ## [Unreleased]
 
+## [0.13.1] - 2026-07-06
+
+### Toegevoegd
+- Mooie evenement-URL's op basis van de titel: `evenement.html?e=vlechtworkshop-de-basisvlecht`; oude `?id=`-links blijven werken en worden in de adresbalk herschreven naar de slug
+- Sjabloonvelden {voornaam} en {achternaam}; de sjabloon-{link} gebruikt nu ook de nette slug-URL
+- Afspraken in CLAUDE.md: sjablonen groeien mee met nieuwe velden, en unieke evenementtitels vanwege de slugs
+
+### Opgelost
+- Akkoord-vinkje bij de voorwaarden brak lelijk af over meerdere regels; de tekst loopt nu netjes door als één zin
+
 ## [0.13.0] - 2026-07-06
 
 ### Toegevoegd

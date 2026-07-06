@@ -169,9 +169,9 @@ h1{font-size:clamp(2rem,4.6vw,3.2rem);font-weight:800;line-height:1.1;letter-spa
 .in-form input:focus,.in-form select:focus,.in-form textarea:focus{outline:none;border-color:var(--accent);background:rgba(255,255,255,.11);box-shadow:0 0 0 3px rgba(232,160,32,.2)}
 .in-form option{color:var(--ink)}
 .in-form textarea{resize:vertical;min-height:60px}
-.in-form .check{display:flex;align-items:center;gap:10px;font-size:.9rem;color:#d5dae4;cursor:pointer;user-select:none;text-align:left}
-.in-form .check input{width:auto;accent-color:var(--accent);transform:scale(1.2);cursor:pointer;flex-shrink:0}
-.in-form .check a{color:var(--accent);text-decoration:none;border-bottom:1px dashed var(--accent)}
+.in-form .check{display:flex;align-items:flex-start;gap:10px;font-size:.9rem;line-height:1.5;color:#d5dae4;cursor:pointer;user-select:none;text-align:left}
+.in-form .check input{width:auto;accent-color:var(--accent);transform:scale(1.2);cursor:pointer;flex-shrink:0;margin-top:4px}
+.in-form .check a{color:var(--accent);text-decoration:none;border-bottom:1px dashed var(--accent);white-space:nowrap}
 .in-form .btn.gold{width:100%;justify-content:center;margin-top:4px}
 .in-succes{text-align:center;padding:24px;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.15);border-radius:18px}
 .in-succes .vink{font-size:2.4rem;display:inline-block;animation:pop .5s cubic-bezier(.34,1.56,.64,1)}
@@ -270,12 +270,22 @@ function saveList(k,v){ localStorage.setItem(k, JSON.stringify(v)); }
 function esc(s){ const d=document.createElement("div"); d.textContent=s??""; return d.innerHTML; }
 /* Evenementen van voor de tags krijgen er automatisch een o.b.v. hun categorie */
 function evType(e){ return e.type || (e.categorie === "Workshop" ? "vlechtworkshop" : "ander"); }
+/* Mooie leesbare evenement-URL op basis van de titel; ?id= blijft als fallback werken */
+function slugify(t){ return (t||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,""); }
 
 /* Alle sfeerfoto's uit de fotomap — horen bij vlechtworkshops, niet bij andere evenementen */
 const folderFotos = ["fotos/vlechten.jpg","fotos/twee-lachende-mannen.jpg","fotos/presenteren.jpg","fotos/presenteren-met-powerpoint.jpg"];
 
 const params = new URLSearchParams(location.search);
-const event = loadEvents().find(e => e.id === params.get("id"));
+const alleEvents = loadEvents();
+/* Zoek op leesbare slug (?e=titel-als-slug); oude ?id=-links blijven werken */
+const event = params.get("id")
+  ? alleEvents.find(e => e.id === params.get("id"))
+  : alleEvents.find(e => slugify(e.titel) === params.get("e"));
+/* Toon altijd de mooie slug-URL in de adresbalk */
+if(event){
+  try{ history.replaceState(null, "", `evenement.html?e=${slugify(event.titel)}`); }catch(err){ /* file:// staat dit soms niet toe */ }
+}
 const pagina = document.getElementById("pagina");
 
 if(!event){
@@ -402,7 +412,7 @@ if(!event){
         </div>
         <label class="check"><input type="checkbox" id="inDochter"> Dochter(s) mee</label>
         <textarea id="inOpmerking" maxlength="240" placeholder="Allergieën, vragen, of gewoon iets leuks (optioneel)" aria-label="Opmerking"></textarea>
-        <label class="check"><input type="checkbox" id="inAkkoord" required> Ik ga akkoord met de <a href="voorwaarden.html" target="_blank" rel="noopener">algemene voorwaarden</a>, waaronder betalen bij aanmelding *</label>
+        <label class="check"><input type="checkbox" id="inAkkoord" required><span>Ik ga akkoord met de <a href="voorwaarden.html" target="_blank" rel="noopener">algemene voorwaarden</a>, waaronder betalen bij aanmelding *</span></label>
         <button type="submit" class="btn gold">Schrijf me in 🎉</button>
       </form>
       <div class="in-succes" id="inSucces" style="display:none">
