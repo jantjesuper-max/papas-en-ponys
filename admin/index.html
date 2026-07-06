@@ -118,13 +118,14 @@ textarea{resize:vertical;min-height:74px}
 @keyframes zweef{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
 
 /* inschrijvingen */
-.groep{background:#fff;border:1px solid var(--line);border-radius:16px;margin-bottom:18px;overflow:hidden;animation:slidein .35s ease}
-.groep-kop{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 20px;background:var(--paper-tint);border-bottom:1px solid var(--line);flex-wrap:wrap}
+/* geen overflow:hidden — het mailkeuzemenu moet buiten de kaart kunnen vallen */
+.groep{background:#fff;border:1px solid var(--line);border-radius:16px;margin-bottom:18px;animation:slidein .35s ease}
+.groep-kop{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 20px;background:var(--paper-tint);border-bottom:1px solid var(--line);flex-wrap:wrap;border-radius:16px 16px 0 0}
 .groep-kop h3{font-size:1rem;font-weight:700;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .groep-kop .datum{font-family:var(--font-mono);font-size:.72rem;color:var(--ink-soft)}
 .groep-kop .aantal{font-family:var(--font-mono);font-size:.7rem;background:var(--accent);color:#fff;padding:3px 10px;border-radius:999px}
 .inschrijving{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:14px 20px;border-bottom:1px solid var(--line);transition:background .2s,opacity .3s,transform .3s}
-.inschrijving:last-child{border-bottom:none}
+.inschrijving:last-child{border-bottom:none;border-radius:0 0 16px 16px}
 .inschrijving:hover{background:var(--paper-tint)}
 .inschrijving.weg{opacity:0;transform:translateX(30px)}
 .inschrijving .naam{font-weight:700;font-size:.95rem;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
@@ -159,6 +160,27 @@ textarea{resize:vertical;min-height:74px}
 .foto-thumb button{position:absolute;top:3px;right:3px;width:20px;height:20px;border:none;border-radius:6px;background:rgba(30,36,48,.78);color:#fff;font-size:.68rem;line-height:1;cursor:pointer;transition:background .2s}
 .foto-thumb button:hover{background:var(--rood)}
 .foto-hint{font-size:.76rem;color:var(--ink-soft);margin-top:6px}
+
+/* mailkeuzemenu (hover over een mailknop → sjabloon kiezen of leeg) */
+.mail-menu{position:relative;display:inline-block}
+.mail-menu .keuzes{position:absolute;top:calc(100% - 2px);right:0;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 16px 38px -14px rgba(30,36,48,.35);padding:6px;min-width:230px;display:none;z-index:80}
+.mail-menu:hover .keuzes,.mail-menu:focus-within .keuzes{display:block}
+.keuzes button{display:block;width:100%;text-align:left;background:none;border:none;padding:9px 12px;border-radius:8px;font-family:var(--font-display);font-size:.86rem;color:var(--ink);cursor:pointer;transition:background .15s}
+.keuzes button:hover{background:var(--paper-tint)}
+.keuzes .leeg-optie{font-weight:700}
+.keuzes .kop{font-family:var(--font-mono);font-size:.66rem;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);padding:8px 12px 4px;border-top:1px solid var(--line);margin-top:4px}
+
+/* sjablonen */
+.veld-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.veld-chip{font-family:var(--font-mono);font-size:.72rem;background:var(--paper-tint);border:1.5px solid var(--line);color:var(--accent-deep);padding:5px 10px;border-radius:999px;cursor:pointer;transition:border-color .15s,background .15s,transform .15s}
+.veld-chip:hover{border-color:var(--accent);background:#fff;transform:translateY(-1px)}
+.sjabloon-kaart{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin-bottom:12px;display:grid;grid-template-columns:1fr auto;gap:14px;align-items:start;transition:border-color .2s,box-shadow .2s,opacity .3s,transform .3s;animation:slidein .35s ease}
+.sjabloon-kaart:hover{border-color:var(--accent);box-shadow:0 10px 26px -16px rgba(30,36,48,.3)}
+.sjabloon-kaart.weg{opacity:0;transform:translateX(30px)}
+.sjabloon-kaart .naam{font-weight:700;font-size:.98rem}
+.sjabloon-kaart .onderwerp{font-size:.84rem;color:var(--ink-soft);margin-top:2px}
+.sjabloon-kaart .tekst{font-size:.8rem;color:var(--ink-soft);margin-top:8px;white-space:pre-line;max-height:72px;overflow:hidden;position:relative;font-style:italic}
+.sjabloon-kaart .tekst::after{content:"";position:absolute;left:0;right:0;bottom:0;height:28px;background:linear-gradient(transparent,#fff)}
 
 /* toast + confetti */
 #toast{position:fixed;bottom:28px;left:50%;transform:translate(-50%,80px);background:var(--ink);color:#fff;padding:13px 24px;border-radius:999px;font-size:.9rem;font-weight:500;box-shadow:0 12px 30px rgba(30,36,48,.3);transition:transform .4s cubic-bezier(.34,1.56,.64,1);z-index:200}
@@ -205,6 +227,7 @@ textarea{resize:vertical;min-height:74px}
     <button class="tab actief" data-tab="evenementen">🗓️ Evenementen</button>
     <button class="tab" data-tab="inschrijvingen">🎟️ Inschrijvingen <span class="tel" id="telInschrijvingen">0</span></button>
     <button class="tab" data-tab="whatsapp">💬 WhatsApp-aanmeldingen <span class="tel" id="telWhatsapp">0</span></button>
+    <button class="tab" data-tab="sjablonen">📝 Sjablonen <span class="tel" id="telSjablonen">0</span></button>
   </div>
 
   <!-- TAB 1: evenementen -->
@@ -275,7 +298,10 @@ textarea{resize:vertical;min-height:74px}
     <div class="lijst-kop">
       <h2 style="margin:0">Inschrijvingen per evenement</h2>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn gold klein" id="mailAlleDeelnemers">📧 Mail alle deelnemers</button>
+        <div class="mail-menu">
+          <button class="btn gold klein" id="mailAlleDeelnemers">📧 Mail alle deelnemers ▾</button>
+          <div class="keuzes" id="mailAlleKeuzes"></div>
+        </div>
         <button class="btn stil klein" id="exportInschrijvingen">⬇ Exporteer Excel</button>
       </div>
     </div>
@@ -290,6 +316,36 @@ textarea{resize:vertical;min-height:74px}
     </div>
     <div id="whatsappLijst"></div>
   </div>
+
+  <!-- TAB 4: mailsjablonen -->
+  <div class="tabpane" id="tab-sjablonen">
+    <div class="ev-grid">
+      <div class="panel">
+        <h2 id="sjabloonFormTitel">📝 Nieuw sjabloon</h2>
+        <p class="sub">Voorgeprogrammeerde mails die je steeds opnieuw kunt gebruiken via de mailknoppen bij Inschrijvingen.</p>
+        <form id="sjabloonForm">
+          <input type="hidden" id="sjabloonEditId">
+          <label for="sjabloonNaam">Naam van het sjabloon *</label>
+          <input id="sjabloonNaam" required maxlength="60" placeholder="Herinnering: over 2 weken">
+          <label for="sjabloonOnderwerp">Onderwerp *</label>
+          <input id="sjabloonOnderwerp" required maxlength="120" placeholder="Over twee weken: {evenement} 🎀">
+          <label for="sjabloonTekst">Bericht *</label>
+          <textarea id="sjabloonTekst" required rows="9" style="min-height:180px" placeholder="Hoi {naam},&#10;&#10;Over twee weken is het zover..."></textarea>
+          <label>Dynamische velden <span style="font-weight:400;color:var(--ink-soft)">(klik om in te voegen)</span></label>
+          <div class="veld-chips" id="veldChips"></div>
+          <p class="foto-hint">Velden worden bij het versturen automatisch ingevuld met de gegevens van het evenement. {naam} wordt in een groepsmail "papa's".</p>
+          <div class="form-acties">
+            <button type="submit" class="btn gold" id="sjabloonOpslaanBtn">Opslaan 🎉</button>
+            <button type="button" class="btn stil" id="sjabloonAnnuleerBtn" style="display:none">Annuleer</button>
+          </div>
+        </form>
+      </div>
+      <div class="lijst">
+        <h2>Alle sjablonen</h2>
+        <div id="sjabloonLijst"></div>
+      </div>
+    </div>
+  </div>
 </main>
 
 <div id="toast"></div>
@@ -301,10 +357,11 @@ textarea{resize:vertical;min-height:74px}
    evenement.html. Objectvormen staan in CLAUDE.md.
 
    Sleutels:
-   - pp_events         evenementen (incl. fotos als data-URLs)
-   - pp_event_signups  inschrijvingen (email + telefoon sinds v0.7,
-                       oudere records hebben één 'contact'-veld)
-   - pp_wa_signups     WhatsApp-aanmeldingen
+   - pp_events          evenementen (incl. fotos als data-URLs)
+   - pp_event_signups   inschrijvingen (email + telefoon sinds v0.7,
+                        oudere records hebben één 'contact'-veld)
+   - pp_wa_signups      WhatsApp-aanmeldingen
+   - pp_mail_sjablonen  mailsjablonen met dynamische velden
 
    Renderpatroon: elke mutatie → save*() → renderAlles() bouwt
    alle lijsten en tellers opnieuw op.
@@ -532,7 +589,10 @@ function renderInschrijvingen(){
         <div class="groep-kop">
           <h3>${esc(titel)}${!ev?' <span class="status-pill nieuw">evenement verwijderd</span>':''}<span class="datum">${datum?fmtDatum(datum+"T00:00:00"):""}</span></h3>
           <div style="display:flex;gap:8px;align-items:center">
-            <button class="btn stil klein" onclick="mailDeelnemers('${eventId}')">📧 Mail</button>
+            <div class="mail-menu">
+              <button class="btn stil klein">📧 Mail ▾</button>
+              <div class="keuzes">${mailKeuzesHtml(eventId)}</div>
+            </div>
             <span class="aantal">${totaal} ${totaal===1?"papa":"papa's"}</span>
           </div>
         </div>
@@ -561,24 +621,171 @@ function verwijderInschrijving(id){
   }, 280);
 }
 
+/* ---------- Mailsjablonen ----------
+   Voorgeprogrammeerde mails met dynamische velden. De velden worden
+   bij het versturen ingevuld met de gegevens van het evenement;
+   {naam} wordt in een groepsmail "papa's" (bij BCC kan er niet per
+   ontvanger gepersonaliseerd worden). */
+const SJABLOON_KEY = "pp_mail_sjablonen";
+const SJABLOON_VELDEN = ["{naam}","{evenement}","{datum}","{tijd}","{locatie}","{categorie}","{beschrijving}","{link}"];
+const SITE_URL = "https://jantjesuper-max.github.io/papas-en-ponys";
+
+const seedSjablonen = [
+  {id:"sj-herinnering", naam:"Herinnering: over 2 weken", onderwerp:"Over twee weken is het zover: {evenement} 🎀",
+   tekst:"Hoi {naam},\n\nOver twee weken is het zover: {evenement}!\n\n📅 {datum}\n🕙 {tijd}\n📍 {locatie}\n\n{beschrijving}\n\nAlle info vind je op de evenementpagina: {link}\n\nTot dan, we hebben er zin in!\n\nGroetjes,\nFaizi — Papa & Pony's"},
+  {id:"sj-naslag", naam:"Naslagwerk na de bijeenkomst", onderwerp:"Wat was het leuk bij {evenement}! Hier zijn de foto's 📸",
+   tekst:"Hoi {naam},\n\nWat een mooie bijeenkomst was {evenement} op {datum} — dank dat je erbij was!\n\nAls naslagwerk: oefen de stappen rustig thuis. Begin met drie strengen, wissel om en om, en vier elke scheve vlecht. In de WhatsApp-groep helpen we je verder als je vastloopt.\n\nDe foto's van de avond staan op de evenementpagina: {link}\n\nTot de volgende keer!\n\nGroetjes,\nFaizi — Papa & Pony's"}
+];
+function loadSjablonen(){
+  try{
+    const raw = localStorage.getItem(SJABLOON_KEY);
+    if(!raw){ localStorage.setItem(SJABLOON_KEY, JSON.stringify(seedSjablonen)); return seedSjablonen.slice(); }
+    return JSON.parse(raw);
+  }catch(e){ return seedSjablonen.slice(); }
+}
+function saveSjablonen(v){ localStorage.setItem(SJABLOON_KEY, JSON.stringify(v)); }
+
+const maandenLang = ["januari","februari","maart","april","mei","juni","juli","augustus","september","oktober","november","december"];
+function fmtDatumLang(iso){ const d = new Date(iso+"T00:00:00"); return `${d.getDate()} ${maandenLang[d.getMonth()]} ${d.getFullYear()}`; }
+
+/* Vult de dynamische velden in. ev = null (mail aan iedereen) → algemene waarden. */
+function vulSjabloon(tekst, ev){
+  const waarden = {
+    "{naam}": "papa's",
+    "{evenement}": ev ? ev.titel : "Papa & Pony's",
+    "{datum}": ev && ev.datum ? fmtDatumLang(ev.datum) : "",
+    "{tijd}": ev ? (ev.tijd || "n.t.b.") : "",
+    "{locatie}": ev ? (ev.locatie || "n.t.b.") : "",
+    "{categorie}": ev ? (ev.categorie || "") : "",
+    "{beschrijving}": ev ? (ev.beschrijving || "") : "",
+    "{link}": ev ? `${SITE_URL}/evenement.html?id=${encodeURIComponent(ev.id)}` : SITE_URL
+  };
+  return Object.entries(waarden).reduce((t,[veld,waarde]) => t.split(veld).join(waarde), tekst);
+}
+
 /* ---------- Deelnemers mailen (BCC: iedereen krijgt de mail los van elkaar) ----------
-   mailDeelnemers(null) mailt iedereen; mailDeelnemers(eventId) één groep.
-   Adressen gaan in de BCC zodat deelnemers elkaars adres niet zien. */
+   mailDeelnemers(null, ...) mailt iedereen; mailDeelnemers(eventId, ...) één groep.
+   sjabloonId = null → lege mail (alleen adressen + onderwerp). */
 function mailAdressen(rows){
   return [...new Set(rows.map(s=>(s.email||"").trim().toLowerCase()).filter(a=>a.includes("@")))];
 }
-function mailtoLink(adressen, onderwerp){
-  return `mailto:?bcc=${adressen.join(",")}&subject=${encodeURIComponent(onderwerp)}`;
+function mailtoLink(adressen, onderwerp, body){
+  return `mailto:?bcc=${adressen.join(",")}&subject=${encodeURIComponent(onderwerp)}` + (body ? `&body=${encodeURIComponent(body)}` : "");
 }
-function mailDeelnemers(eventId){
+function mailDeelnemers(eventId, sjabloonId){
   const rows = loadList(SIGNUP_KEY).filter(s=>!eventId || s.eventId===eventId);
   const adressen = mailAdressen(rows);
   if(adressen.length===0){ toast("Nog geen e-mailadressen bekend 📭"); return; }
   const ev = eventId ? load().find(e=>e.id===eventId) : null;
-  location.href = mailtoLink(adressen, ev ? `Papa & Pony's — ${ev.titel}` : "Papa & Pony's");
-  toast(`Mail geopend voor ${adressen.length} papa's 📧`);
+  const sj = sjabloonId ? loadSjablonen().find(x=>x.id===sjabloonId) : null;
+  const onderwerp = sj ? vulSjabloon(sj.onderwerp, ev) : (ev ? `Papa & Pony's — ${ev.titel}` : "Papa & Pony's");
+  const body = sj ? vulSjabloon(sj.tekst, ev) : "";
+  location.href = mailtoLink(adressen, onderwerp, body);
+  toast(`Mail geopend voor ${adressen.length} papa's 📧${sj ? " · sjabloon: " + sj.naam : ""}`);
 }
-document.getElementById("mailAlleDeelnemers").addEventListener("click", ()=>mailDeelnemers(null));
+
+/* Keuzemenu onder een mailknop: leeg of een van de sjablonen */
+function mailKeuzesHtml(eventId){
+  const arg = eventId ? `'${eventId}'` : "null";
+  const sjablonen = loadSjablonen();
+  return `<button class="leeg-optie" onclick="mailDeelnemers(${arg}, null)">✉️ Leeg — zonder sjabloon</button>`
+    + (sjablonen.length ? `<div class="kop">of kies een sjabloon</div>` : "")
+    + sjablonen.map(s=>`<button onclick="mailDeelnemers(${arg}, '${s.id}')">📝 ${esc(s.naam)}</button>`).join("");
+}
+document.getElementById("mailAlleDeelnemers").addEventListener("click", ()=>mailDeelnemers(null, null));
+
+/* ---------- TAB 4: sjablonen beheren ---------- */
+function renderSjablonen(){
+  const sjablonen = loadSjablonen();
+  document.getElementById("telSjablonen").textContent = sjablonen.length;
+  document.getElementById("mailAlleKeuzes").innerHTML = mailKeuzesHtml(null);
+  const lijst = document.getElementById("sjabloonLijst");
+  if(sjablonen.length===0){
+    lijst.innerHTML = `<div class="leeg"><span class="icon">📝</span>Nog geen sjablonen. Maak er links een aan!</div>`;
+    return;
+  }
+  lijst.innerHTML = sjablonen.map(s=>`
+    <div class="sjabloon-kaart" data-id="${s.id}">
+      <div>
+        <div class="naam">📝 ${esc(s.naam)}</div>
+        <div class="onderwerp">✉️ ${esc(s.onderwerp)}</div>
+        <div class="tekst">${esc(s.tekst)}</div>
+      </div>
+      <div class="ev-acties">
+        <button class="icoon-btn bewerk" title="Bewerken" onclick="bewerkSjabloon('${s.id}')">✏️</button>
+        <button class="icoon-btn verwijder" title="Verwijderen" onclick="verwijderSjabloon('${s.id}')">🗑️</button>
+      </div>
+    </div>`).join("");
+}
+
+document.getElementById("sjabloonForm").addEventListener("submit", ev=>{
+  ev.preventDefault();
+  const id = document.getElementById("sjabloonEditId").value;
+  const item = {
+    id: id || "sj-"+Date.now(),
+    naam: document.getElementById("sjabloonNaam").value.trim(),
+    onderwerp: document.getElementById("sjabloonOnderwerp").value.trim(),
+    tekst: document.getElementById("sjabloonTekst").value.trim()
+  };
+  let sjablonen = loadSjablonen();
+  if(id){ sjablonen = sjablonen.map(s=>s.id===id?item:s); toast("Sjabloon bijgewerkt ✏️"); }
+  else{ sjablonen.push(item); toast("Sjabloon aangemaakt 🎉"); }
+  saveSjablonen(sjablonen);
+  resetSjabloonForm();
+  renderAlles();
+});
+
+function bewerkSjabloon(id){
+  const s = loadSjablonen().find(x=>x.id===id);
+  if(!s) return;
+  document.getElementById("sjabloonEditId").value = s.id;
+  document.getElementById("sjabloonNaam").value = s.naam;
+  document.getElementById("sjabloonOnderwerp").value = s.onderwerp;
+  document.getElementById("sjabloonTekst").value = s.tekst;
+  document.getElementById("sjabloonFormTitel").textContent = "✏️ Sjabloon bewerken";
+  document.getElementById("sjabloonOpslaanBtn").textContent = "Bijwerken ✔";
+  document.getElementById("sjabloonAnnuleerBtn").style.display = "inline-flex";
+  document.querySelector("#tab-sjablonen .panel").scrollIntoView({behavior:"smooth", block:"start"});
+  document.getElementById("sjabloonNaam").focus();
+}
+
+function verwijderSjabloon(id){
+  const s = loadSjablonen().find(x=>x.id===id);
+  if(!s || !confirm(`Sjabloon "${s.naam}" verwijderen?`)) return;
+  const kaart = document.querySelector(`.sjabloon-kaart[data-id="${id}"]`);
+  if(kaart) kaart.classList.add("weg");
+  setTimeout(()=>{
+    saveSjablonen(loadSjablonen().filter(x=>x.id!==id));
+    toast("Sjabloon verwijderd 🗑️");
+    renderAlles();
+  }, 280);
+}
+
+function resetSjabloonForm(){
+  document.getElementById("sjabloonForm").reset();
+  document.getElementById("sjabloonEditId").value = "";
+  document.getElementById("sjabloonFormTitel").textContent = "📝 Nieuw sjabloon";
+  document.getElementById("sjabloonOpslaanBtn").textContent = "Opslaan 🎉";
+  document.getElementById("sjabloonAnnuleerBtn").style.display = "none";
+}
+document.getElementById("sjabloonAnnuleerBtn").addEventListener("click", resetSjabloonForm);
+
+/* Dynamische velden invoegen op de cursorpositie, in het laatst gefocuste veld */
+let sjabloonFocus = null;
+["sjabloonOnderwerp","sjabloonTekst"].forEach(id=>{
+  const el = document.getElementById(id);
+  el.addEventListener("focus", ()=>{ sjabloonFocus = el; });
+});
+document.getElementById("veldChips").innerHTML = SJABLOON_VELDEN
+  .map(v=>`<button type="button" class="veld-chip" onclick="voegVeldIn('${v}')">${v}</button>`).join("");
+function voegVeldIn(veld){
+  const el = sjabloonFocus || document.getElementById("sjabloonTekst");
+  const start = el.selectionStart ?? el.value.length;
+  const eind = el.selectionEnd ?? start;
+  el.value = el.value.slice(0, start) + veld + el.value.slice(eind);
+  el.focus();
+  el.setSelectionRange(start + veld.length, start + veld.length);
+}
 
 /* ---------- Excel-export in huisstijl, met mailknop erin ----------
    Formaat: SpreadsheetML (XML Spreadsheet 2003, extensie .xls) — het
@@ -742,7 +949,7 @@ if(!localStorage.getItem(PP_KEY)){
   ]);
 }
 
-function renderAlles(){ renderStats(); renderEvents(); renderInschrijvingen(); renderWhatsapp(); }
+function renderAlles(){ renderStats(); renderEvents(); renderInschrijvingen(); renderWhatsapp(); renderSjablonen(); }
 renderAlles();
 </script>
 </body>

@@ -27,6 +27,7 @@ Community-website voor "meisjespapa's die leren vlechten". Statische site zonder
 | `pp_events` | Array van evenementen |
 | `pp_event_signups` | Array van inschrijvingen |
 | `pp_wa_signups` | Array van WhatsApp-aanmeldingen |
+| `pp_mail_sjablonen` | Array van mailsjablonen: `{id, naam, onderwerp, tekst}` met dynamische velden als `{naam}`, `{evenement}`, `{datum}`, `{tijd}`, `{locatie}`, `{link}` — ingevuld door `vulSjabloon()` in het beheer. Bij groepsmail (BCC) wordt `{naam}` "papa's" |
 
 ### Vorm van een evenement
 

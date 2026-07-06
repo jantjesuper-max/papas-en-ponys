@@ -5,6 +5,17 @@ Het format volgt [Keep a Changelog](https://keepachangelog.com/nl/1.1.0/).
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-07-06
+
+### Toegevoegd
+- Tabblad "Sjablonen" in het beheer: mailsjablonen aanmaken, bewerken en verwijderen (opslag in `pp_mail_sjablonen`)
+- Dynamische velden in sjablonen: {naam}, {evenement}, {datum}, {tijd}, {locatie}, {categorie}, {beschrijving} en {link} — klikbare chips voegen ze in op de cursorpositie
+- Twee voorbeeldsjablonen: "Herinnering: over 2 weken" en "Naslagwerk na de bijeenkomst" (met link naar de foto's op de evenementpagina)
+- Mailknoppen zijn keuzemenu's geworden: bij hover kies je "Leeg — zonder sjabloon" of een sjabloon; velden worden automatisch ingevuld met de evenementgegevens
+
+### Gewijzigd
+- {naam} wordt in groepsmails "papa's" (BCC kan niet per ontvanger personaliseren)
+
 ## [0.8.1] - 2026-07-06
 
 ### Toegevoegd
