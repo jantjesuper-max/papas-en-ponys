@@ -265,7 +265,10 @@ textarea{resize:vertical;min-height:74px}
   <div class="tabpane" id="tab-inschrijvingen">
     <div class="lijst-kop">
       <h2 style="margin:0">Inschrijvingen per evenement</h2>
-      <button class="btn stil klein" id="exportInschrijvingen">⬇ Exporteer CSV</button>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn gold klein" id="mailAlleDeelnemers">📧 Mail alle deelnemers</button>
+        <button class="btn stil klein" id="exportInschrijvingen">⬇ Exporteer Excel</button>
+      </div>
     </div>
     <div id="inschrijvingenLijst"></div>
   </div>
@@ -501,13 +504,16 @@ function renderInschrijvingen(){
       return `<div class="groep">
         <div class="groep-kop">
           <h3>${esc(titel)}${!ev?' <span class="status-pill nieuw">evenement verwijderd</span>':''}<span class="datum">${datum?fmtDatum(datum+"T00:00:00"):""}</span></h3>
-          <span class="aantal">${totaal} ${totaal===1?"papa":"papa's"}</span>
+          <div style="display:flex;gap:8px;align-items:center">
+            <button class="btn stil klein" onclick="mailDeelnemers('${eventId}')">📧 Mail</button>
+            <span class="aantal">${totaal} ${totaal===1?"papa":"papa's"}</span>
+          </div>
         </div>
         ${rows.sort((a,b)=>(a.aangemeldOp||"").localeCompare(b.aangemeldOp||"")).map(s=>`
         <div class="inschrijving" data-id="${s.id}">
           <div>
             <div class="naam">${esc(s.naam)}${s.dochterMee?'<span class="pill">🎀 dochter mee</span>':''}</div>
-            <div class="detail"><span>📞 ${esc(s.contact)}</span>${(parseInt(s.personen)||1)>1?`<span>👥 ${esc(s.personen)} papa's (oude inschrijving)</span>`:""}<span>🗓️ aangemeld ${fmtDatum(s.aangemeldOp)}</span></div>
+            <div class="detail">${s.email?`<span>📧 ${esc(s.email)}</span>`:""}${(s.telefoon||s.contact)?`<span>📞 ${esc(s.telefoon||s.contact)}</span>`:""}${(parseInt(s.personen)||1)>1?`<span>👥 ${esc(s.personen)} papa's (oude inschrijving)</span>`:""}<span>🗓️ aangemeld ${fmtDatum(s.aangemeldOp)}</span></div>
             ${s.opmerking?`<div class="opm">"${esc(s.opmerking)}"</div>`:""}
           </div>
           <button class="icoon-btn verwijder" title="Inschrijving verwijderen" onclick="verwijderInschrijving('${s.id}')">🗑️</button>
@@ -528,13 +534,76 @@ function verwijderInschrijving(id){
   }, 280);
 }
 
+/* ---------- Deelnemers mailen (BCC: iedereen krijgt de mail los van elkaar) ---------- */
+function mailAdressen(rows){
+  return [...new Set(rows.map(s=>(s.email||"").trim().toLowerCase()).filter(a=>a.includes("@")))];
+}
+function mailtoLink(adressen, onderwerp){
+  return `mailto:?bcc=${adressen.join(",")}&subject=${encodeURIComponent(onderwerp)}`;
+}
+function mailDeelnemers(eventId){
+  const rows = loadList(SIGNUP_KEY).filter(s=>!eventId || s.eventId===eventId);
+  const adressen = mailAdressen(rows);
+  if(adressen.length===0){ toast("Nog geen e-mailadressen bekend 📭"); return; }
+  const ev = eventId ? load().find(e=>e.id===eventId) : null;
+  location.href = mailtoLink(adressen, ev ? `Papa & Pony's — ${ev.titel}` : "Papa & Pony's");
+  toast(`Mail geopend voor ${adressen.length} papa's 📧`);
+}
+document.getElementById("mailAlleDeelnemers").addEventListener("click", ()=>mailDeelnemers(null));
+
+/* ---------- Excel-export in huisstijl, met mailknop erin ---------- */
+function xmlEsc(s){ return String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
 document.getElementById("exportInschrijvingen").addEventListener("click", ()=>{
-  const rows = loadList(SIGNUP_KEY).map(s=>({
-    evenement:s.eventTitel, datum:s.eventDatum, naam:s.naam, contact:s.contact,
-    personen:s.personen, dochter_mee:s.dochterMee?"ja":"nee", opmerking:s.opmerking,
-    aangemeld_op:(s.aangemeldOp||"").slice(0,10)
-  }));
-  exportCsv(rows, ["evenement","datum","naam","contact","personen","dochter_mee","opmerking","aangemeld_op"], "inschrijvingen-papas-en-ponys.csv");
+  const signups = loadList(SIGNUP_KEY);
+  if(signups.length===0){ toast("Niets te exporteren"); return; }
+  const adressen = mailAdressen(signups);
+  const kolommen = ["Naam","E-mail","Telefoon","Dochter mee","Opmerking","Aangemeld op"];
+
+  const groepen = {};
+  signups.forEach(s=>{ (groepen[s.eventId]=groepen[s.eventId]||[]).push(s); });
+
+  let rijen = "";
+  Object.values(groepen)
+    .sort((a,b)=>(a[0].eventDatum||"").localeCompare(b[0].eventDatum||""))
+    .forEach(rows=>{
+      const groepAdressen = mailAdressen(rows);
+      rijen += `<Row/><Row ss:Height="22"><Cell ss:StyleID="groep" ss:MergeAcross="3"><Data ss:Type="String">🗓️ ${xmlEsc(rows[0].eventTitel||"Evenement")} — ${xmlEsc(fmtDatum((rows[0].eventDatum||"2000-01-01")+"T00:00:00"))}</Data></Cell>${groepAdressen.length?`<Cell ss:StyleID="link" ss:MergeAcross="1" ss:HRef="${xmlEsc(mailtoLink(groepAdressen,"Papa & Pony's — "+(rows[0].eventTitel||"")))}"><Data ss:Type="String">📧 Mail deze groep</Data></Cell>`:""}</Row>`;
+      rijen += `<Row>${kolommen.map(k=>`<Cell ss:StyleID="kop"><Data ss:Type="String">${k}</Data></Cell>`).join("")}</Row>`;
+      rows.sort((a,b)=>(a.aangemeldOp||"").localeCompare(b.aangemeldOp||"")).forEach((s,i)=>{
+        const stijl = i%2 ? "rijB" : "rijA";
+        const cel = v=>`<Cell ss:StyleID="${stijl}"><Data ss:Type="String">${xmlEsc(v)}</Data></Cell>`;
+        rijen += `<Row>${cel(s.naam)}${cel(s.email||s.contact||"")}${cel(s.telefoon||"")}${cel(s.dochterMee?"ja":"nee")}${cel(s.opmerking||"")}${cel((s.aangemeldOp||"").slice(0,10))}</Row>`;
+      });
+    });
+
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
+<Styles>
+  <Style ss:ID="titel"><Font ss:Bold="1" ss:Size="16" ss:Color="#1E2430"/></Style>
+  <Style ss:ID="link"><Font ss:Bold="1" ss:Size="11" ss:Color="#C9861A" ss:Underline="Single"/><Interior ss:Color="#FDF6EC" ss:Pattern="Solid"/><Alignment ss:Vertical="Center"/></Style>
+  <Style ss:ID="groep"><Font ss:Bold="1" ss:Size="12" ss:Color="#E8637E"/><Interior ss:Color="#FBE9ED" ss:Pattern="Solid"/><Alignment ss:Vertical="Center"/></Style>
+  <Style ss:ID="kop"><Font ss:Bold="1" ss:Color="#FFFFFF"/><Interior ss:Color="#E8A020" ss:Pattern="Solid"/></Style>
+  <Style ss:ID="rijA"><Interior ss:Color="#FFFFFF" ss:Pattern="Solid"/></Style>
+  <Style ss:ID="rijB"><Interior ss:Color="#FDF6EC" ss:Pattern="Solid"/></Style>
+</Styles>
+<Worksheet ss:Name="Deelnemers">
+<Table>
+  <Column ss:Width="140"/><Column ss:Width="200"/><Column ss:Width="110"/><Column ss:Width="80"/><Column ss:Width="220"/><Column ss:Width="95"/>
+  <Row ss:Height="26"><Cell ss:StyleID="titel" ss:MergeAcross="5"><Data ss:Type="String">🐴 Papa &amp; Pony's — deelnemers</Data></Cell></Row>
+  ${adressen.length?`<Row ss:Height="22"><Cell ss:StyleID="link" ss:MergeAcross="5" ss:HRef="${xmlEsc(mailtoLink(adressen,"Papa & Pony's"))}"><Data ss:Type="String">📧 MAIL ALLE DEELNEMERS (${adressen.length} adressen, via BCC — niemand ziet elkaars adres)</Data></Cell></Row>`:""}
+  ${rijen}
+</Table>
+</Worksheet>
+</Workbook>`;
+
+  const blob = new Blob(["﻿"+xml], {type:"application/vnd.ms-excel"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "inschrijvingen-papas-en-ponys.xls";
+  a.click();
+  URL.revokeObjectURL(a.href);
+  toast("Excel gedownload ⬇");
 });
 
 /* ---------- TAB 3: whatsapp ---------- */

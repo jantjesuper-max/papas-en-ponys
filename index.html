@@ -405,8 +405,10 @@ footer .admin-link:hover{color:var(--accent-deep);border-color:var(--accent)}
       <form id="inschrijfForm">
         <label for="inNaam">Je naam *</label>
         <input id="inNaam" required maxlength="60" placeholder="Voornaam (+ achternaam mag)">
-        <label for="inContact">Telefoonnummer of e-mail *</label>
-        <input id="inContact" required maxlength="80" placeholder="Zodat we je kunnen bereiken">
+        <label for="inEmail">E-mailadres *</label>
+        <input id="inEmail" type="email" required maxlength="80" placeholder="Voor de bevestiging en updates">
+        <label for="inTelefoon">Telefoonnummer *</label>
+        <input id="inTelefoon" type="tel" required maxlength="20" placeholder="Voor last-minute wijzigingen">
         <label class="check"><input type="checkbox" id="inDochter"> Dochter(s) mee</label>
         <p class="modal-sub" style="margin-top:10px">Komt er een vriend mee? Dan schrijft hij zich ook even los in.</p>
         <label for="inOpmerking">Opmerking</label>
@@ -531,7 +533,8 @@ document.getElementById("inschrijfForm").addEventListener("submit", ev => {
     eventTitel: actiefEvent.titel,
     eventDatum: actiefEvent.datum,
     naam: document.getElementById("inNaam").value.trim(),
-    contact: document.getElementById("inContact").value.trim(),
+    email: document.getElementById("inEmail").value.trim(),
+    telefoon: document.getElementById("inTelefoon").value.trim(),
     personen: "1",
     dochterMee: document.getElementById("inDochter").checked,
     opmerking: document.getElementById("inOpmerking").value.trim(),

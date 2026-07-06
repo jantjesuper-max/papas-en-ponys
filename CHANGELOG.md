@@ -5,6 +5,17 @@ Het format volgt [Keep a Changelog](https://keepachangelog.com/nl/1.1.0/).
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-07-06
+
+### Toegevoegd
+- Inschrijfformulieren vragen nu een e-mailadres én telefoonnummer (beide verplicht), op de evenementpagina en in het homepage-modal
+- "📧 Mail alle deelnemers"-knop in het beheer: opent je mailprogramma met alle unieke adressen in de BCC, zodat iedereen los van elkaar een mail krijgt en niemand elkaars adres ziet
+- Mailknop per evenement in de inschrijvingenlijst
+- Excel-export in huisstijl vervangt de CSV voor inschrijvingen: titelbalk, gekleurde kopregels, om-en-om rijkleuren, gegroepeerd per evenement, en klikbare "Mail alle deelnemers"- en "Mail deze groep"-links (BCC) in het bestand zelf
+
+### Gewijzigd
+- Beheer toont e-mail en telefoon apart per inschrijving; oude inschrijvingen met één contactveld blijven gewoon zichtbaar
+
 ## [0.6.0] - 2026-07-06
 
 ### Toegevoegd
