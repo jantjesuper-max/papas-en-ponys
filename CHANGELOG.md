@@ -5,6 +5,14 @@ Het format volgt [Keep a Changelog](https://keepachangelog.com/nl/1.1.0/).
 
 ## [Unreleased]
 
+## [0.11.0] - 2026-07-06
+
+### Toegevoegd
+- Prijs per evenement: in te vullen in het beheer, zichtbaar op de homepage-kaart, in de hero en de infokaart van de evenementpagina ("€7,50 per papa", leeg = "gratis")
+- Betaallink per evenement (Tikkie, bankbetaalverzoek of Mollie/Stripe payment link): gouden betaalknop in de infokaart én in het bevestigingsscherm na inschrijving ("Rond je inschrijving af")
+- Betaald-status per inschrijving in het beheer: 💶-knop om af te vinken, pill "betaald"/"nog niet betaald", teller per evenement (bijv. "3/5 betaald") en een Betaald-kolom in de Excel-export
+- Alleen http(s)-betaallinks worden gerenderd (veiligheidsmaatregel)
+
 ## [0.10.0] - 2026-07-06
 
 ### Toegevoegd

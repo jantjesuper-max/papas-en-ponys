@@ -130,6 +130,8 @@ textarea{resize:vertical;min-height:74px}
 .inschrijving.weg{opacity:0;transform:translateX(30px)}
 .inschrijving .naam{font-weight:700;font-size:.95rem;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .inschrijving .naam .pill{font-family:var(--font-mono);font-size:.64rem;background:var(--rose-soft);color:var(--rose);padding:2px 8px;border-radius:999px}
+.inschrijving .naam .pill.betaald{background:var(--groen-soft);color:var(--groen)}
+.inschrijving .naam .pill.open{background:#fdf3e0;color:var(--accent-deep)}
 .inschrijving .detail{font-size:.8rem;color:var(--ink-soft);display:flex;gap:14px;flex-wrap:wrap;margin-top:2px}
 .inschrijving .opm{font-size:.82rem;color:var(--ink-soft);font-style:italic;margin-top:4px}
 
@@ -265,6 +267,17 @@ textarea{resize:vertical;min-height:74px}
             <option>Community</option>
             <option>Anders</option>
           </select>
+          <div class="rij">
+            <div>
+              <label for="prijs">Prijs (€)</label>
+              <input id="prijs" inputmode="decimal" maxlength="10" placeholder="7,50">
+            </div>
+            <div>
+              <label for="betaallink">Betaallink</label>
+              <input id="betaallink" type="url" maxlength="200" placeholder="https://tikkie.me/...">
+            </div>
+          </div>
+          <p class="foto-hint">Prijs leeg = gratis. Betaallink: maak een Tikkie, bankbetaalverzoek of Mollie/Stripe payment link en plak hem hier — de betaalknop verschijnt op de evenementpagina.</p>
           <label for="beschrijving">Beschrijving</label>
           <textarea id="beschrijving" maxlength="280" placeholder="Wat gaan we doen, wat neem je mee, zijn dochters welkom?"></textarea>
           <label for="fotoKies">Foto's</label>
@@ -465,7 +478,7 @@ function renderEvents(){
       <div class="ev-datum"><div class="dag">${d.getDate()}</div><div class="mnd">${maanden[d.getMonth()]} '${String(d.getFullYear()).slice(2)}</div></div>
       <div class="ev-info">
         <h3><span class="ster ${e.uitgelicht?"aan":""}" title="Uitlichten aan/uit" onclick="toggleSter('${e.id}')">🌟</span>${esc(e.titel)}<span class="cat ${evType(e)==="vlechtworkshop"?"roze":""}">${evType(e)==="vlechtworkshop"?"🎀 vlechtworkshop":"🎪 ander evenement"}</span><span class="cat">${esc(e.categorie||"Anders")}</span></h3>
-        <div class="meta"><span>🕙 ${esc(e.tijd||"n.t.b.")}</span><span>📍 ${esc(e.locatie||"n.t.b.")}</span><span>🎟️ ${n} inschrijving${n===1?"":"en"}</span>${e.fotos&&e.fotos.length?`<span>📷 ${e.fotos.length}</span>`:""}</div>
+        <div class="meta"><span>🕙 ${esc(e.tijd||"n.t.b.")}</span><span>📍 ${esc(e.locatie||"n.t.b.")}</span><span>🎟️ ${n} inschrijving${n===1?"":"en"}</span><span>💶 ${e.prijs?"€"+esc(e.prijs):"gratis"}</span>${e.fotos&&e.fotos.length?`<span>📷 ${e.fotos.length}</span>`:""}</div>
       </div>
       <div class="ev-acties">
         <button class="icoon-btn groen" title="Landingspagina openen" onclick="window.open('../evenement.html?id='+encodeURIComponent('${e.id}'),'_blank')">🔗</button>
@@ -523,6 +536,8 @@ document.getElementById("eventForm").addEventListener("submit", ev=>{
     tijd: document.getElementById("tijd").value,
     locatie: document.getElementById("locatie").value.trim(),
     categorie: document.getElementById("categorie").value,
+    prijs: document.getElementById("prijs").value.trim().replace(/^€\s*/, ""),
+    betaallink: document.getElementById("betaallink").value.trim(),
     beschrijving: document.getElementById("beschrijving").value.trim(),
     uitgelicht: document.getElementById("uitgelicht").checked,
     fotos: formFotos.slice()
@@ -547,6 +562,8 @@ function bewerk(id){
   document.getElementById("tijd").value = e.tijd||"";
   document.getElementById("locatie").value = e.locatie||"";
   document.getElementById("categorie").value = e.categorie||"Anders";
+  document.getElementById("prijs").value = e.prijs||"";
+  document.getElementById("betaallink").value = e.betaallink||"";
   document.getElementById("beschrijving").value = e.beschrijving||"";
   document.getElementById("uitgelicht").checked = !!e.uitgelicht;
   formFotos = (e.fotos||[]).slice();
@@ -617,9 +634,11 @@ function renderInschrijvingen(){
       const titel = ev ? ev.titel : (rows[0].eventTitel || "Verwijderd evenement");
       const datum = ev ? ev.datum : rows[0].eventDatum;
       const totaal = rows.reduce((n,s)=>n+(parseInt(s.personen)||1),0);
+      const heeftPrijs = !!(ev && ev.prijs);
+      const nBetaald = rows.filter(s=>s.betaald).length;
       return `<div class="groep">
         <div class="groep-kop">
-          <h3>${esc(titel)}${!ev?' <span class="status-pill nieuw">evenement verwijderd</span>':''}<span class="datum">${datum?fmtDatum(datum+"T00:00:00"):""}</span></h3>
+          <h3>${esc(titel)}${!ev?' <span class="status-pill nieuw">evenement verwijderd</span>':''}<span class="datum">${datum?fmtDatum(datum+"T00:00:00"):""}</span>${heeftPrijs?`<span class="status-pill ${nBetaald===rows.length?"toegevoegd":"nieuw"}">💶 ${nBetaald}/${rows.length} betaald</span>`:""}</h3>
           <div style="display:flex;gap:8px;align-items:center">
             <div class="mail-menu">
               <button class="btn stil klein">📧 Mail ▾</button>
@@ -631,11 +650,12 @@ function renderInschrijvingen(){
         ${rows.sort((a,b)=>(a.aangemeldOp||"").localeCompare(b.aangemeldOp||"")).map(s=>`
         <div class="inschrijving" data-id="${s.id}">
           <div>
-            <div class="naam">${esc(s.naam)}${s.dochterMee?'<span class="pill">🎀 dochter mee</span>':''}</div>
+            <div class="naam">${esc(s.naam)}${s.dochterMee?'<span class="pill">🎀 dochter mee</span>':''}${s.betaald?'<span class="pill betaald">💶 betaald</span>':(heeftPrijs?'<span class="pill open">nog niet betaald</span>':'')}</div>
             <div class="detail">${s.email?`<span>📧 ${esc(s.email)}</span>`:""}${(s.telefoon||s.contact)?`<span>📞 ${esc(s.telefoon||s.contact)}</span>`:""}${(parseInt(s.personen)||1)>1?`<span>👥 ${esc(s.personen)} papa's (oude inschrijving)</span>`:""}<span>🗓️ aangemeld ${fmtDatum(s.aangemeldOp)}</span></div>
             ${s.opmerking?`<div class="opm">"${esc(s.opmerking)}"</div>`:""}
           </div>
           <div class="ev-acties">
+            <button class="icoon-btn groen" title="${s.betaald?"Markeer als niet betaald":"Markeer als betaald"}" onclick="toggleBetaald('${s.id}')">${s.betaald?"↩️":"💶"}</button>
             <button class="icoon-btn bewerk" title="Inschrijving bewerken" onclick="bewerkInschrijving('${s.id}')">✏️</button>
             <button class="icoon-btn verwijder" title="Inschrijving verwijderen" onclick="verwijderInschrijving('${s.id}')">🗑️</button>
           </div>
@@ -672,6 +692,7 @@ document.getElementById("inschrijfBeheerForm").addEventListener("submit", ev=>{
     personen: "1",
     dochterMee: document.getElementById("inschrijfDochter").checked,
     opmerking: document.getElementById("inschrijfOpmerking").value.trim(),
+    betaald: bestaand ? !!bestaand.betaald : false,
     aangemeldOp: bestaand ? bestaand.aangemeldOp : new Date().toISOString()
   };
   let signups = loadList(SIGNUP_KEY);
@@ -711,6 +732,15 @@ function resetInschrijfForm(){
   renderInschrijfEventOpties();
 }
 document.getElementById("inschrijfAnnuleerBtn").addEventListener("click", resetInschrijfForm);
+
+function toggleBetaald(id){
+  const signups = loadList(SIGNUP_KEY).map(s=>s.id===id?{...s, betaald:!s.betaald}:s);
+  saveList(SIGNUP_KEY, signups);
+  const s = signups.find(x=>x.id===id);
+  if(s && s.betaald){ toast(`${s.naam} heeft betaald 💶`); }
+  else{ toast("Gemarkeerd als niet betaald"); }
+  renderAlles();
+}
 
 function verwijderInschrijving(id){
   const s = loadList(SIGNUP_KEY).find(x=>x.id===id);
@@ -902,7 +932,7 @@ document.getElementById("exportInschrijvingen").addEventListener("click", ()=>{
   const signups = loadList(SIGNUP_KEY);
   if(signups.length===0){ toast("Niets te exporteren"); return; }
   const adressen = mailAdressen(signups);
-  const kolommen = ["Naam","E-mail","Telefoon","Dochter mee","Opmerking","Aangemeld op"];
+  const kolommen = ["Naam","E-mail","Telefoon","Dochter mee","Betaald","Opmerking","Aangemeld op"];
 
   const groepen = {};
   signups.forEach(s=>{ (groepen[s.eventId]=groepen[s.eventId]||[]).push(s); });
@@ -912,12 +942,12 @@ document.getElementById("exportInschrijvingen").addEventListener("click", ()=>{
     .sort((a,b)=>(a[0].eventDatum||"").localeCompare(b[0].eventDatum||""))
     .forEach(rows=>{
       const groepAdressen = mailAdressen(rows);
-      rijen += `<Row/><Row ss:Height="22"><Cell ss:StyleID="groep" ss:MergeAcross="3"><Data ss:Type="String">🗓️ ${xmlEsc(rows[0].eventTitel||"Evenement")} — ${xmlEsc(fmtDatum((rows[0].eventDatum||"2000-01-01")+"T00:00:00"))}</Data></Cell>${groepAdressen.length?`<Cell ss:StyleID="link" ss:MergeAcross="1" ss:HRef="${xmlEsc(mailtoLink(groepAdressen,"Papa & Pony's — "+(rows[0].eventTitel||"")))}"><Data ss:Type="String">📧 Mail deze groep</Data></Cell>`:""}</Row>`;
+      rijen += `<Row/><Row ss:Height="22"><Cell ss:StyleID="groep" ss:MergeAcross="4"><Data ss:Type="String">🗓️ ${xmlEsc(rows[0].eventTitel||"Evenement")} — ${xmlEsc(fmtDatum((rows[0].eventDatum||"2000-01-01")+"T00:00:00"))}</Data></Cell>${groepAdressen.length?`<Cell ss:StyleID="link" ss:MergeAcross="1" ss:HRef="${xmlEsc(mailtoLink(groepAdressen,"Papa & Pony's — "+(rows[0].eventTitel||"")))}"><Data ss:Type="String">📧 Mail deze groep</Data></Cell>`:""}</Row>`;
       rijen += `<Row>${kolommen.map(k=>`<Cell ss:StyleID="kop"><Data ss:Type="String">${k}</Data></Cell>`).join("")}</Row>`;
       rows.sort((a,b)=>(a.aangemeldOp||"").localeCompare(b.aangemeldOp||"")).forEach((s,i)=>{
         const stijl = i%2 ? "rijB" : "rijA";
         const cel = v=>`<Cell ss:StyleID="${stijl}"><Data ss:Type="String">${xmlEsc(v)}</Data></Cell>`;
-        rijen += `<Row>${cel(s.naam)}${cel(s.email||s.contact||"")}${cel(s.telefoon||"")}${cel(s.dochterMee?"ja":"nee")}${cel(s.opmerking||"")}${cel((s.aangemeldOp||"").slice(0,10))}</Row>`;
+        rijen += `<Row>${cel(s.naam)}${cel(s.email||s.contact||"")}${cel(s.telefoon||"")}${cel(s.dochterMee?"ja":"nee")}${cel(s.betaald?"ja":"nee")}${cel(s.opmerking||"")}${cel((s.aangemeldOp||"").slice(0,10))}</Row>`;
       });
     });
 
@@ -934,9 +964,9 @@ document.getElementById("exportInschrijvingen").addEventListener("click", ()=>{
 </Styles>
 <Worksheet ss:Name="Deelnemers">
 <Table>
-  <Column ss:Width="140"/><Column ss:Width="200"/><Column ss:Width="110"/><Column ss:Width="80"/><Column ss:Width="220"/><Column ss:Width="95"/>
-  <Row ss:Height="26"><Cell ss:StyleID="titel" ss:MergeAcross="5"><Data ss:Type="String">🐴 Papa &amp; Pony's — deelnemers</Data></Cell></Row>
-  ${adressen.length?`<Row ss:Height="22"><Cell ss:StyleID="link" ss:MergeAcross="5" ss:HRef="${xmlEsc(mailtoLink(adressen,"Papa & Pony's"))}"><Data ss:Type="String">📧 MAIL ALLE DEELNEMERS (${adressen.length} adressen, via BCC — niemand ziet elkaars adres)</Data></Cell></Row>`:""}
+  <Column ss:Width="140"/><Column ss:Width="200"/><Column ss:Width="110"/><Column ss:Width="80"/><Column ss:Width="60"/><Column ss:Width="220"/><Column ss:Width="95"/>
+  <Row ss:Height="26"><Cell ss:StyleID="titel" ss:MergeAcross="6"><Data ss:Type="String">🐴 Papa &amp; Pony's — deelnemers</Data></Cell></Row>
+  ${adressen.length?`<Row ss:Height="22"><Cell ss:StyleID="link" ss:MergeAcross="6" ss:HRef="${xmlEsc(mailtoLink(adressen,"Papa & Pony's"))}"><Data ss:Type="String">📧 MAIL ALLE DEELNEMERS (${adressen.length} adressen, via BCC — niemand ziet elkaars adres)</Data></Cell></Row>`:""}
   ${rijen}
 </Table>
 </Worksheet>
@@ -1046,7 +1076,7 @@ function confetti(){
 /* ---------- Seed als leeg ---------- */
 if(!localStorage.getItem(PP_KEY)){
   save([
-    {id:"seed-1", titel:"Vlechtworkshop: de basisvlecht", datum:"2026-07-18", tijd:"10:00", locatie:"Buurthuis De Schakel", categorie:"Workshop", beschrijving:"Voor beginners. Neem een borstel, elastiekjes en (als het kan) een geduldige dochter mee.", uitgelicht:true},
+    {id:"seed-1", titel:"Vlechtworkshop: de basisvlecht", type:"vlechtworkshop", datum:"2026-07-18", tijd:"10:00", locatie:"Buurthuis De Schakel", categorie:"Workshop", prijs:"7,50", beschrijving:"Voor beginners. Neem een borstel, elastiekjes en (als het kan) een geduldige dochter mee.", uitgelicht:true},
     {id:"seed-2", titel:"Papa & Pony's zomerpicknick", datum:"2026-08-02", tijd:"12:30", locatie:"Stadspark, grote weide", categorie:"Uitje", beschrijving:"Kleedjes, broodjes en spelletjes. Dochters (en zonen) van harte welkom.", uitgelicht:false},
     {id:"seed-3", titel:"Vlechtworkshop: visgraat & invlecht", datum:"2026-09-12", tijd:"10:00", locatie:"Buurthuis De Schakel", categorie:"Workshop", beschrijving:"Vervolgworkshop voor wie de basis onder de knie heeft.", uitgelicht:false}
   ]);

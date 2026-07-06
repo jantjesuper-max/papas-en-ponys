@@ -469,7 +469,7 @@ footer .admin-link:hover{color:var(--accent-deep);border-color:var(--accent)}
 /* ---------- Gedeelde evenementen-opslag (zelfde sleutel als /admin) ---------- */
 const PP_KEY = "pp_events";
 const seedEvents = [
-  {id:"seed-1", titel:"Vlechtworkshop: de basisvlecht", type:"vlechtworkshop", datum:"2026-07-18", tijd:"10:00", locatie:"Buurthuis De Schakel", categorie:"Workshop", beschrijving:"Voor beginners. Neem een borstel, elastiekjes en (als het kan) een geduldige dochter mee.", uitgelicht:true},
+  {id:"seed-1", titel:"Vlechtworkshop: de basisvlecht", type:"vlechtworkshop", datum:"2026-07-18", tijd:"10:00", locatie:"Buurthuis De Schakel", categorie:"Workshop", prijs:"7,50", beschrijving:"Voor beginners. Neem een borstel, elastiekjes en (als het kan) een geduldige dochter mee.", uitgelicht:true},
   {id:"seed-2", titel:"Papa & Pony's zomerpicknick", type:"ander", datum:"2026-08-02", tijd:"12:30", locatie:"Stadspark, grote weide", categorie:"Uitje", beschrijving:"Kleedjes, broodjes en spelletjes. Dochters (en zonen) van harte welkom.", uitgelicht:false},
   {id:"seed-3", titel:"Vlechtworkshop: visgraat & invlecht", type:"vlechtworkshop", datum:"2026-09-12", tijd:"10:00", locatie:"Buurthuis De Schakel", categorie:"Workshop", beschrijving:"Vervolgworkshop voor wie de basis onder de knie heeft.", uitgelicht:false}
 ];
@@ -501,7 +501,7 @@ function renderEvents(){
       <div class="event-date"><div class="day">${d.getDate()}</div><div class="month">${maanden[d.getMonth()]}</div></div>
       <div class="event-info">
         <h3><a href="evenement.html?id=${encodeURIComponent(e.id)}">${esc(e.titel)}</a>${e.uitgelicht ? '<span class="badge">uitgelicht</span>' : ''}</h3>
-        <div class="meta"><span>🕙 ${esc(e.tijd || "n.t.b.")}</span><span>📍 ${esc(e.locatie || "n.t.b.")}</span>${aantal > 0 ? `<span>👥 ${aantal} aangemeld</span>` : ""}</div>
+        <div class="meta"><span>🕙 ${esc(e.tijd || "n.t.b.")}</span><span>📍 ${esc(e.locatie || "n.t.b.")}</span>${e.prijs ? `<span>💶 €${esc(e.prijs)}</span>` : ""}${aantal > 0 ? `<span>👥 ${aantal} aangemeld</span>` : ""}</div>
         ${e.beschrijving ? `<p class="beschrijving">${esc(e.beschrijving)}</p>` : ""}
       </div>
       <div class="event-zij">

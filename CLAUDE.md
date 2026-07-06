@@ -41,6 +41,8 @@ Community-website voor "meisjespapa's die leren vlechten". Statische site zonder
   locatie: "...", categorie: "Workshop|Uitje|Borrel|Community|Anders",
   beschrijving: "...",
   uitgelicht: true|false,
+  prijs: "7,50",                 // leeg = gratis; weergave altijd met €-prefix
+  betaallink: "https://...",     // Tikkie/betaalverzoek/payment link; alleen http(s) wordt gerenderd
   fotos: ["data:image/jpeg;base64,..."]  // door beheer geüpload, verkleind naar max 1200px
 }
 ```
@@ -54,6 +56,7 @@ Community-website voor "meisjespapa's die leren vlechten". Statische site zonder
   naam, email, telefoon,             // email + telefoon sinds v0.7; oudere records hebben alleen `contact`
   personen: "1",                     // sinds v0.6 altijd "1" (inschrijven per papa); oude records kunnen 2/3 zijn
   dochterMee: true|false, opmerking,
+  betaald: true|false,               // handmatig afgevinkt in het beheer (stap 1 van betalingen)
   aangemeldOp: ISO-string
 }
 ```

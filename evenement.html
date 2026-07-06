@@ -234,7 +234,7 @@ const PP_KEY = "pp_events";
 const SIGNUP_KEY = "pp_event_signups";
 const maanden = ["januari","februari","maart","april","mei","juni","juli","augustus","september","oktober","november","december"];
 const seedEvents = [
-  {id:"seed-1", titel:"Vlechtworkshop: de basisvlecht", type:"vlechtworkshop", datum:"2026-07-18", tijd:"10:00", locatie:"Buurthuis De Schakel", categorie:"Workshop", beschrijving:"Voor beginners. Neem een borstel, elastiekjes en (als het kan) een geduldige dochter mee.", uitgelicht:true},
+  {id:"seed-1", titel:"Vlechtworkshop: de basisvlecht", type:"vlechtworkshop", datum:"2026-07-18", tijd:"10:00", locatie:"Buurthuis De Schakel", categorie:"Workshop", prijs:"7,50", beschrijving:"Voor beginners. Neem een borstel, elastiekjes en (als het kan) een geduldige dochter mee.", uitgelicht:true},
   {id:"seed-2", titel:"Papa & Pony's zomerpicknick", type:"ander", datum:"2026-08-02", tijd:"12:30", locatie:"Stadspark, grote weide", categorie:"Uitje", beschrijving:"Kleedjes, broodjes en spelletjes. Dochters (en zonen) van harte welkom.", uitgelicht:false},
   {id:"seed-3", titel:"Vlechtworkshop: visgraat & invlecht", type:"vlechtworkshop", datum:"2026-09-12", tijd:"10:00", locatie:"Buurthuis De Schakel", categorie:"Workshop", beschrijving:"Vervolgworkshop voor wie de basis onder de knie heeft.", uitgelicht:false}
 ];
@@ -277,6 +277,9 @@ if(!event){
 
   const type = evType(event);
   const isVlecht = type === "vlechtworkshop";
+  /* Betaallink alleen gebruiken als het een echte http(s)-URL is */
+  const betaalUrl = /^https?:\/\//i.test(event.betaallink || "") ? event.betaallink : "";
+  const prijsTekst = event.prijs ? "€" + event.prijs : "";
   const eigenFotos = !!(event.fotos && event.fotos.length);
   /* Vlechtworkshops tonen altijd alle sfeerfoto's (na eventuele eigen foto's); andere evenementen alleen eigen foto's */
   const fotos = isVlecht ? [...(event.fotos || []), ...folderFotos] : (event.fotos || []);
@@ -296,6 +299,7 @@ if(!event){
     <div class="ev-meta">
       <span>🕙 ${esc(event.tijd || "tijd n.t.b.")}</span>
       <span>📍 ${esc(event.locatie || "locatie n.t.b.")}</span>
+      ${prijsTekst ? `<span>💶 ${esc(prijsTekst)}</span>` : ""}
       ${aantal > 0 ? `<span>👥 ${aantal} aangemeld</span>` : ""}
     </div>
     ${isVlecht ? '<div class="hero-stats"><span>👨‍👧 35 papa\'s gingen je voor</span><span>📰 bekend uit de krant</span><span>🎀 oefenhoofden aanwezig</span></div>' : ''}
@@ -347,6 +351,8 @@ if(!event){
       <div class="info-rij"><span class="lbl">locatie</span><span>${esc(event.locatie || "n.t.b.")}</span></div>
       <div class="info-rij"><span class="lbl">voor wie</span><span>meisjespapa's — dochters welkom waar aangegeven</span></div>
       ${isVlecht ? '<div class="info-rij"><span class="lbl">meenemen</span><span>borstel, elastiekjes en (als het kan) een geduldige dochter</span></div>' : ''}
+      <div class="info-rij"><span class="lbl">prijs</span><span>${prijsTekst ? esc(prijsTekst) + " per papa" : "gratis"}</span></div>
+      ${betaalUrl ? `<a class="btn gold" style="width:100%;justify-content:center;margin-top:16px" href="${esc(betaalUrl)}" target="_blank" rel="noopener">💳 Betaal ${esc(prijsTekst) || "nu"}</a>` : ""}
       <div class="deel">
         <button class="btn ghost" id="kopieerLink">🔗 Kopieer link</button>
         <a class="btn ghost" id="deelWhatsapp" target="_blank" rel="noopener">💬 Deel via WhatsApp</a>
@@ -376,6 +382,7 @@ if(!event){
         <span class="vink">🎉</span>
         <h4>Je staat op de lijst!</h4>
         <p>Tot ${datumTekst} — we hebben er zin in.</p>
+        ${betaalUrl ? `<a class="btn gold" style="margin-top:16px" href="${esc(betaalUrl)}" target="_blank" rel="noopener">💳 Rond je inschrijving af: betaal ${esc(prijsTekst) || "nu"}</a>` : ""}
       </div>
     </div>
   </section>`}
