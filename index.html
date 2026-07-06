@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Papa &amp; Pony's | Voor meisjespapa's die vlechten</title>
+<meta name="description" content="Papa & Pony's: de community waar meisjespapa's leren vlechten, samen activiteiten doen en elkaar verder helpen.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1e2430;
+  --ink-soft:#4a5264;
+  --paper:#fffdf9;
+  --paper-tint:#fdf6ec;
+  --accent:#e8a020;
+  --accent-deep:#c9861a;
+  --rose:#e8637e;
+  --rose-soft:#fbe9ed;
+  --line:#e9e2d6;
+  --radius:16px;
+  --font-display:'Outfit',sans-serif;
+  --font-mono:'IBM Plex Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-display);background:var(--paper);color:var(--ink);line-height:1.6;overflow-x:hidden}
+::selection{background:var(--accent);color:#fff}
+
+/* ---------- Nav ---------- */
+nav{position:sticky;top:0;z-index:100;background:rgba(255,253,249,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.nav-inner{max-width:1120px;margin:0 auto;padding:0 24px;height:72px;display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.25rem;text-decoration:none;color:var(--ink)}
+.logo .mark{width:40px;height:40px;display:grid;place-items:center;background:var(--rose-soft);border-radius:12px;font-size:1.3rem;transition:transform .4s cubic-bezier(.34,1.56,.64,1)}
+.logo:hover .mark{transform:rotate(-12deg) scale(1.1)}
+.nav-links{display:flex;gap:28px;align-items:center}
+.nav-links a{position:relative;text-decoration:none;color:var(--ink-soft);font-weight:500;font-size:.95rem;padding:4px 0}
+.nav-links a:not(.btn)::after{content:"";position:absolute;left:0;bottom:0;width:100%;height:2px;background:var(--accent);border-radius:2px;transform:scaleX(0);transform-origin:right;transition:transform .3s ease}
+.nav-links a:not(.btn):hover::after{transform:scaleX(1);transform-origin:left}
+.nav-links a:not(.btn):hover{color:var(--ink)}
+
+/* ---------- Buttons ---------- */
+.btn{display:inline-flex;align-items:center;gap:8px;background:var(--ink);color:#fff;font-weight:600;font-size:.95rem;padding:12px 22px;border-radius:999px;text-decoration:none;border:none;cursor:pointer;transition:transform .2s cubic-bezier(.34,1.56,.64,1),box-shadow .2s ease,background .2s ease}
+.btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(30,36,48,.18)}
+.btn:active{transform:translateY(0) scale(.97)}
+.btn .arrow{display:inline-block;transition:transform .25s ease}
+.btn:hover .arrow{transform:translateX(4px)}
+.btn.gold{background:var(--accent)}
+.btn.gold:hover{background:var(--accent-deep);box-shadow:0 8px 20px rgba(232,160,32,.35)}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+.btn.ghost:hover{border-color:var(--ink);box-shadow:none}
+
+/* ---------- Hero ---------- */
+.hero{max-width:1120px;margin:0 auto;padding:72px 24px 64px;display:grid;grid-template-columns:1.1fr .9fr;gap:48px;align-items:center;position:relative}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:var(--font-mono);font-size:.78rem;color:var(--accent-deep);background:var(--paper-tint);border:1px solid var(--line);padding:6px 14px;border-radius:999px;margin-bottom:20px}
+.hero-eyebrow .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.4);opacity:.6}}
+h1{font-size:clamp(2.4rem,5vw,3.6rem);font-weight:800;line-height:1.08;letter-spacing:-.02em;margin-bottom:20px}
+h1 .swoop{position:relative;white-space:nowrap;color:var(--rose)}
+h1 .swoop svg{position:absolute;left:0;bottom:-6px;width:100%;height:12px;overflow:visible}
+h1 .swoop path{stroke:var(--accent);stroke-width:3;fill:none;stroke-linecap:round;stroke-dasharray:300;stroke-dashoffset:300;animation:draw 1.2s .5s ease forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.hero p{font-size:1.1rem;color:var(--ink-soft);max-width:46ch;margin-bottom:28px}
+.hero-ctas{display:flex;gap:14px;flex-wrap:wrap}
+.hero-visual{position:relative;display:grid;place-items:center}
+.pony-card{background:linear-gradient(150deg,var(--paper-tint),#fff);border:1px solid var(--line);border-radius:28px;padding:36px;width:100%;max-width:420px;box-shadow:0 24px 60px -30px rgba(30,36,48,.25);transition:transform .3s ease;position:relative}
+.pony-card:hover{transform:rotate(-1deg) translateY(-4px)}
+.float{position:absolute;font-size:1.6rem;animation:floaty 5s ease-in-out infinite;user-select:none;pointer-events:none}
+.float.f1{top:-14px;right:24px;animation-delay:0s}
+.float.f2{bottom:18px;left:-16px;animation-delay:1.4s;font-size:1.3rem}
+.float.f3{top:38%;right:-18px;animation-delay:2.6s;font-size:1.2rem}
+@keyframes floaty{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-12px) rotate(6deg)}}
+
+/* braid svg */
+.braid{width:100%;height:auto;display:block}
+.braid .strand{fill:none;stroke-width:10;stroke-linecap:round;stroke-dasharray:600;stroke-dashoffset:600;animation:braiddraw 2.4s ease forwards}
+.braid .s1{stroke:var(--accent);animation-delay:.3s}
+.braid .s2{stroke:var(--rose);animation-delay:.6s}
+.braid .s3{stroke:var(--ink);animation-delay:.9s}
+@keyframes braiddraw{to{stroke-dashoffset:0}}
+.pony-card figcaption{margin-top:18px;text-align:center;font-family:var(--font-mono);font-size:.8rem;color:var(--ink-soft)}
+
+/* ---------- Marquee ---------- */
+.marquee{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--ink);color:var(--paper);overflow:hidden;padding:14px 0}
+.marquee-track{display:flex;gap:48px;width:max-content;animation:scroll 28s linear infinite}
+.marquee:hover .marquee-track{animation-play-state:paused}
+.marquee-track span{font-family:var(--font-mono);font-size:.85rem;letter-spacing:.06em;white-space:nowrap;display:flex;align-items:center;gap:48px}
+.marquee-track em{font-style:normal;color:var(--accent)}
+@keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* ---------- Sections ---------- */
+section{max-width:1120px;margin:0 auto;padding:88px 24px}
+.section-head{max-width:56ch;margin-bottom:48px}
+h2{font-size:clamp(1.8rem,3.4vw,2.5rem);font-weight:800;letter-spacing:-.02em;line-height:1.15;margin-bottom:14px}
+.section-head p{color:var(--ink-soft);font-size:1.05rem}
+
+/* reveal on scroll */
+.reveal{opacity:1;transform:none}
+@media (prefers-reduced-motion: no-preference){
+  .reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s cubic-bezier(.22,1,.36,1)}
+  .reveal.in{opacity:1;transform:none}
+}
+
+/* ---------- Missie ---------- */
+.missie{background:var(--paper-tint);border-radius:32px;padding:56px 48px;display:grid;grid-template-columns:1fr 1fr;gap:40px;border:1px solid var(--line)}
+.missie blockquote{font-size:clamp(1.3rem,2.4vw,1.7rem);font-weight:700;line-height:1.35;letter-spacing:-.01em}
+.missie blockquote em{font-style:normal;color:var(--accent-deep)}
+.missie .toelichting{color:var(--ink-soft);align-self:center}
+.missie .toelichting strong{color:var(--ink)}
+
+/* ---------- Wat we doen ---------- */
+.doen-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:20px}
+.doen-card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:32px;position:relative;overflow:hidden;transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease}
+.doen-card:hover{transform:translateY(-4px);box-shadow:0 16px 40px -20px rgba(30,36,48,.25);border-color:var(--accent)}
+.doen-card .icon{font-size:1.8rem;display:inline-block;margin-bottom:14px;transition:transform .3s cubic-bezier(.34,1.56,.64,1)}
+.doen-card:hover .icon{transform:rotate(-10deg) scale(1.2)}
+.doen-card h3{font-size:1.25rem;font-weight:700;margin-bottom:8px}
+.doen-card p{color:var(--ink-soft);font-size:.98rem}
+.doen-card.wide{grid-column:1;grid-row:1 / span 2;background:linear-gradient(160deg,#fff,var(--rose-soft));display:flex;flex-direction:column;justify-content:flex-end;min-height:340px}
+.doen-card.wide .icon{font-size:2.4rem}
+.doen-card .tag{position:absolute;top:20px;right:20px;font-family:var(--font-mono);font-size:.72rem;background:var(--ink);color:#fff;padding:4px 10px;border-radius:999px}
+
+/* ---------- Evenementen ---------- */
+#evenementen{padding-top:64px}
+.event-list{display:grid;gap:14px}
+.event-card{display:grid;grid-template-columns:96px 1fr auto;gap:24px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:22px 26px;transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease;position:relative}
+.event-card:hover{transform:translateX(6px);border-color:var(--accent);box-shadow:-6px 10px 30px -18px rgba(30,36,48,.3)}
+.event-date{text-align:center;background:var(--paper-tint);border:1px solid var(--line);border-radius:12px;padding:10px 8px;transition:background .22s ease}
+.event-card:hover .event-date{background:var(--rose-soft)}
+.event-date .day{font-size:1.5rem;font-weight:800;line-height:1}
+.event-date .month{font-family:var(--font-mono);font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+.event-info h3{font-size:1.15rem;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:10px}
+.event-info .badge{font-family:var(--font-mono);font-size:.68rem;background:var(--accent);color:#fff;padding:3px 9px;border-radius:999px;animation:pulse 2.4s ease-in-out infinite}
+.event-info .meta{font-size:.88rem;color:var(--ink-soft);display:flex;gap:16px;flex-wrap:wrap}
+.event-info .beschrijving{font-size:.92rem;color:var(--ink-soft);margin-top:6px;max-width:60ch}
+.event-cat{font-family:var(--font-mono);font-size:.72rem;color:var(--accent-deep);background:var(--paper-tint);border:1px solid var(--line);padding:5px 12px;border-radius:999px;white-space:nowrap}
+.events-empty{text-align:center;padding:56px 24px;background:var(--paper-tint);border:1.5px dashed var(--line);border-radius:var(--radius);color:var(--ink-soft)}
+.events-empty .icon{font-size:2.4rem;display:block;margin-bottom:12px;animation:floaty 4s ease-in-out infinite}
+
+/* ---------- Waarden ---------- */
+.waarden{display:flex;flex-wrap:wrap;gap:12px}
+.chip{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:10px 18px;font-size:.92rem;font-weight:500;transition:transform .2s cubic-bezier(.34,1.56,.64,1),border-color .2s,background .2s;cursor:default}
+.chip:hover{transform:translateY(-3px) rotate(-1deg);border-color:var(--rose);background:var(--rose-soft)}
+
+/* ---------- Community CTA ---------- */
+.community{background:var(--ink);color:var(--paper);border-radius:32px;padding:64px 48px;text-align:center;position:relative;overflow:hidden}
+.community h2{color:#fff}
+.community p{color:#b8bfce;max-width:52ch;margin:0 auto 28px}
+.community .btn.gold{font-size:1.05rem;padding:15px 30px}
+.sparkle{position:absolute;font-size:1.1rem;opacity:.5;animation:floaty 6s ease-in-out infinite}
+
+/* ---------- Inschrijfknop ---------- */
+.event-zij{display:flex;flex-direction:column;align-items:flex-end;gap:10px}
+.btn-inschrijf{font-family:var(--font-display);font-weight:600;font-size:.85rem;background:var(--paper-tint);color:var(--ink);border:1.5px solid var(--line);padding:8px 16px;border-radius:999px;cursor:pointer;transition:all .2s cubic-bezier(.34,1.56,.64,1)}
+.btn-inschrijf:hover{background:var(--accent);border-color:var(--accent);color:#fff;transform:translateY(-2px);box-shadow:0 6px 16px rgba(232,160,32,.3)}
+.btn-inschrijf:active{transform:scale(.95)}
+
+/* ---------- Modal ---------- */
+.modal-bg{position:fixed;inset:0;background:rgba(30,36,48,.5);backdrop-filter:blur(4px);display:grid;place-items:center;z-index:200;opacity:0;pointer-events:none;transition:opacity .25s ease}
+.modal-bg.open{opacity:1;pointer-events:auto}
+.modal{background:var(--paper);border-radius:22px;padding:32px;width:min(480px,calc(100vw - 32px));max-height:88vh;overflow:auto;transform:translateY(24px) scale(.96);transition:transform .3s cubic-bezier(.34,1.56,.64,1);position:relative;border:1px solid var(--line)}
+.modal-bg.open .modal{transform:none}
+.modal h3{font-size:1.3rem;font-weight:800;padding-right:36px}
+.modal .modal-sub{color:var(--ink-soft);font-size:.9rem;margin:4px 0 6px}
+.modal label{display:block;font-size:.82rem;font-weight:600;margin:12px 0 5px}
+.modal input,.modal select,.modal textarea{width:100%;font-family:var(--font-display);font-size:.95rem;padding:10px 13px;border:1.5px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);transition:border-color .2s,box-shadow .2s}
+.modal input:focus,.modal select:focus,.modal textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(232,160,32,.15)}
+.modal textarea{resize:vertical;min-height:64px}
+.modal .rij{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.modal .check{display:flex;align-items:center;gap:10px;margin-top:14px;font-size:.9rem;font-weight:500;cursor:pointer;user-select:none}
+.modal .check input{width:auto;accent-color:var(--accent);transform:scale(1.2);cursor:pointer}
+.modal .btn{width:100%;justify-content:center;margin-top:18px}
+.modal-sluit{position:absolute;top:14px;right:14px;width:34px;height:34px;border-radius:10px;border:1.5px solid var(--line);background:#fff;cursor:pointer;font-size:1.05rem;line-height:1;color:var(--ink-soft);transition:transform .25s ease,border-color .2s,color .2s}
+.modal-sluit:hover{transform:rotate(90deg);border-color:var(--rose);color:var(--ink)}
+.succes{text-align:center;padding:20px 8px}
+.succes .vink{font-size:2.6rem;display:inline-block;animation:pop .5s cubic-bezier(.34,1.56,.64,1)}
+.succes h4{font-size:1.15rem;font-weight:800;margin:8px 0 4px}
+.succes p{color:var(--ink-soft);font-size:.92rem}
+@keyframes pop{from{transform:scale(0) rotate(-20deg)}to{transform:scale(1) rotate(0)}}
+
+/* ---------- WhatsApp formulier ---------- */
+.wa-form{max-width:520px;margin:0 auto;display:grid;gap:12px;text-align:left}
+.wa-form .rij{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.wa-form input,.wa-form select,.wa-form textarea{width:100%;font-family:var(--font-display);font-size:.95rem;padding:12px 14px;border-radius:12px;border:1.5px solid rgba(255,255,255,.18);background:rgba(255,255,255,.07);color:#fff;transition:border-color .2s,background .2s,box-shadow .2s}
+.wa-form input::placeholder,.wa-form textarea::placeholder{color:#8d95a6}
+.wa-form input:focus,.wa-form select:focus,.wa-form textarea:focus{outline:none;border-color:var(--accent);background:rgba(255,255,255,.11);box-shadow:0 0 0 3px rgba(232,160,32,.2)}
+.wa-form option{color:var(--ink)}
+.wa-form textarea{resize:vertical;min-height:60px}
+.wa-form .btn.gold{width:100%;justify-content:center;margin-top:4px}
+.wa-succes{max-width:520px;margin:0 auto;text-align:center;padding:24px;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.15);border-radius:18px}
+.wa-succes .vink{font-size:2.4rem;display:inline-block;animation:pop .5s cubic-bezier(.34,1.56,.64,1)}
+.wa-succes h4{color:#fff;font-size:1.1rem;margin:8px 0 4px}
+.wa-succes p{color:#b8bfce;font-size:.9rem;margin:0}
+
+/* ---------- Toast ---------- */
+#toast{position:fixed;bottom:28px;left:50%;transform:translate(-50%,80px);background:var(--ink);color:#fff;padding:13px 24px;border-radius:999px;font-size:.9rem;font-weight:500;box-shadow:0 12px 30px rgba(30,36,48,.3);transition:transform .4s cubic-bezier(.34,1.56,.64,1);z-index:300}
+#toast.zichtbaar{transform:translate(-50%,0)}
+
+/* ---------- Footer ---------- */
+footer{border-top:1px solid var(--line);padding:32px 24px;max-width:1120px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
+footer p{font-size:.88rem;color:var(--ink-soft)}
+footer .admin-link{font-family:var(--font-mono);font-size:.78rem;color:var(--ink-soft);text-decoration:none;border-bottom:1px dashed var(--line);transition:color .2s,border-color .2s}
+footer .admin-link:hover{color:var(--accent-deep);border-color:var(--accent)}
+
+/* ---------- Responsive ---------- */
+@media (max-width:860px){
+  .hero{grid-template-columns:1fr;padding-top:48px}
+  .missie{grid-template-columns:1fr;padding:36px 28px}
+  .doen-grid{grid-template-columns:1fr}
+  .doen-card.wide{grid-row:auto;min-height:260px}
+  .event-card{grid-template-columns:72px 1fr;gap:16px}
+  .event-cat{display:none}
+  .event-zij{grid-column:1 / -1;flex-direction:row;justify-content:flex-end}
+  .modal .rij,.wa-form .rij{grid-template-columns:1fr}
+  .nav-links a:not(.btn){display:none}
+}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a class="logo" href="#"><span class="mark">🐴</span>Papa &amp; Pony's</a>
+    <div class="nav-links">
+      <a href="#missie">Waar we voor staan</a>
+      <a href="#doen">Wat we doen</a>
+      <a href="#evenementen">Evenementen</a>
+      <a class="btn gold" href="#community">Word lid <span class="arrow">→</span></a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div>
+    <span class="hero-eyebrow"><span class="dot"></span>Community voor meisjespapa's</span>
+    <h1>Vlechten kun je leren.<br>
+      <span class="swoop">Samen<svg viewBox="0 0 200 12" preserveAspectRatio="none"><path d="M2 8 Q 50 2 100 7 T 198 5"/></svg></span> gaat het sneller.</h1>
+    <p>Papa &amp; Pony's is dé plek waar vaders van dochters leren vlechten, samen leuke activiteiten doen en elkaar verder helpen. Laagdrempelig, warm en zonder gedoe.</p>
+    <div class="hero-ctas">
+      <a class="btn" href="#community">Sluit je aan <span class="arrow">→</span></a>
+      <a class="btn ghost" href="#evenementen">Bekijk evenementen</a>
+    </div>
+  </div>
+  <div class="hero-visual">
+    <figure class="pony-card">
+      <span class="float f1">🎀</span>
+      <span class="float f2">💛</span>
+      <span class="float f3">✨</span>
+      <svg class="braid" viewBox="0 0 400 220" xmlns="http://www.w3.org/2000/svg" aria-label="Gevlochten linten">
+        <path class="strand s1" d="M40 30 C 120 30, 120 110, 200 110 S 280 190, 360 190"/>
+        <path class="strand s2" d="M40 110 C 120 110, 120 30, 200 30 S 280 110, 360 110"/>
+        <path class="strand s3" d="M40 190 C 120 190, 120 110, 200 190 S 280 30, 360 30"/>
+      </svg>
+      <figcaption>drie strengen, één techniek, veel geduld</figcaption>
+    </figure>
+  </div>
+</header>
+
+<div class="marquee" aria-hidden="true">
+  <div class="marquee-track" id="marqueeTrack">
+    <span>vlechtworkshops <em>✦</em> papa-dochter uitjes <em>✦</em> whatsapp-community <em>✦</em> haarverzorging <em>✦</em> vaderschapsvragen <em>✦</em> playdates <em>✦</em> eerlijke gesprekken <em>✦</em></span>
+  </div>
+</div>
+
+<section id="missie" class="reveal">
+  <div class="missie">
+    <blockquote>Elke meisjespapa in Nederland kan vlechten, zodat zijn dochter voelt dat ze <em>geliefd</em> is.</blockquote>
+    <div class="toelichting">
+      <p><strong>Onze missie:</strong> meisjespapa's leren vlechten en ze helpen dat vol te houden. Zodat ze hun liefde voor hun dochter dag in dag uit kunnen laten voelen, zonder grote woorden nodig te hebben.</p>
+      <p style="margin-top:14px">Geen zware praatclub. Geen stoere humor ten koste van anderen. Wel een plek waar je praktische vragen stelt, eerlijk deelt en elkaar verder helpt.</p>
+    </div>
+  </div>
+</section>
+
+<section id="doen" class="reveal">
+  <div class="section-head">
+    <h2>Wat we doen</h2>
+    <p>Van je eerste staartje tot een visgraatvlecht, en alles daaromheen.</p>
+  </div>
+  <div class="doen-grid">
+    <div class="doen-card wide">
+      <span class="tag">populair</span>
+      <span class="icon">💇‍♀️</span>
+      <h3>Vlechtworkshops</h3>
+      <p>Hands-on oefenen met andere papa's. Van basis-invlecht tot visgraat, in je eigen tempo en met veel geduld voor beginnende vingers.</p>
+    </div>
+    <div class="doen-card">
+      <span class="icon">🎪</span>
+      <h3>Activiteiten &amp; uitjes</h3>
+      <p>Naast vlechten doen we regelmatig andere leuke dingen samen, met of zonder dochters. Van picknicks tot uitstapjes.</p>
+    </div>
+    <div class="doen-card">
+      <span class="icon">💬</span>
+      <h3>WhatsApp-community</h3>
+      <p>Onze grote discussie- en communitygroep: dagelijkse vragen over haar, opvoeding, school en alles waar je als meisjespapa tegenaan loopt.</p>
+    </div>
+  </div>
+</section>
+
+<section id="evenementen" class="reveal">
+  <div class="section-head">
+    <h2>Aankomende evenementen</h2>
+    <p>Meld je aan via de WhatsApp-groep. Vol is vol, dochters welkom waar aangegeven.</p>
+  </div>
+  <div class="event-list" id="eventList"></div>
+</section>
+
+<section id="waarden" class="reveal">
+  <div class="section-head">
+    <h2>Waar we op staan</h2>
+    <p>Een warme club met duidelijke afspraken. Zo blijft het voor iedereen veilig en leuk.</p>
+  </div>
+  <div class="waarden">
+    <span class="chip">💛 Liefde in kleine handelingen</span>
+    <span class="chip">🔒 Veiligheid boven alles</span>
+    <span class="chip">🙈 Privacy van kinderen voorop</span>
+    <span class="chip">🤝 Respect voor vrouwen</span>
+    <span class="chip">🫂 Kwetsbaarheid zonder spot</span>
+    <span class="chip">🔐 Wat gedeeld wordt, blijft binnen</span>
+  </div>
+</section>
+
+<section id="community" class="reveal">
+  <div class="community">
+    <span class="sparkle" style="top:18%;left:12%">✨</span>
+    <span class="sparkle" style="top:64%;left:86%;animation-delay:1.5s">🎀</span>
+    <span class="sparkle" style="top:24%;left:78%;animation-delay:3s">💛</span>
+    <span class="sparkle" style="top:70%;left:8%;animation-delay:2.2s">✨</span>
+    <h2>Ook een meisjespapa?</h2>
+    <p>Meld je aan voor de WhatsApp-community. Een moderator neemt contact met je op en voegt je toe aan de groep.</p>
+    <form class="wa-form" id="waForm">
+      <div class="rij">
+        <input id="waNaam" required maxlength="60" placeholder="Je voornaam *" aria-label="Voornaam">
+        <input id="waTelefoon" type="tel" required maxlength="20" placeholder="06-nummer *" aria-label="Telefoonnummer">
+      </div>
+      <select id="waDochters" aria-label="Aantal dochters">
+        <option value="">Aantal dochters (optioneel)</option>
+        <option>1</option><option>2</option><option>3</option><option>4 of meer</option>
+      </select>
+      <textarea id="waBericht" maxlength="240" placeholder="Vertel kort iets over jezelf (optioneel)" aria-label="Bericht"></textarea>
+      <button type="submit" class="btn gold">Meld je aan <span class="arrow">→</span></button>
+    </form>
+    <div class="wa-succes" id="waSucces" style="display:none">
+      <span class="vink">✅</span>
+      <h4>Aanmelding ontvangen!</h4>
+      <p>Een van de moderators neemt zo snel mogelijk contact met je op.</p>
+    </div>
+  </div>
+</section>
+
+<div class="modal-bg" id="modalBg" role="dialog" aria-modal="true">
+  <div class="modal">
+    <button class="modal-sluit" id="modalSluit" aria-label="Sluiten">✕</button>
+    <div id="modalFormWrap">
+      <h3 id="modalTitel">Inschrijven</h3>
+      <p class="modal-sub" id="modalSub"></p>
+      <form id="inschrijfForm">
+        <label for="inNaam">Je naam *</label>
+        <input id="inNaam" required maxlength="60" placeholder="Voornaam (+ achternaam mag)">
+        <label for="inContact">Telefoonnummer of e-mail *</label>
+        <input id="inContact" required maxlength="80" placeholder="Zodat we je kunnen bereiken">
+        <div class="rij">
+          <div>
+            <label for="inPersonen">Aantal papa's</label>
+            <select id="inPersonen"><option>1</option><option>2</option><option>3</option></select>
+          </div>
+          <div>
+            <label class="check" style="margin-top:32px"><input type="checkbox" id="inDochter"> Dochter(s) mee</label>
+          </div>
+        </div>
+        <label for="inOpmerking">Opmerking</label>
+        <textarea id="inOpmerking" maxlength="240" placeholder="Allergieën, vragen, of gewoon iets leuks (optioneel)"></textarea>
+        <button type="submit" class="btn gold">Schrijf me in 🎉</button>
+      </form>
+    </div>
+    <div class="succes" id="modalSucces" style="display:none">
+      <span class="vink">🎉</span>
+      <h4>Je staat op de lijst!</h4>
+      <p id="succesTekst"></p>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<footer>
+  <p>© <span id="jaar"></span> Papa &amp; Pony's · voor meisjespapa's, door meisjespapa's</p>
+  <a class="admin-link" href="admin/index.html">beheer</a>
+</footer>
+
+<script>
+/* ---------- Gedeelde evenementen-opslag (zelfde sleutel als /admin) ---------- */
+const PP_KEY = "pp_events";
+const seedEvents = [
+  {id:"seed-1", titel:"Vlechtworkshop: de basisvlecht", datum:"2026-07-18", tijd:"10:00", locatie:"Buurthuis De Schakel", categorie:"Workshop", beschrijving:"Voor beginners. Neem een borstel, elastiekjes en (als het kan) een geduldige dochter mee.", uitgelicht:true},
+  {id:"seed-2", titel:"Papa & Pony's zomerpicknick", datum:"2026-08-02", tijd:"12:30", locatie:"Stadspark, grote weide", categorie:"Uitje", beschrijving:"Kleedjes, broodjes en spelletjes. Dochters (en zonen) van harte welkom.", uitgelicht:false},
+  {id:"seed-3", titel:"Vlechtworkshop: visgraat & invlecht", datum:"2026-09-12", tijd:"10:00", locatie:"Buurthuis De Schakel", categorie:"Workshop", beschrijving:"Vervolgworkshop voor wie de basis onder de knie heeft.", uitgelicht:false}
+];
+function loadEvents(){
+  try{
+    const raw = localStorage.getItem(PP_KEY);
+    if(!raw){ localStorage.setItem(PP_KEY, JSON.stringify(seedEvents)); return seedEvents; }
+    return JSON.parse(raw);
+  }catch(e){ return seedEvents; }
+}
+const maanden = ["jan","feb","mrt","apr","mei","jun","jul","aug","sep","okt","nov","dec"];
+function renderEvents(){
+  const list = document.getElementById("eventList");
+  const today = new Date(); today.setHours(0,0,0,0);
+  const events = loadEvents()
+    .filter(e => new Date(e.datum + "T00:00:00") >= today)
+    .sort((a,b) => a.datum.localeCompare(b.datum));
+  if(events.length === 0){
+    list.innerHTML = `<div class="events-empty"><span class="icon">🗓️</span>Nog geen geplande evenementen. Hou de WhatsApp-groep in de gaten!</div>`;
+    return;
+  }
+  const signups = loadList(SIGNUP_KEY);
+  list.innerHTML = events.map((e,i) => {
+    const d = new Date(e.datum + "T00:00:00");
+    const aantal = signups.filter(s => s.eventId === e.id).reduce((n,s) => n + (parseInt(s.personen)||1), 0);
+    return `<article class="event-card reveal" style="transition-delay:${i*80}ms">
+      <div class="event-date"><div class="day">${d.getDate()}</div><div class="month">${maanden[d.getMonth()]}</div></div>
+      <div class="event-info">
+        <h3>${esc(e.titel)}${e.uitgelicht ? '<span class="badge">uitgelicht</span>' : ''}</h3>
+        <div class="meta"><span>🕙 ${esc(e.tijd || "n.t.b.")}</span><span>📍 ${esc(e.locatie || "n.t.b.")}</span>${aantal > 0 ? `<span>👥 ${aantal} aangemeld</span>` : ""}</div>
+        ${e.beschrijving ? `<p class="beschrijving">${esc(e.beschrijving)}</p>` : ""}
+      </div>
+      <div class="event-zij">
+        <span class="event-cat">${esc(e.categorie || "Activiteit")}</span>
+        <button class="btn-inschrijf" data-id="${e.id}">Inschrijven</button>
+      </div>
+    </article>`;
+  }).join("");
+  list.querySelectorAll(".btn-inschrijf").forEach(b => b.addEventListener("click", () => openInschrijf(b.dataset.id)));
+  observeReveals();
+}
+function esc(s){ const d=document.createElement("div"); d.textContent=s??""; return d.innerHTML; }
+
+/* ---------- Scroll reveals (met vangnet) ---------- */
+let observer;
+function observeReveals(){
+  const els = document.querySelectorAll(".reveal:not(.in)");
+  if(!("IntersectionObserver" in window)){ els.forEach(el => el.classList.add("in")); return; }
+  observer = observer || new IntersectionObserver(entries => {
+    entries.forEach(en => { if(en.isIntersecting){ en.target.classList.add("in"); observer.unobserve(en.target); } });
+  }, {threshold:.08, rootMargin:"0px 0px -5% 0px"});
+  els.forEach(el => observer.observe(el));
+}
+/* Vangnet: wat na 2s nog verborgen is, wordt alsnog getoond */
+setTimeout(() => document.querySelectorAll(".reveal:not(.in)").forEach(el => el.classList.add("in")), 2000);
+window.addEventListener("error", () => document.querySelectorAll(".reveal").forEach(el => el.classList.add("in")));
+
+/* ---------- Inschrijvingen & WhatsApp-aanmeldingen ---------- */
+const SIGNUP_KEY = "pp_event_signups";
+const WA_KEY = "pp_wa_signups";
+function loadList(k){ try{ return JSON.parse(localStorage.getItem(k)) || []; }catch(e){ return []; } }
+function saveList(k,v){ localStorage.setItem(k, JSON.stringify(v)); }
+
+let actiefEvent = null;
+const modalBg = document.getElementById("modalBg");
+function openInschrijf(id){
+  const e = loadEvents().find(x => x.id === id);
+  if(!e) return;
+  actiefEvent = e;
+  const d = new Date(e.datum + "T00:00:00");
+  document.getElementById("modalTitel").textContent = "Inschrijven: " + e.titel;
+  document.getElementById("modalSub").textContent = `${d.getDate()} ${maanden[d.getMonth()]} · ${e.tijd || "n.t.b."} · ${e.locatie || "locatie n.t.b."}`;
+  document.getElementById("modalFormWrap").style.display = "";
+  document.getElementById("modalSucces").style.display = "none";
+  document.getElementById("inschrijfForm").reset();
+  modalBg.classList.add("open");
+  setTimeout(() => document.getElementById("inNaam").focus(), 250);
+}
+function sluitModal(){ modalBg.classList.remove("open"); }
+document.getElementById("modalSluit").addEventListener("click", sluitModal);
+modalBg.addEventListener("click", e => { if(e.target === modalBg) sluitModal(); });
+document.addEventListener("keydown", e => { if(e.key === "Escape") sluitModal(); });
+
+document.getElementById("inschrijfForm").addEventListener("submit", ev => {
+  ev.preventDefault();
+  if(!actiefEvent) return;
+  const list = loadList(SIGNUP_KEY);
+  list.push({
+    id: "in-" + Date.now(),
+    eventId: actiefEvent.id,
+    eventTitel: actiefEvent.titel,
+    eventDatum: actiefEvent.datum,
+    naam: document.getElementById("inNaam").value.trim(),
+    contact: document.getElementById("inContact").value.trim(),
+    personen: document.getElementById("inPersonen").value,
+    dochterMee: document.getElementById("inDochter").checked,
+    opmerking: document.getElementById("inOpmerking").value.trim(),
+    aangemeldOp: new Date().toISOString()
+  });
+  saveList(SIGNUP_KEY, list);
+  document.getElementById("modalFormWrap").style.display = "none";
+  document.getElementById("modalSucces").style.display = "";
+  document.getElementById("succesTekst").textContent = `Tot bij ${actiefEvent.titel}. We nemen contact op via je opgegeven gegevens.`;
+  renderEvents();
+  setTimeout(sluitModal, 2600);
+});
+
+document.getElementById("waForm").addEventListener("submit", ev => {
+  ev.preventDefault();
+  const list = loadList(WA_KEY);
+  list.push({
+    id: "wa-" + Date.now(),
+    naam: document.getElementById("waNaam").value.trim(),
+    telefoon: document.getElementById("waTelefoon").value.trim(),
+    dochters: document.getElementById("waDochters").value,
+    bericht: document.getElementById("waBericht").value.trim(),
+    status: "nieuw",
+    aangemeldOp: new Date().toISOString()
+  });
+  saveList(WA_KEY, list);
+  document.getElementById("waForm").style.display = "none";
+  document.getElementById("waSucces").style.display = "";
+  toast("Aanmelding verstuurd 💛");
+});
+
+let toastTimer;
+function toast(txt){
+  const t = document.getElementById("toast");
+  t.textContent = txt;
+  t.classList.add("zichtbaar");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove("zichtbaar"), 2600);
+}
+
+/* ---------- Marquee: duplicate track for seamless loop ---------- */
+const track = document.getElementById("marqueeTrack");
+track.innerHTML += track.innerHTML;
+
+document.getElementById("jaar").textContent = new Date().getFullYear();
+renderEvents();
+observeReveals();
+</script>
+</body>
+</html>
