@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<!--
+  Papa & Pony's — algemene voorwaarden
+  Statische pagina met de lidmaatschapsvoorwaarden: gedrag, de zes
+  huisregels van de community en de betaalverplichting bij evenementen.
+  Wordt als verplicht akkoord gelinkt vanuit de aanmeld- en
+  inschrijfformulieren. Architectuur en afspraken: zie CLAUDE.md.
+-->
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Algemene voorwaarden | Papa &amp; Pony's</title>
+<meta name="description" content="De algemene voorwaarden en huisregels van Papa & Pony's: zo houden we de community veilig, warm en gericht op het doel.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1e2430;
+  --ink-soft:#4a5264;
+  --paper:#fffdf9;
+  --paper-tint:#fdf6ec;
+  --accent:#e8a020;
+  --accent-deep:#c9861a;
+  --rose:#e8637e;
+  --rose-soft:#fbe9ed;
+  --line:#e9e2d6;
+  --radius:16px;
+  --font-display:'Outfit',sans-serif;
+  --font-mono:'IBM Plex Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-display);background:var(--paper);color:var(--ink);line-height:1.6}
+::selection{background:var(--accent);color:#fff}
+
+nav{position:sticky;top:0;z-index:100;background:rgba(255,253,249,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.nav-inner{max-width:1120px;margin:0 auto;padding:0 24px;height:72px;display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.25rem;text-decoration:none;color:var(--ink)}
+.logo .mark{width:40px;height:40px;display:grid;place-items:center;background:var(--rose-soft);border-radius:12px;font-size:1.3rem;transition:transform .4s cubic-bezier(.34,1.56,.64,1)}
+.logo:hover .mark{transform:rotate(-12deg) scale(1.1)}
+.terug{font-size:.92rem;color:var(--ink-soft);text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:color .2s}
+.terug:hover{color:var(--ink)}
+.terug .pijl{transition:transform .25s ease;display:inline-block}
+.terug:hover .pijl{transform:translateX(-4px)}
+
+header{max-width:760px;margin:0 auto;padding:64px 24px 8px;text-align:center}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:var(--font-mono);font-size:.78rem;color:var(--accent-deep);background:var(--paper-tint);border:1px solid var(--line);padding:6px 14px;border-radius:999px;margin-bottom:20px}
+h1{font-size:clamp(2rem,4.4vw,2.9rem);font-weight:800;line-height:1.12;letter-spacing:-.02em;margin-bottom:14px}
+header p{color:var(--ink-soft);font-size:1.05rem;max-width:56ch;margin:0 auto}
+
+main{max-width:760px;margin:0 auto;padding:40px 24px 88px}
+section{margin-bottom:40px}
+h2{font-size:1.4rem;font-weight:800;letter-spacing:-.01em;margin-bottom:14px;display:flex;align-items:center;gap:10px}
+section > p{color:var(--ink-soft);margin-bottom:10px}
+section > p strong{color:var(--ink)}
+
+.regel{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:22px 24px;margin-bottom:12px;transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease}
+.regel:hover{transform:translateY(-2px);border-color:var(--accent);box-shadow:0 12px 30px -18px rgba(30,36,48,.25)}
+.regel .nr{display:inline-block;font-family:var(--font-mono);font-size:.72rem;color:var(--rose);background:var(--rose-soft);padding:4px 11px;border-radius:999px;margin-bottom:10px}
+.regel h3{font-size:1.08rem;font-weight:700;margin-bottom:6px}
+.regel p{color:var(--ink-soft);font-size:.96rem}
+
+.blok{background:var(--paper-tint);border:1px solid var(--line);border-radius:22px;padding:28px 30px}
+.blok ul{margin:10px 0 0 20px;color:var(--ink-soft)}
+.blok li{margin-bottom:8px}
+.blok li strong{color:var(--ink)}
+
+.akkoord{background:var(--ink);color:var(--paper);border-radius:22px;padding:32px;text-align:center}
+.akkoord h2{color:#fff;justify-content:center}
+.akkoord p{color:#b8bfce;max-width:52ch;margin:0 auto 20px}
+.btn{display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:#fff;font-weight:600;font-size:.95rem;padding:12px 22px;border-radius:999px;text-decoration:none;transition:transform .2s cubic-bezier(.34,1.56,.64,1),box-shadow .2s ease,background .2s ease}
+.btn:hover{transform:translateY(-2px);background:var(--accent-deep);box-shadow:0 8px 20px rgba(232,160,32,.35)}
+
+.reveal{opacity:1;transform:none}
+@media (prefers-reduced-motion: no-preference){
+  .reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s cubic-bezier(.22,1,.36,1)}
+  .reveal.in{opacity:1;transform:none}
+}
+footer{border-top:1px solid var(--line);padding:32px 24px;max-width:1120px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
+footer p{font-size:.88rem;color:var(--ink-soft)}
+footer a{font-family:var(--font-mono);font-size:.78rem;color:var(--ink-soft);text-decoration:none;border-bottom:1px dashed var(--line);transition:color .2s,border-color .2s}
+footer a:hover{color:var(--accent-deep);border-color:var(--accent)}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a class="logo" href="index.html"><span class="mark">🐴</span>Papa &amp; Pony's</a>
+    <a class="terug" href="index.html"><span class="pijl">←</span> Naar de site</a>
+  </div>
+</nav>
+
+<header class="reveal in">
+  <span class="eyebrow">📜 algemene voorwaarden</span>
+  <h1>Zo houden we het veilig, warm en leuk</h1>
+  <p>Word je lid van Papa &amp; Pony's of schrijf je je in voor een evenement, dan ga je akkoord met deze voorwaarden. Ze zijn er niet om streng te doen — ze zijn er zodat elke papa en elke dochter zich hier veilig voelt.</p>
+</header>
+
+<main>
+  <section class="reveal">
+    <h2>🤝 Gedrag</h2>
+    <p>Je gedraagt je <strong>te allen tijde netjes en respectvol</strong> — in de WhatsApp-groep, op evenementen en overal waar je namens of binnen Papa &amp; Pony's met anderen omgaat. We zijn een warme club: zo begroeten we elkaar, en zo blijven we het.</p>
+  </section>
+
+  <section class="reveal">
+    <h2>🏠 De zes huisregels</h2>
+
+    <div class="regel">
+      <span class="nr">regel 1</span>
+      <h3>Blijf bij het doel</h3>
+      <p>Vlechten, haarverzorging, opvoeding, school, grenzen, menstruatie, seksuele opvoeding en vaderschapsvragen. Geen politiek, spam of doorstuurberichten.</p>
+    </div>
+
+    <div class="regel">
+      <span class="nr">regel 2</span>
+      <h3>Privacy van kinderen staat altijd voorop</h3>
+      <p>Geen volledige namen, scholen, adressen of herleidbare gegevens. Geen herkenbare gezichten op foto's of video's.</p>
+    </div>
+
+    <div class="regel">
+      <span class="nr">regel 3</span>
+      <h3>Wat hier gedeeld wordt, blijft hier</h3>
+      <p>Geen screenshots of verhalen buiten de groep, ook niet met goede bedoelingen. Gevoelige onderwerpen behandelen we feitelijk en zorgvuldig.</p>
+    </div>
+
+    <div class="regel">
+      <span class="nr">regel 4</span>
+      <h3>Geen contact met andermans kinderen actief opzoeken</h3>
+      <p>Niet via de groep, via social media of WhatsApp. Ook niet goedbedoeld.</p>
+    </div>
+
+    <div class="regel">
+      <span class="nr">regel 5</span>
+      <h3>Respectvol en eerlijk</h3>
+      <p>Over vrouwen, moeders, ex-partners en andere vaders. Kwetsbaarheid is welkom, spot niet. Geen commerciële posts zonder overleg.</p>
+    </div>
+
+    <div class="regel">
+      <span class="nr">regel 6</span>
+      <h3>Beheer mag altijd ingrijpen</h3>
+      <p>Bij twijfel over veiligheid, sfeer of doelgerichtheid wordt er gehandeld, zonder discussie.</p>
+    </div>
+  </section>
+
+  <section class="reveal">
+    <h2>🎟️ Evenementen &amp; betaling</h2>
+    <div class="blok">
+      <ul>
+        <li><strong>Aangemeld = betalen.</strong> Meld je je aan voor een evenement met een prijs, dan ben je verplicht die te betalen — ook als je onverhoopt niet komt.</li>
+        <li><strong>Kun je niet?</strong> Meld je dan zo vroeg mogelijk af via het beheer of de WhatsApp-groep, dan kijken we samen wat redelijk is.</li>
+        <li><strong>Elke papa schrijft zichzelf in.</strong> Neem je een vriend mee, dan meldt hij zich apart aan.</li>
+        <li>Betalen kan via de betaalknop op de evenementpagina of ter plekke, tenzij anders vermeld.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="reveal">
+    <h2>⚖️ Tot slot</h2>
+    <p>Houd je je niet aan deze voorwaarden, dan kan het beheer je (tijdelijk) de toegang tot de groep of evenementen ontzeggen. Vragen over deze voorwaarden? Mail ons via <a href="mailto:jantje.super@gmail.com" style="color:var(--accent-deep)">jantje.super@gmail.com</a>.</p>
+  </section>
+
+  <section class="akkoord reveal">
+    <h2>Klaar om mee te doen?</h2>
+    <p>Mooi! Dan zien we je aanmelding graag tegemoet — en je eerste scheve vlechtje ook.</p>
+    <a class="btn" href="index.html#community">Word lid <span>→</span></a>
+  </section>
+</main>
+
+<footer>
+  <p>© <span id="jaar"></span> Papa &amp; Pony's · voor meisjespapa's, door meisjespapa's</p>
+  <a href="index.html">terug naar de site</a>
+</footer>
+
+<script>
+document.getElementById("jaar").textContent = new Date().getFullYear();
+(function(){
+  const els = document.querySelectorAll(".reveal:not(.in)");
+  if(!("IntersectionObserver" in window)){ els.forEach(el => el.classList.add("in")); return; }
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(en => { if(en.isIntersecting){ en.target.classList.add("in"); obs.unobserve(en.target); } });
+  }, {threshold:.08, rootMargin:"0px 0px -5% 0px"});
+  els.forEach(el => obs.observe(el));
+  setTimeout(() => document.querySelectorAll(".reveal:not(.in)").forEach(el => el.classList.add("in")), 2000);
+})();
+window.addEventListener("error", () => document.querySelectorAll(".reveal").forEach(el => el.classList.add("in")));
+</script>
+</body>
+</html>

@@ -239,6 +239,10 @@ h2{font-size:clamp(1.8rem,3.4vw,2.5rem);font-weight:800;letter-spacing:-.02em;li
 .wa-form input:focus,.wa-form select:focus,.wa-form textarea:focus{outline:none;border-color:var(--accent);background:rgba(255,255,255,.11);box-shadow:0 0 0 3px rgba(232,160,32,.2)}
 .wa-form option{color:var(--ink)}
 .wa-form textarea{resize:vertical;min-height:60px}
+.wa-form .check{display:flex;align-items:center;gap:10px;font-size:.88rem;color:#d5dae4;cursor:pointer;user-select:none;text-align:left}
+.wa-form .check input{width:auto;accent-color:var(--accent);transform:scale(1.2);cursor:pointer;flex-shrink:0}
+.wa-form .check a{color:var(--accent);text-decoration:none;border-bottom:1px dashed var(--accent)}
+.modal .check a{color:var(--accent-deep);text-decoration:none;border-bottom:1px dashed var(--accent)}
 .wa-form .btn.gold{width:100%;justify-content:center;margin-top:4px}
 .wa-succes{max-width:520px;margin:0 auto;text-align:center;padding:24px;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.15);border-radius:18px}
 .wa-succes .vink{font-size:2.4rem;display:inline-block;animation:pop .5s cubic-bezier(.34,1.56,.64,1)}
@@ -404,6 +408,7 @@ footer .admin-link:hover{color:var(--accent-deep);border-color:var(--accent)}
         </select>
       </div>
       <textarea id="waBericht" maxlength="240" placeholder="Vertel kort iets over jezelf (optioneel)" aria-label="Bericht"></textarea>
+      <label class="check"><input type="checkbox" id="waAkkoord" required> Ik ga akkoord met de <a href="voorwaarden.html" target="_blank" rel="noopener">algemene voorwaarden</a> *</label>
       <button type="submit" class="btn gold">Meld je aan <span class="arrow">→</span></button>
     </form>
     <div class="wa-succes" id="waSucces" style="display:none">
@@ -491,6 +496,7 @@ footer .admin-link:hover{color:var(--accent-deep);border-color:var(--accent)}
         <p class="modal-sub" style="margin-top:10px">Komt er een vriend mee? Dan schrijft hij zich ook even los in.</p>
         <label for="inOpmerking">Opmerking</label>
         <textarea id="inOpmerking" maxlength="240" placeholder="Allergieën, vragen, of gewoon iets leuks (optioneel)"></textarea>
+        <label class="check"><input type="checkbox" id="inAkkoord" required> Ik ga akkoord met de <a href="voorwaarden.html" target="_blank" rel="noopener">algemene voorwaarden</a>, waaronder betalen bij aanmelding *</label>
         <button type="submit" class="btn gold">Schrijf me in 🎉</button>
       </form>
     </div>
@@ -506,7 +512,10 @@ footer .admin-link:hover{color:var(--accent-deep);border-color:var(--accent)}
 
 <footer>
   <p>© <span id="jaar"></span> Papa &amp; Pony's · voor meisjespapa's, door meisjespapa's <span class="hartje">💛</span></p>
-  <a class="admin-link" href="admin/index.html">beheer</a>
+  <div style="display:flex;gap:18px">
+    <a class="admin-link" href="voorwaarden.html">voorwaarden</a>
+    <a class="admin-link" href="admin/index.html">beheer</a>
+  </div>
 </footer>
 
 <script>
@@ -631,6 +640,7 @@ document.getElementById("inschrijfForm").addEventListener("submit", ev => {
     personen: "1",
     dochterMee: document.getElementById("inDochter").checked,
     opmerking: document.getElementById("inOpmerking").value.trim(),
+    voorwaardenAkkoord: true,
     aangemeldOp: new Date().toISOString()
   });
   saveList(SIGNUP_KEY, list);
@@ -654,6 +664,7 @@ document.getElementById("waForm").addEventListener("submit", ev => {
     woonplaats: document.getElementById("waWoonplaats").value.trim(),
     dochters: document.getElementById("waDochters").value,
     bericht: document.getElementById("waBericht").value.trim(),
+    voorwaardenAkkoord: true,
     status: "nieuw",
     aangemeldOp: new Date().toISOString()
   });

@@ -5,6 +5,13 @@ Het format volgt [Keep a Changelog](https://keepachangelog.com/nl/1.1.0/).
 
 ## [Unreleased]
 
+## [0.13.0] - 2026-07-06
+
+### Toegevoegd
+- `voorwaarden.html`: algemene voorwaarden in huisstijl met de gedragsplicht (te allen tijde netjes en respectvol), de zes huisregels van de community, de betaalverplichting bij aanmelding voor evenementen en een slotbepaling over ingrijpen door het beheer
+- Verplicht akkoord-vinkje met link naar de voorwaarden in het WhatsApp-formulier en beide evenement-inschrijfformulieren; het akkoord wordt vastgelegd op het record (`voorwaardenAkkoord`)
+- "Voorwaarden"-link in de footer van de homepage en de evenementpagina
+
 ## [0.12.1] - 2026-07-06
 
 ### Toegevoegd
