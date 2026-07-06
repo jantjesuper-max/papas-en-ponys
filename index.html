@@ -72,8 +72,11 @@ h1 .swoop path{stroke:var(--accent);stroke-width:3;fill:none;stroke-linecap:roun
 .float.f3{top:38%;right:-18px;animation-delay:2.6s;font-size:1.2rem}
 @keyframes floaty{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-12px) rotate(6deg)}}
 
+/* hero foto */
+.pony-card .foto{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;border-radius:18px;margin-bottom:16px}
+
 /* braid svg */
-.braid{width:100%;height:auto;display:block}
+.braid{width:100%;height:64px;display:block}
 .braid .strand{fill:none;stroke-width:10;stroke-linecap:round;stroke-dasharray:600;stroke-dashoffset:600;animation:braiddraw 2.4s ease forwards}
 .braid .s1{stroke:var(--accent);animation-delay:.3s}
 .braid .s2{stroke:var(--rose);animation-delay:.6s}
@@ -120,6 +123,16 @@ h2{font-size:clamp(1.8rem,3.4vw,2.5rem);font-weight:800;letter-spacing:-.02em;li
 .doen-card.wide{grid-column:1;grid-row:1 / span 2;background:linear-gradient(160deg,#fff,var(--rose-soft));display:flex;flex-direction:column;justify-content:flex-end;min-height:340px}
 .doen-card.wide .icon{font-size:2.4rem}
 .doen-card .tag{position:absolute;top:20px;right:20px;font-family:var(--font-mono);font-size:.72rem;background:var(--ink);color:#fff;padding:4px 10px;border-radius:999px}
+
+/* ---------- Sfeerimpressie ---------- */
+#sfeer{padding-top:0}
+.sfeer-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.sfeer-item{position:relative;margin:0;border-radius:var(--radius);overflow:hidden;border:1px solid var(--line);background:#fff}
+.sfeer-item img{width:100%;height:100%;aspect-ratio:4/5;object-fit:cover;display:block;transition:transform .45s cubic-bezier(.22,1,.36,1)}
+.sfeer-item:hover img{transform:scale(1.045)}
+.sfeer-item figcaption{position:absolute;left:0;right:0;bottom:0;padding:36px 20px 16px;background:linear-gradient(transparent,rgba(30,36,48,.78));color:#fff;font-size:.9rem;font-weight:500}
+.sfeer-item.breed{grid-column:span 2}
+.sfeer-item.breed img{aspect-ratio:21/10}
 
 /* ---------- Evenementen ---------- */
 #evenementen{padding-top:64px}
@@ -208,6 +221,9 @@ footer .admin-link:hover{color:var(--accent-deep);border-color:var(--accent)}
   .hero{grid-template-columns:1fr;padding-top:48px}
   .missie{grid-template-columns:1fr;padding:36px 28px}
   .doen-grid{grid-template-columns:1fr}
+  .sfeer-grid{grid-template-columns:1fr}
+  .sfeer-item.breed{grid-column:auto}
+  .sfeer-item.breed img{aspect-ratio:16/10}
   .doen-card.wide{grid-row:auto;min-height:260px}
   .event-card{grid-template-columns:72px 1fr;gap:16px}
   .event-cat{display:none}
@@ -250,7 +266,8 @@ footer .admin-link:hover{color:var(--accent-deep);border-color:var(--accent)}
       <span class="float f1">🎀</span>
       <span class="float f2">💛</span>
       <span class="float f3">✨</span>
-      <svg class="braid" viewBox="0 0 400 220" xmlns="http://www.w3.org/2000/svg" aria-label="Gevlochten linten">
+      <img class="foto" src="fotos/vlechten.jpg" alt="Een papa oefent geconcentreerd een vlecht op een oefenhoofd tijdens een workshopavond">
+      <svg class="braid" viewBox="0 0 400 220" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" aria-label="Gevlochten linten">
         <path class="strand s1" d="M40 30 C 120 30, 120 110, 200 110 S 280 190, 360 190"/>
         <path class="strand s2" d="M40 110 C 120 110, 120 30, 200 30 S 280 110, 360 110"/>
         <path class="strand s3" d="M40 190 C 120 190, 120 110, 200 190 S 280 30, 360 30"/>
@@ -298,6 +315,27 @@ footer .admin-link:hover{color:var(--accent-deep);border-color:var(--accent)}
       <h3>WhatsApp-community</h3>
       <p>Onze grote discussie- en communitygroep: dagelijkse vragen over haar, opvoeding, school en alles waar je als meisjespapa tegenaan loopt.</p>
     </div>
+  </div>
+</section>
+
+<section id="sfeer" class="reveal">
+  <div class="section-head">
+    <h2>Zo ziet zo'n avond eruit</h2>
+    <p>Oefenhoofden op tafel, verhalen delen en samen lachen om de eerste scheve vlechtjes.</p>
+  </div>
+  <div class="sfeer-grid">
+    <figure class="sfeer-item breed">
+      <img src="fotos/twee-lachende-mannen.jpg" alt="Twee lachende papa's aan de kaptafels tijdens een vlechtworkshop" loading="lazy">
+      <figcaption>Fouten maken mag — lachen erom is verplicht 😄</figcaption>
+    </figure>
+    <figure class="sfeer-item">
+      <img src="fotos/presenteren.jpg" alt="Een spreker vertelt enthousiast tijdens een Papa & Pony's avond" loading="lazy">
+      <figcaption>Eerlijke verhalen van papa tot papa</figcaption>
+    </figure>
+    <figure class="sfeer-item">
+      <img src="fotos/presenteren-met-powerpoint.jpg" alt="Presentatie 'Van vlechten naar verbinden' voor een zaal vol papa's" loading="lazy">
+      <figcaption>Van vlechten naar verbinden 💛</figcaption>
+    </figure>
   </div>
 </section>
 

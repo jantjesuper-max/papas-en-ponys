@@ -5,6 +5,14 @@ Het format volgt [Keep a Changelog](https://keepachangelog.com/nl/1.1.0/).
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-07-06
+
+### Toegevoegd
+- Map `fotos/` met vier foto's van workshopavonden (hernoemd naar web-veilige bestandsnamen)
+- Echte workshopfoto in de hero-kaart, met de geanimeerde vlecht-illustratie als accent eronder
+- Nieuwe sectie "Zo ziet zo'n avond eruit" met drie sfeerfoto's, bijschriften en hover-effect
+- Alt-teksten en lazy loading voor alle nieuwe afbeeldingen
+
 ## [0.3.0] - 2026-07-06
 
 ### Toegevoegd
