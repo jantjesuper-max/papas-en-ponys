@@ -5,6 +5,16 @@ Het format volgt [Keep a Changelog](https://keepachangelog.com/nl/1.1.0/).
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-07-06
+
+### Toegevoegd
+- Oprichterssectie "De oprichter" onderaan de homepage: foto in wit kader met roze accent, bio van Faizi (docent, goochelaar, voorleesvader, kinderboekenschrijver en papa van twee dochters) en links naar De Spelende Mens, LinkedIn en Instagram (@devoorleesvader)
+- Contactsectie helemaal onderaan: donkere kaart in huisstijl met mailknop naar jantje.super@gmail.com
+- Navigatie bijgewerkt: "Over Faizi" en "Contact" vervangen "Wat we doen"
+
+### Verwijderd
+- Sectie "Wat we doen" op de homepage (inclusief bijbehorende stijlen)
+
 ## [0.7.0] - 2026-07-06
 
 ### Toegevoegd

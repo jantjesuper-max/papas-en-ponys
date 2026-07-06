@@ -112,17 +112,26 @@ h2{font-size:clamp(1.8rem,3.4vw,2.5rem);font-weight:800;letter-spacing:-.02em;li
 .missie .toelichting{color:var(--ink-soft);align-self:center}
 .missie .toelichting strong{color:var(--ink)}
 
-/* ---------- Wat we doen ---------- */
-.doen-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:20px}
-.doen-card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:32px;position:relative;overflow:hidden;transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease}
-.doen-card:hover{transform:translateY(-4px);box-shadow:0 16px 40px -20px rgba(30,36,48,.25);border-color:var(--accent)}
-.doen-card .icon{font-size:1.8rem;display:inline-block;margin-bottom:14px;transition:transform .3s cubic-bezier(.34,1.56,.64,1)}
-.doen-card:hover .icon{transform:rotate(-10deg) scale(1.2)}
-.doen-card h3{font-size:1.25rem;font-weight:700;margin-bottom:8px}
-.doen-card p{color:var(--ink-soft);font-size:.98rem}
-.doen-card.wide{grid-column:1;grid-row:1 / span 2;background:linear-gradient(160deg,#fff,var(--rose-soft));display:flex;flex-direction:column;justify-content:flex-end;min-height:340px}
-.doen-card.wide .icon{font-size:2.4rem}
-.doen-card .tag{position:absolute;top:20px;right:20px;font-family:var(--font-mono);font-size:.72rem;background:var(--ink);color:#fff;padding:4px 10px;border-radius:999px}
+/* ---------- Oprichter ---------- */
+.oprichter{display:grid;grid-template-columns:.85fr 1.15fr;gap:56px;align-items:center;background:var(--paper-tint);border:1px solid var(--line);border-radius:32px;padding:56px 48px}
+.oprichter-foto{margin:0;position:relative;max-width:340px;width:100%;justify-self:center}
+.oprichter-foto::before{content:"";position:absolute;inset:22px -18px -18px 18px;background:var(--rose-soft);border-radius:30px;transform:rotate(-4deg)}
+.oprichter-foto::after{content:"🎀";position:absolute;top:-14px;right:-8px;font-size:1.6rem;animation:floaty 5s ease-in-out infinite}
+.oprichter-foto img{position:relative;width:100%;display:block;border-radius:24px;border:7px solid #fff;box-shadow:0 26px 60px -28px rgba(30,36,48,.45)}
+.oprichter-eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:var(--font-mono);font-size:.78rem;color:var(--accent-deep);background:#fff;border:1px solid var(--line);padding:6px 14px;border-radius:999px;margin-bottom:16px}
+.oprichter-eyebrow .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);animation:pulse 2s ease-in-out infinite}
+.oprichter-tekst h3{font-size:clamp(1.3rem,2.6vw,1.7rem);font-weight:800;line-height:1.25;letter-spacing:-.01em;margin-bottom:14px}
+.oprichter-tekst p{color:var(--ink-soft);margin-bottom:12px}
+.oprichter-links{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.oprichter-links .btn{font-size:.88rem;padding:10px 18px}
+
+/* ---------- Contact ---------- */
+#contact{padding-top:0}
+.contact-kaart{background:var(--ink);color:var(--paper);border-radius:32px;padding:64px 48px;text-align:center;position:relative;overflow:hidden}
+.contact-icoon{font-size:2.6rem;display:inline-block;margin-bottom:10px;animation:floaty 5s ease-in-out infinite}
+.contact-kaart h2{color:#fff;margin-bottom:8px}
+.contact-kaart p{color:#b8bfce;max-width:46ch;margin:0 auto 26px}
+.contact-adres{font-family:var(--font-mono);font-size:.85rem;color:#8d95a6;margin-top:20px !important;margin-bottom:0 !important}
 
 /* ---------- Sfeerimpressie ---------- */
 #sfeer{padding-top:0}
@@ -226,11 +235,11 @@ footer .admin-link:hover{color:var(--accent-deep);border-color:var(--accent)}
 @media (max-width:860px){
   .hero{grid-template-columns:1fr;padding-top:48px}
   .missie{grid-template-columns:1fr;padding:36px 28px}
-  .doen-grid{grid-template-columns:1fr}
   .sfeer-grid{grid-template-columns:1fr}
   .sfeer-item.breed{grid-column:auto}
   .sfeer-item.breed img{aspect-ratio:16/10}
-  .doen-card.wide{grid-row:auto;min-height:260px}
+  .oprichter{grid-template-columns:1fr;padding:36px 26px;gap:36px}
+  .contact-kaart{padding:44px 26px}
   .event-card{grid-template-columns:72px 1fr;gap:16px}
   .event-cat{display:none}
   .event-zij{grid-column:1 / -1;flex-direction:row;justify-content:flex-end}
@@ -249,8 +258,9 @@ footer .admin-link:hover{color:var(--accent-deep);border-color:var(--accent)}
     <a class="logo" href="#"><span class="mark">🐴</span>Papa &amp; Pony's</a>
     <div class="nav-links">
       <a href="#missie">Waar we voor staan</a>
-      <a href="#doen">Wat we doen</a>
       <a href="#evenementen">Evenementen</a>
+      <a href="#oprichter">Over Faizi</a>
+      <a href="#contact">Contact</a>
       <a class="btn gold" href="#community">Word lid <span class="arrow">→</span></a>
     </div>
   </div>
@@ -295,31 +305,6 @@ footer .admin-link:hover{color:var(--accent-deep);border-color:var(--accent)}
     <div class="toelichting">
       <p><strong>Onze missie:</strong> meisjespapa's leren vlechten en ze helpen dat vol te houden. Zodat ze hun liefde voor hun dochter dag in dag uit kunnen laten voelen, zonder grote woorden nodig te hebben.</p>
       <p style="margin-top:14px">Geen zware praatclub. Geen stoere humor ten koste van anderen. Wel een plek waar je praktische vragen stelt, eerlijk deelt en elkaar verder helpt.</p>
-    </div>
-  </div>
-</section>
-
-<section id="doen" class="reveal">
-  <div class="section-head">
-    <h2>Wat we doen</h2>
-    <p>Van je eerste staartje tot een visgraatvlecht, en alles daaromheen.</p>
-  </div>
-  <div class="doen-grid">
-    <div class="doen-card wide">
-      <span class="tag">populair</span>
-      <span class="icon">💇‍♀️</span>
-      <h3>Vlechtworkshops</h3>
-      <p>Hands-on oefenen met andere papa's. Van basis-invlecht tot visgraat, in je eigen tempo en met veel geduld voor beginnende vingers.</p>
-    </div>
-    <div class="doen-card">
-      <span class="icon">🎪</span>
-      <h3>Activiteiten &amp; uitjes</h3>
-      <p>Naast vlechten doen we regelmatig andere leuke dingen samen, met of zonder dochters. Van picknicks tot uitstapjes.</p>
-    </div>
-    <div class="doen-card">
-      <span class="icon">💬</span>
-      <h3>WhatsApp-community</h3>
-      <p>Onze grote discussie- en communitygroep: dagelijkse vragen over haar, opvoeding, school en alles waar je als meisjespapa tegenaan loopt.</p>
     </div>
   </div>
 </section>
@@ -393,6 +378,39 @@ footer .admin-link:hover{color:var(--accent-deep);border-color:var(--accent)}
       <h4>Aanmelding ontvangen!</h4>
       <p>Een van de moderators neemt zo snel mogelijk contact met je op.</p>
     </div>
+  </div>
+</section>
+
+<section id="oprichter" class="reveal">
+  <div class="section-head">
+    <h2>De oprichter</h2>
+    <p>Papa &amp; Pony's is er niet zomaar gekomen — het begon bij één papa met een missie.</p>
+  </div>
+  <div class="oprichter">
+    <figure class="oprichter-foto">
+      <img src="fotos/presenteren.jpg" alt="Faizi vertelt met open handen tijdens een Papa & Pony's avond" loading="lazy">
+    </figure>
+    <div class="oprichter-tekst">
+      <span class="oprichter-eyebrow"><span class="dot"></span>Hoi, ik ben Faizi</span>
+      <h3>Docent, goochelaar, voorleesvader — en papa van twee dochters</h3>
+      <p>Mohammad Faizi Nazir gelooft dat spelen de mooiste manier is om te leren — voor kinderen én volwassenen. Als docent, kinderboekenschrijver en voorleesvader zet hij spel in bij alles wat hij doet: in de klas, op het podium en gewoon thuis op de bank.</p>
+      <p>Met Papa &amp; Pony's brengt hij dat samen met zijn eigen vaderschap: een plek waar meisjespapa's al spelend leren vlechten, elkaar verder helpen en de band met hun dochter versterken. Want liefde zit in kleine handelingen — een vlechtje voor school zegt meer dan grote woorden.</p>
+      <div class="oprichter-links">
+        <a class="btn ghost" href="https://www.despelendemens.com" target="_blank" rel="noopener">🌐 De Spelende Mens</a>
+        <a class="btn ghost" href="https://www.linkedin.com/in/mohammad-faizi-nazir/" target="_blank" rel="noopener">💼 LinkedIn</a>
+        <a class="btn ghost" href="https://www.instagram.com/devoorleesvader/" target="_blank" rel="noopener">📸 @devoorleesvader</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="contact" class="reveal">
+  <div class="contact-kaart">
+    <span class="contact-icoon">💌</span>
+    <h2>Vragen, ideeën of gewoon hoi zeggen?</h2>
+    <p>Mail ons — we antwoorden sneller dan je een staartje maakt.</p>
+    <a class="btn gold" href="mailto:jantje.super@gmail.com?subject=Vraag%20aan%20Papa%20%26%20Pony's">📬 Mail naar Papa &amp; Pony's <span class="arrow">→</span></a>
+    <p class="contact-adres">jantje.super@gmail.com</p>
   </div>
 </section>
 
