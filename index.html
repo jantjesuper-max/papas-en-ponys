@@ -144,10 +144,16 @@ h2{font-size:clamp(1.8rem,3.4vw,2.5rem);font-weight:800;letter-spacing:-.02em;li
 .event-date .day{font-size:1.5rem;font-weight:800;line-height:1}
 .event-date .month{font-family:var(--font-mono);font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
 .event-info h3{font-size:1.15rem;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:10px}
+.event-info h3 a{color:inherit;text-decoration:none;transition:color .2s}
+.event-info h3 a:hover{color:var(--accent-deep)}
+.event-meer{font-size:.82rem;color:var(--ink-soft);text-decoration:none;border-bottom:1px dashed var(--line);transition:color .2s,border-color .2s;white-space:nowrap}
+.event-meer:hover{color:var(--accent-deep);border-color:var(--accent)}
 .event-info .badge{font-family:var(--font-mono);font-size:.68rem;background:var(--accent);color:#fff;padding:3px 9px;border-radius:999px;animation:pulse 2.4s ease-in-out infinite}
 .event-info .meta{font-size:.88rem;color:var(--ink-soft);display:flex;gap:16px;flex-wrap:wrap}
 .event-info .beschrijving{font-size:.92rem;color:var(--ink-soft);margin-top:6px;max-width:60ch}
 .event-cat{font-family:var(--font-mono);font-size:.72rem;color:var(--accent-deep);background:var(--paper-tint);border:1px solid var(--line);padding:5px 12px;border-radius:999px;white-space:nowrap}
+.event-type{font-family:var(--font-mono);font-size:.72rem;padding:5px 12px;border-radius:999px;white-space:nowrap;background:var(--rose-soft);color:var(--rose);border:1px solid var(--rose-soft)}
+.event-type.ander{background:var(--paper-tint);color:var(--ink-soft);border-color:var(--line)}
 .events-empty{text-align:center;padding:56px 24px;background:var(--paper-tint);border:1.5px dashed var(--line);border-radius:var(--radius);color:var(--ink-soft)}
 .events-empty .icon{font-size:2.4rem;display:block;margin-bottom:12px;animation:floaty 4s ease-in-out infinite}
 
@@ -434,9 +440,9 @@ footer .admin-link:hover{color:var(--accent-deep);border-color:var(--accent)}
 /* ---------- Gedeelde evenementen-opslag (zelfde sleutel als /admin) ---------- */
 const PP_KEY = "pp_events";
 const seedEvents = [
-  {id:"seed-1", titel:"Vlechtworkshop: de basisvlecht", datum:"2026-07-18", tijd:"10:00", locatie:"Buurthuis De Schakel", categorie:"Workshop", beschrijving:"Voor beginners. Neem een borstel, elastiekjes en (als het kan) een geduldige dochter mee.", uitgelicht:true},
-  {id:"seed-2", titel:"Papa & Pony's zomerpicknick", datum:"2026-08-02", tijd:"12:30", locatie:"Stadspark, grote weide", categorie:"Uitje", beschrijving:"Kleedjes, broodjes en spelletjes. Dochters (en zonen) van harte welkom.", uitgelicht:false},
-  {id:"seed-3", titel:"Vlechtworkshop: visgraat & invlecht", datum:"2026-09-12", tijd:"10:00", locatie:"Buurthuis De Schakel", categorie:"Workshop", beschrijving:"Vervolgworkshop voor wie de basis onder de knie heeft.", uitgelicht:false}
+  {id:"seed-1", titel:"Vlechtworkshop: de basisvlecht", type:"vlechtworkshop", datum:"2026-07-18", tijd:"10:00", locatie:"Buurthuis De Schakel", categorie:"Workshop", beschrijving:"Voor beginners. Neem een borstel, elastiekjes en (als het kan) een geduldige dochter mee.", uitgelicht:true},
+  {id:"seed-2", titel:"Papa & Pony's zomerpicknick", type:"ander", datum:"2026-08-02", tijd:"12:30", locatie:"Stadspark, grote weide", categorie:"Uitje", beschrijving:"Kleedjes, broodjes en spelletjes. Dochters (en zonen) van harte welkom.", uitgelicht:false},
+  {id:"seed-3", titel:"Vlechtworkshop: visgraat & invlecht", type:"vlechtworkshop", datum:"2026-09-12", tijd:"10:00", locatie:"Buurthuis De Schakel", categorie:"Workshop", beschrijving:"Vervolgworkshop voor wie de basis onder de knie heeft.", uitgelicht:false}
 ];
 function loadEvents(){
   try{
@@ -446,6 +452,8 @@ function loadEvents(){
   }catch(e){ return seedEvents; }
 }
 const maanden = ["jan","feb","mrt","apr","mei","jun","jul","aug","sep","okt","nov","dec"];
+/* Evenementen van voor de tags krijgen er automatisch een o.b.v. hun categorie */
+function evType(e){ return e.type || (e.categorie === "Workshop" ? "vlechtworkshop" : "ander"); }
 function renderEvents(){
   const list = document.getElementById("eventList");
   const today = new Date(); today.setHours(0,0,0,0);
@@ -463,13 +471,15 @@ function renderEvents(){
     return `<article class="event-card reveal" style="transition-delay:${i*80}ms">
       <div class="event-date"><div class="day">${d.getDate()}</div><div class="month">${maanden[d.getMonth()]}</div></div>
       <div class="event-info">
-        <h3>${esc(e.titel)}${e.uitgelicht ? '<span class="badge">uitgelicht</span>' : ''}</h3>
+        <h3><a href="evenement.html?id=${encodeURIComponent(e.id)}">${esc(e.titel)}</a>${e.uitgelicht ? '<span class="badge">uitgelicht</span>' : ''}</h3>
         <div class="meta"><span>🕙 ${esc(e.tijd || "n.t.b.")}</span><span>📍 ${esc(e.locatie || "n.t.b.")}</span>${aantal > 0 ? `<span>👥 ${aantal} aangemeld</span>` : ""}</div>
         ${e.beschrijving ? `<p class="beschrijving">${esc(e.beschrijving)}</p>` : ""}
       </div>
       <div class="event-zij">
+        <span class="event-type ${evType(e)==="vlechtworkshop"?"":"ander"}">${evType(e)==="vlechtworkshop"?"🎀 vlechtworkshop":"🎪 ander evenement"}</span>
         <span class="event-cat">${esc(e.categorie || "Activiteit")}</span>
         <button class="btn-inschrijf" data-id="${e.id}">Inschrijven</button>
+        <a class="event-meer" href="evenement.html?id=${encodeURIComponent(e.id)}">meer info →</a>
       </div>
     </article>`;
   }).join("");

@@ -5,6 +5,20 @@ Het format volgt [Keep a Changelog](https://keepachangelog.com/nl/1.1.0/).
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-07-06
+
+### Toegevoegd
+- `evenement.html`: deelbare landingspagina per evenement (`evenement.html?id=…`) met fotogalerij, praktische-infokaart, kopieer-link- en WhatsApp-deelknoppen en een inline inschrijfformulier
+- Foto-upload per evenement in het beheer: meerdere foto's tegelijk, automatische verkleining (max 1200px), thumbnails met verwijderknop
+- Nette "niet gevonden"- en "al geweest"-varianten op de evenementpagina
+- 🔗-knop in het beheer om de landingspagina van een evenement direct te openen
+- Evenementtitels en "meer info"-links op de homepage verwijzen naar de landingspagina
+- Evenementen zonder eigen foto's tonen automatisch sfeerfoto's van eerdere avonden
+- Waarschuwing in het beheer wanneer de browseropslag vol raakt
+- Twee evenementtypes als tags: 🎀 vlechtworkshop en 🎪 ander evenement — te kiezen in het beheer, zichtbaar op de homepage en de evenementpagina
+- Vlechtworkshop-pagina's krijgen een eigen feestelijke hero (roze verloop + geanimeerd vlechtje) als basis voor een grootsere workshoppagina later
+- Bestaande evenementen zonder type krijgen er automatisch één op basis van hun categorie
+
 ## [0.4.0] - 2026-07-06
 
 ### Toegevoegd

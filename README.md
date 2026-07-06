@@ -9,7 +9,8 @@ Een vrolijke, snelle one-page website met bijbehorende beheeromgeving — gebouw
 | Pagina | Bestand | Wat het doet |
 |---|---|---|
 | **Landingspagina** | [`index.html`](index.html) | Missie, activiteiten, waarden, aankomende evenementen en aanmelden voor de WhatsApp-community |
-| **Beheer** | [`admin/index.html`](admin/index.html) | Evenementen aanmaken en bewerken, inschrijvingen per evenement bekijken, WhatsApp-aanmeldingen beheren en exporteren naar CSV |
+| **Evenementpagina** | [`evenement.html`](evenement.html) | Deelbare landingspagina per evenement (`evenement.html?id=…`) met foto's, praktische info, deelknoppen en inschrijfformulier |
+| **Beheer** | [`admin/index.html`](admin/index.html) | Evenementen aanmaken en bewerken (incl. foto-upload), inschrijvingen per evenement bekijken, WhatsApp-aanmeldingen beheren en exporteren naar CSV |
 
 ### Hoogtepunten
 

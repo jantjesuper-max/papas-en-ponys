@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Evenement | Papa &amp; Pony's</title>
+<meta name="description" content="Bekijk dit evenement van Papa & Pony's en schrijf je direct in.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1e2430;
+  --ink-soft:#4a5264;
+  --paper:#fffdf9;
+  --paper-tint:#fdf6ec;
+  --accent:#e8a020;
+  --accent-deep:#c9861a;
+  --rose:#e8637e;
+  --rose-soft:#fbe9ed;
+  --groen:#3d9a6b;
+  --groen-soft:#e7f4ed;
+  --line:#e9e2d6;
+  --radius:16px;
+  --font-display:'Outfit',sans-serif;
+  --font-mono:'IBM Plex Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-display);background:var(--paper);color:var(--ink);line-height:1.6;overflow-x:hidden}
+::selection{background:var(--accent);color:#fff}
+
+/* ---------- Nav ---------- */
+nav{position:sticky;top:0;z-index:100;background:rgba(255,253,249,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.nav-inner{max-width:1120px;margin:0 auto;padding:0 24px;height:72px;display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.25rem;text-decoration:none;color:var(--ink)}
+.logo .mark{width:40px;height:40px;display:grid;place-items:center;background:var(--rose-soft);border-radius:12px;font-size:1.3rem;transition:transform .4s cubic-bezier(.34,1.56,.64,1)}
+.logo:hover .mark{transform:rotate(-12deg) scale(1.1)}
+.terug{font-size:.92rem;color:var(--ink-soft);text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:color .2s}
+.terug:hover{color:var(--ink)}
+.terug .pijl{transition:transform .25s ease;display:inline-block}
+.terug:hover .pijl{transform:translateX(-4px)}
+
+/* ---------- Buttons ---------- */
+.btn{display:inline-flex;align-items:center;gap:8px;background:var(--ink);color:#fff;font-weight:600;font-size:.95rem;padding:12px 22px;border-radius:999px;text-decoration:none;border:none;cursor:pointer;font-family:var(--font-display);transition:transform .2s cubic-bezier(.34,1.56,.64,1),box-shadow .2s ease,background .2s ease}
+.btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(30,36,48,.18)}
+.btn:active{transform:translateY(0) scale(.97)}
+.btn .arrow{display:inline-block;transition:transform .25s ease}
+.btn:hover .arrow{transform:translateX(4px)}
+.btn.gold{background:var(--accent)}
+.btn.gold:hover{background:var(--accent-deep);box-shadow:0 8px 20px rgba(232,160,32,.35)}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+.btn.ghost:hover{border-color:var(--ink);box-shadow:none}
+
+/* ---------- Hero ---------- */
+.ev-hero{max-width:900px;margin:0 auto;padding:64px 24px 40px;text-align:center}
+.ev-eyebrow{display:inline-flex;align-items:center;gap:10px;font-family:var(--font-mono);font-size:.78rem;color:var(--accent-deep);background:var(--paper-tint);border:1px solid var(--line);padding:6px 14px;border-radius:999px;margin-bottom:22px}
+.ev-eyebrow .cat{color:var(--rose)}
+.type-tag{display:inline-flex;align-items:center;gap:7px;font-family:var(--font-mono);font-size:.78rem;background:var(--rose-soft);color:var(--rose);border:1px solid var(--rose-soft);padding:6px 14px;border-radius:999px;margin-bottom:22px;margin-right:8px}
+.type-tag.ander{background:var(--paper-tint);color:var(--ink-soft);border-color:var(--line)}
+/* Vlechtworkshops krijgen een eigen, feestelijkere hero (basis voor de grote workshoppagina) */
+.hero-wrap.vlecht{background:linear-gradient(180deg,var(--rose-soft) 0%,rgba(251,233,237,.35) 55%,transparent 100%)}
+.hero-braid{width:200px;height:44px;margin:4px auto 20px;display:block}
+.hero-braid .strand{fill:none;stroke-width:9;stroke-linecap:round;stroke-dasharray:600;stroke-dashoffset:600;animation:braiddraw 2.2s ease forwards}
+.hero-braid .s1{stroke:var(--accent);animation-delay:.2s}
+.hero-braid .s2{stroke:var(--rose);animation-delay:.5s}
+.hero-braid .s3{stroke:var(--ink);animation-delay:.8s}
+@keyframes braiddraw{to{stroke-dashoffset:0}}
+h1{font-size:clamp(2rem,4.6vw,3.2rem);font-weight:800;line-height:1.1;letter-spacing:-.02em;margin-bottom:18px}
+.ev-meta{display:flex;justify-content:center;gap:22px;flex-wrap:wrap;color:var(--ink-soft);font-size:1rem;margin-bottom:30px}
+.ev-meta span{display:inline-flex;align-items:center;gap:7px}
+.ev-ctas{display:flex;justify-content:center;gap:14px;flex-wrap:wrap}
+.badge-voorbij{display:inline-block;font-family:var(--font-mono);font-size:.78rem;background:var(--ink);color:#fff;padding:6px 16px;border-radius:999px;margin-bottom:20px}
+
+/* ---------- Foto's ---------- */
+.ev-fotos{max-width:1120px;margin:0 auto;padding:24px}
+.foto-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.foto-grid figure{margin:0;border-radius:var(--radius);overflow:hidden;border:1px solid var(--line);background:#fff}
+.foto-grid img{width:100%;height:100%;aspect-ratio:4/3;object-fit:cover;display:block;transition:transform .45s cubic-bezier(.22,1,.36,1)}
+.foto-grid figure:hover img{transform:scale(1.045)}
+.foto-grid figure:first-child{grid-column:span 2;grid-row:span 2}
+.foto-grid figure:first-child img{height:100%;aspect-ratio:auto}
+.foto-grid.een{grid-template-columns:1fr}
+.foto-grid.een figure:first-child{grid-column:auto;grid-row:auto}
+.foto-grid.een figure:first-child img{aspect-ratio:16/8;height:auto}
+.foto-grid.twee{grid-template-columns:1fr 1fr}
+.foto-grid.twee figure:first-child{grid-column:auto;grid-row:auto}
+.foto-grid.twee figure:first-child img{aspect-ratio:4/3;height:auto}
+.foto-noot{text-align:center;font-family:var(--font-mono);font-size:.78rem;color:var(--ink-soft);margin-top:14px}
+
+/* ---------- Inhoud ---------- */
+.ev-body{max-width:900px;margin:0 auto;padding:40px 24px 72px;display:grid;grid-template-columns:1.2fr .8fr;gap:32px;align-items:start}
+.ev-tekst h2{font-size:1.45rem;font-weight:800;letter-spacing:-.01em;margin-bottom:12px}
+.ev-tekst p{color:var(--ink-soft);font-size:1.02rem;white-space:pre-line}
+.info-card{background:var(--paper-tint);border:1px solid var(--line);border-radius:22px;padding:26px;position:sticky;top:96px}
+.info-card h3{font-size:1.05rem;font-weight:700;margin-bottom:14px}
+.info-rij{display:flex;gap:12px;padding:9px 0;border-bottom:1px dashed var(--line);font-size:.94rem}
+.info-rij:last-of-type{border-bottom:none}
+.info-rij .lbl{font-family:var(--font-mono);font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);width:74px;flex-shrink:0;padding-top:3px}
+.deel{margin-top:18px;display:flex;gap:8px;flex-wrap:wrap}
+.deel .btn{font-size:.82rem;padding:9px 16px}
+
+/* ---------- Inschrijven ---------- */
+.inschrijf{max-width:640px;margin:0 auto 88px;padding:0 24px}
+.inschrijf-card{background:var(--ink);color:var(--paper);border-radius:28px;padding:44px 40px;position:relative;overflow:hidden}
+.inschrijf-card h2{color:#fff;font-size:1.6rem;font-weight:800;text-align:center;margin-bottom:6px}
+.inschrijf-card .sub{color:#b8bfce;text-align:center;font-size:.95rem;margin-bottom:24px}
+.sparkle{position:absolute;font-size:1.1rem;opacity:.5;animation:floaty 6s ease-in-out infinite}
+@keyframes floaty{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-12px) rotate(6deg)}}
+.in-form{display:grid;gap:12px}
+.in-form .rij{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.in-form input,.in-form select,.in-form textarea{width:100%;font-family:var(--font-display);font-size:.95rem;padding:12px 14px;border-radius:12px;border:1.5px solid rgba(255,255,255,.18);background:rgba(255,255,255,.07);color:#fff;transition:border-color .2s,background .2s,box-shadow .2s}
+.in-form input::placeholder,.in-form textarea::placeholder{color:#8d95a6}
+.in-form input:focus,.in-form select:focus,.in-form textarea:focus{outline:none;border-color:var(--accent);background:rgba(255,255,255,.11);box-shadow:0 0 0 3px rgba(232,160,32,.2)}
+.in-form option{color:var(--ink)}
+.in-form textarea{resize:vertical;min-height:60px}
+.in-form .check{display:flex;align-items:center;gap:10px;font-size:.9rem;color:#d5dae4;cursor:pointer;user-select:none}
+.in-form .check input{width:auto;accent-color:var(--accent);transform:scale(1.2);cursor:pointer}
+.in-form .btn.gold{width:100%;justify-content:center;margin-top:4px}
+.in-succes{text-align:center;padding:24px;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.15);border-radius:18px}
+.in-succes .vink{font-size:2.4rem;display:inline-block;animation:pop .5s cubic-bezier(.34,1.56,.64,1)}
+@keyframes pop{from{transform:scale(0) rotate(-20deg)}to{transform:scale(1) rotate(0)}}
+.in-succes h4{color:#fff;font-size:1.1rem;margin:8px 0 4px}
+.in-succes p{color:#b8bfce;font-size:.9rem;margin:0}
+
+/* ---------- Niet gevonden ---------- */
+.niet-gevonden{max-width:560px;margin:0 auto;padding:96px 24px;text-align:center}
+.niet-gevonden .icon{font-size:3rem;display:block;margin-bottom:16px;animation:floaty 4s ease-in-out infinite}
+.niet-gevonden h1{font-size:1.8rem;margin-bottom:10px}
+.niet-gevonden p{color:var(--ink-soft);margin-bottom:26px}
+
+/* ---------- Reveal + toast + footer ---------- */
+.reveal{opacity:1;transform:none}
+@media (prefers-reduced-motion: no-preference){
+  .reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s cubic-bezier(.22,1,.36,1)}
+  .reveal.in{opacity:1;transform:none}
+}
+#toast{position:fixed;bottom:28px;left:50%;transform:translate(-50%,80px);background:var(--ink);color:#fff;padding:13px 24px;border-radius:999px;font-size:.9rem;font-weight:500;box-shadow:0 12px 30px rgba(30,36,48,.3);transition:transform .4s cubic-bezier(.34,1.56,.64,1);z-index:300}
+#toast.zichtbaar{transform:translate(-50%,0)}
+footer{border-top:1px solid var(--line);padding:32px 24px;max-width:1120px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
+footer p{font-size:.88rem;color:var(--ink-soft)}
+footer a{font-family:var(--font-mono);font-size:.78rem;color:var(--ink-soft);text-decoration:none;border-bottom:1px dashed var(--line);transition:color .2s,border-color .2s}
+footer a:hover{color:var(--accent-deep);border-color:var(--accent)}
+
+/* ---------- Responsive ---------- */
+@media (max-width:860px){
+  .ev-body{grid-template-columns:1fr}
+  .info-card{position:static}
+  .foto-grid{grid-template-columns:1fr 1fr}
+  .foto-grid figure:first-child{grid-column:span 2;grid-row:auto}
+  .foto-grid figure:first-child img{aspect-ratio:16/10}
+  .in-form .rij{grid-template-columns:1fr}
+  .inschrijf-card{padding:32px 24px}
+}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a class="logo" href="index.html"><span class="mark">🐴</span>Papa &amp; Pony's</a>
+    <a class="terug" href="index.html#evenementen"><span class="pijl">←</span> Alle evenementen</a>
+  </div>
+</nav>
+
+<div id="pagina"></div>
+
+<div id="toast"></div>
+
+<footer>
+  <p>© <span id="jaar"></span> Papa &amp; Pony's · voor meisjespapa's, door meisjespapa's</p>
+  <a href="admin/index.html">beheer</a>
+</footer>
+
+<script>
+/* ---------- Gedeelde opslag (zelfde sleutels als homepage en /admin) ---------- */
+const PP_KEY = "pp_events";
+const SIGNUP_KEY = "pp_event_signups";
+const maanden = ["januari","februari","maart","april","mei","juni","juli","augustus","september","oktober","november","december"];
+const seedEvents = [
+  {id:"seed-1", titel:"Vlechtworkshop: de basisvlecht", type:"vlechtworkshop", datum:"2026-07-18", tijd:"10:00", locatie:"Buurthuis De Schakel", categorie:"Workshop", beschrijving:"Voor beginners. Neem een borstel, elastiekjes en (als het kan) een geduldige dochter mee.", uitgelicht:true},
+  {id:"seed-2", titel:"Papa & Pony's zomerpicknick", type:"ander", datum:"2026-08-02", tijd:"12:30", locatie:"Stadspark, grote weide", categorie:"Uitje", beschrijving:"Kleedjes, broodjes en spelletjes. Dochters (en zonen) van harte welkom.", uitgelicht:false},
+  {id:"seed-3", titel:"Vlechtworkshop: visgraat & invlecht", type:"vlechtworkshop", datum:"2026-09-12", tijd:"10:00", locatie:"Buurthuis De Schakel", categorie:"Workshop", beschrijving:"Vervolgworkshop voor wie de basis onder de knie heeft.", uitgelicht:false}
+];
+function loadEvents(){
+  try{
+    const raw = localStorage.getItem(PP_KEY);
+    if(!raw){ localStorage.setItem(PP_KEY, JSON.stringify(seedEvents)); return seedEvents; }
+    return JSON.parse(raw);
+  }catch(e){ return seedEvents; }
+}
+function loadList(k){ try{ return JSON.parse(localStorage.getItem(k)) || []; }catch(e){ return []; } }
+function saveList(k,v){ localStorage.setItem(k, JSON.stringify(v)); }
+function esc(s){ const d=document.createElement("div"); d.textContent=s??""; return d.innerHTML; }
+/* Evenementen van voor de tags krijgen er automatisch een o.b.v. hun categorie */
+function evType(e){ return e.type || (e.categorie === "Workshop" ? "vlechtworkshop" : "ander"); }
+
+/* Sfeerfoto's van eerdere avonden, als een evenement (nog) geen eigen foto's heeft */
+const fallbackFotos = ["fotos/twee-lachende-mannen.jpg","fotos/vlechten.jpg","fotos/presenteren.jpg"];
+
+const params = new URLSearchParams(location.search);
+const event = loadEvents().find(e => e.id === params.get("id"));
+const pagina = document.getElementById("pagina");
+
+if(!event){
+  document.title = "Evenement niet gevonden | Papa & Pony's";
+  pagina.innerHTML = `<div class="niet-gevonden">
+    <span class="icon">🐴</span>
+    <h1>Dit evenement kennen we niet (meer)</h1>
+    <p>Misschien is het al geweest of is de link niet helemaal goed overgekomen. Op de homepage vind je alle aankomende evenementen.</p>
+    <a class="btn gold" href="index.html#evenementen">Bekijk alle evenementen <span class="arrow">→</span></a>
+  </div>`;
+}else{
+  document.title = event.titel + " | Papa & Pony's";
+  const d = new Date(event.datum + "T00:00:00");
+  const vandaag = new Date(); vandaag.setHours(0,0,0,0);
+  const voorbij = d < vandaag;
+  const datumTekst = `${d.getDate()} ${maanden[d.getMonth()]} ${d.getFullYear()}`;
+  const aantal = loadList(SIGNUP_KEY).filter(s => s.eventId === event.id).reduce((n,s) => n + (parseInt(s.personen)||1), 0);
+  const fotos = (event.fotos && event.fotos.length) ? event.fotos : fallbackFotos;
+  const eigenFotos = !!(event.fotos && event.fotos.length);
+
+  const type = evType(event);
+  const isVlecht = type === "vlechtworkshop";
+
+  pagina.innerHTML = `
+  <div class="hero-wrap ${isVlecht ? "vlecht" : ""}">
+  <header class="ev-hero reveal in">
+    ${voorbij ? '<span class="badge-voorbij">📼 dit evenement is al geweest</span><br>' : ''}
+    <span class="type-tag ${isVlecht ? "" : "ander"}">${isVlecht ? "🎀 vlechtworkshop" : "🎪 ander evenement"}</span><span class="ev-eyebrow"><span class="cat">${esc(event.categorie || "Activiteit")}</span> · ${datumTekst}</span>
+    ${isVlecht ? `<svg class="hero-braid" viewBox="0 0 400 220" preserveAspectRatio="none" aria-hidden="true">
+      <path class="strand s1" d="M40 30 C 120 30, 120 110, 200 110 S 280 190, 360 190"/>
+      <path class="strand s2" d="M40 110 C 120 110, 120 30, 200 30 S 280 110, 360 110"/>
+      <path class="strand s3" d="M40 190 C 120 190, 120 110, 200 190 S 280 30, 360 30"/>
+    </svg>` : ""}
+    <h1>${esc(event.titel)}</h1>
+    <div class="ev-meta">
+      <span>🕙 ${esc(event.tijd || "tijd n.t.b.")}</span>
+      <span>📍 ${esc(event.locatie || "locatie n.t.b.")}</span>
+      ${aantal > 0 ? `<span>👥 ${aantal} aangemeld</span>` : ""}
+    </div>
+    ${voorbij ? '<div class="ev-ctas"><a class="btn ghost" href="index.html#evenementen">Bekijk aankomende evenementen</a></div>'
+              : '<div class="ev-ctas"><a class="btn gold" href="#inschrijven">Schrijf je in <span class="arrow">→</span></a><a class="btn ghost" href="index.html#evenementen">Alle evenementen</a></div>'}
+  </header>
+  </div>
+
+  <section class="ev-fotos reveal">
+    <div class="foto-grid ${fotos.length===1?"een":fotos.length===2?"twee":""}">
+      ${fotos.map((f,i) => `<figure><img src="${f}" alt="Foto ${i+1} bij ${esc(event.titel)}" loading="${i===0?"eager":"lazy"}"></figure>`).join("")}
+    </div>
+    ${eigenFotos ? "" : '<p class="foto-noot">sfeerimpressie van eerdere Papa &amp; Pony\'s avonden</p>'}
+  </section>
+
+  <div class="ev-body">
+    <div class="ev-tekst reveal">
+      <h2>Wat gaan we doen?</h2>
+      <p>${esc(event.beschrijving || "Details volgen — hou de WhatsApp-groep in de gaten!")}</p>
+    </div>
+    <aside class="info-card reveal">
+      <h3>📌 In het kort</h3>
+      <div class="info-rij"><span class="lbl">datum</span><span>${datumTekst}</span></div>
+      <div class="info-rij"><span class="lbl">tijd</span><span>${esc(event.tijd || "n.t.b.")}</span></div>
+      <div class="info-rij"><span class="lbl">locatie</span><span>${esc(event.locatie || "n.t.b.")}</span></div>
+      <div class="info-rij"><span class="lbl">voor wie</span><span>meisjespapa's — dochters welkom waar aangegeven</span></div>
+      <div class="deel">
+        <button class="btn ghost" id="kopieerLink">🔗 Kopieer link</button>
+        <a class="btn ghost" id="deelWhatsapp" target="_blank" rel="noopener">💬 Deel via WhatsApp</a>
+      </div>
+    </aside>
+  </div>
+
+  ${voorbij ? "" : `
+  <section class="inschrijf reveal" id="inschrijven">
+    <div class="inschrijf-card">
+      <span class="sparkle" style="top:14%;left:8%">✨</span>
+      <span class="sparkle" style="top:70%;left:90%;animation-delay:1.5s">🎀</span>
+      <span class="sparkle" style="top:20%;left:86%;animation-delay:3s">💛</span>
+      <h2>Ben je erbij?</h2>
+      <p class="sub">Schrijf je in, dan weten we op hoeveel papa's we kunnen rekenen.</p>
+      <form class="in-form" id="inschrijfForm">
+        <div class="rij">
+          <input id="inNaam" required maxlength="60" placeholder="Je naam *" aria-label="Naam">
+          <input id="inContact" required maxlength="80" placeholder="Telefoon of e-mail *" aria-label="Telefoonnummer of e-mail">
+        </div>
+        <div class="rij">
+          <select id="inPersonen" aria-label="Aantal papa's"><option value="1">1 papa</option><option value="2">2 papa's</option><option value="3">3 papa's</option></select>
+          <label class="check"><input type="checkbox" id="inDochter"> Dochter(s) mee</label>
+        </div>
+        <textarea id="inOpmerking" maxlength="240" placeholder="Allergieën, vragen, of gewoon iets leuks (optioneel)" aria-label="Opmerking"></textarea>
+        <button type="submit" class="btn gold">Schrijf me in 🎉</button>
+      </form>
+      <div class="in-succes" id="inSucces" style="display:none">
+        <span class="vink">🎉</span>
+        <h4>Je staat op de lijst!</h4>
+        <p>Tot ${datumTekst} — we hebben er zin in.</p>
+      </div>
+    </div>
+  </section>`}
+  `;
+
+  /* Delen */
+  document.getElementById("kopieerLink").addEventListener("click", async () => {
+    try{ await navigator.clipboard.writeText(location.href); toast("Link gekopieerd 🔗"); }
+    catch(e){ prompt("Kopieer de link:", location.href); }
+  });
+  document.getElementById("deelWhatsapp").href = "https://wa.me/?text=" + encodeURIComponent(`${event.titel} — ${datumTekst}. Ga je mee? ${location.href}`);
+
+  /* Inschrijven */
+  const form = document.getElementById("inschrijfForm");
+  if(form){
+    form.addEventListener("submit", ev => {
+      ev.preventDefault();
+      const list = loadList(SIGNUP_KEY);
+      list.push({
+        id: "in-" + Date.now(),
+        eventId: event.id,
+        eventTitel: event.titel,
+        eventDatum: event.datum,
+        naam: document.getElementById("inNaam").value.trim(),
+        contact: document.getElementById("inContact").value.trim(),
+        personen: document.getElementById("inPersonen").value,
+        dochterMee: document.getElementById("inDochter").checked,
+        opmerking: document.getElementById("inOpmerking").value.trim(),
+        aangemeldOp: new Date().toISOString()
+      });
+      saveList(SIGNUP_KEY, list);
+      form.style.display = "none";
+      document.getElementById("inSucces").style.display = "";
+      toast("Inschrijving ontvangen 💛");
+    });
+  }
+}
+
+/* ---------- Toast ---------- */
+let toastTimer;
+function toast(t){
+  const el = document.getElementById("toast");
+  el.textContent = t;
+  el.classList.add("zichtbaar");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove("zichtbaar"), 2600);
+}
+
+/* ---------- Scroll reveals (met vangnet) ---------- */
+(function(){
+  const els = document.querySelectorAll(".reveal:not(.in)");
+  if(!("IntersectionObserver" in window)){ els.forEach(el => el.classList.add("in")); return; }
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(en => { if(en.isIntersecting){ en.target.classList.add("in"); obs.unobserve(en.target); } });
+  }, {threshold:.08, rootMargin:"0px 0px -5% 0px"});
+  els.forEach(el => obs.observe(el));
+  setTimeout(() => document.querySelectorAll(".reveal:not(.in)").forEach(el => el.classList.add("in")), 2000);
+})();
+window.addEventListener("error", () => document.querySelectorAll(".reveal").forEach(el => el.classList.add("in")));
+
+document.getElementById("jaar").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

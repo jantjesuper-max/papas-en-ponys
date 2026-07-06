@@ -135,6 +135,22 @@ textarea{resize:vertical;min-height:74px}
 .wa-kaart .detail{font-size:.82rem;color:var(--ink-soft);display:flex;gap:14px;flex-wrap:wrap;margin-top:2px}
 .wa-kaart .bericht{font-size:.84rem;color:var(--ink-soft);font-style:italic;margin-top:6px;max-width:64ch}
 
+/* type-keuze */
+.type-keuze{display:flex;gap:8px}
+.type-optie{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;margin:0;border:1.5px solid var(--line);border-radius:10px;padding:10px 8px;font-size:.84rem;font-weight:600;cursor:pointer;background:var(--paper);transition:border-color .2s,background .2s,transform .2s}
+.type-optie:hover{border-color:#d8cfbe;transform:translateY(-1px)}
+.type-optie:has(input:checked){border-color:var(--rose);background:var(--rose-soft)}
+.type-optie input{width:auto;accent-color:var(--rose);cursor:pointer}
+.cat.roze{color:var(--rose);background:var(--rose-soft);border-color:var(--rose-soft)}
+
+/* foto-upload */
+.foto-thumbs{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.foto-thumb{position:relative;width:64px;height:64px;border-radius:10px;overflow:hidden;border:1px solid var(--line);animation:slidein .3s ease}
+.foto-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.foto-thumb button{position:absolute;top:3px;right:3px;width:20px;height:20px;border:none;border-radius:6px;background:rgba(30,36,48,.78);color:#fff;font-size:.68rem;line-height:1;cursor:pointer;transition:background .2s}
+.foto-thumb button:hover{background:var(--rood)}
+.foto-hint{font-size:.76rem;color:var(--ink-soft);margin-top:6px}
+
 /* toast + confetti */
 #toast{position:fixed;bottom:28px;left:50%;transform:translate(-50%,80px);background:var(--ink);color:#fff;padding:13px 24px;border-radius:999px;font-size:.9rem;font-weight:500;box-shadow:0 12px 30px rgba(30,36,48,.3);transition:transform .4s cubic-bezier(.34,1.56,.64,1);z-index:200}
 #toast.zichtbaar{transform:translate(-50%,0)}
@@ -204,6 +220,11 @@ textarea{resize:vertical;min-height:74px}
           </div>
           <label for="locatie">Locatie</label>
           <input id="locatie" maxlength="80" placeholder="Buurthuis De Schakel">
+          <label>Soort evenement</label>
+          <div class="type-keuze">
+            <label class="type-optie"><input type="radio" name="evType" value="vlechtworkshop"> 🎀 Vlechtworkshop</label>
+            <label class="type-optie"><input type="radio" name="evType" value="ander" checked> 🎪 Ander evenement</label>
+          </div>
           <label for="categorie">Categorie</label>
           <select id="categorie">
             <option>Workshop</option>
@@ -214,6 +235,11 @@ textarea{resize:vertical;min-height:74px}
           </select>
           <label for="beschrijving">Beschrijving</label>
           <textarea id="beschrijving" maxlength="280" placeholder="Wat gaan we doen, wat neem je mee, zijn dochters welkom?"></textarea>
+          <label for="fotoKies">Foto's</label>
+          <input type="file" id="fotoInput" accept="image/*" multiple hidden>
+          <button type="button" class="btn stil klein" id="fotoKies">📷 Foto's toevoegen</button>
+          <div class="foto-thumbs" id="fotoThumbs"></div>
+          <p class="foto-hint">Verschijnen op de landingspagina van het evenement. Worden automatisch verkleind.</p>
           <label class="check"><input type="checkbox" id="uitgelicht"> Uitlichten op de homepage 🌟</label>
           <div class="form-acties">
             <button type="submit" class="btn gold" id="opslaanBtn">Opslaan 🎉</button>
@@ -264,11 +290,16 @@ const maanden = ["jan","feb","mrt","apr","mei","jun","jul","aug","sep","okt","no
 let filter = "komend";
 
 function load(){ try{ return JSON.parse(localStorage.getItem(PP_KEY)) || []; }catch(e){ return []; } }
-function save(v){ localStorage.setItem(PP_KEY, JSON.stringify(v)); }
+function save(v){
+  try{ localStorage.setItem(PP_KEY, JSON.stringify(v)); return true; }
+  catch(e){ toast("Opslag vol! Verwijder eerst wat foto's 📦"); return false; }
+}
 function loadList(k){ try{ return JSON.parse(localStorage.getItem(k)) || []; }catch(e){ return []; } }
 function saveList(k,v){ localStorage.setItem(k, JSON.stringify(v)); }
 function esc(s){ const d=document.createElement("div"); d.textContent=s??""; return d.innerHTML; }
 function vandaag(){ const t=new Date(); t.setHours(0,0,0,0); return t; }
+/* Evenementen van voor de tags krijgen er automatisch een o.b.v. hun categorie */
+function evType(e){ return e.type || (e.categorie === "Workshop" ? "vlechtworkshop" : "ander"); }
 function fmtDatum(iso){ const d=new Date(iso); return `${d.getDate()} ${maanden[d.getMonth()]} '${String(d.getFullYear()).slice(2)}`; }
 
 /* ---------- Stats + tabtellers ---------- */
@@ -316,10 +347,11 @@ function renderEvents(){
     return `<div class="ev ${voorbij?"voorbij":""}" data-id="${e.id}">
       <div class="ev-datum"><div class="dag">${d.getDate()}</div><div class="mnd">${maanden[d.getMonth()]} '${String(d.getFullYear()).slice(2)}</div></div>
       <div class="ev-info">
-        <h3><span class="ster ${e.uitgelicht?"aan":""}" title="Uitlichten aan/uit" onclick="toggleSter('${e.id}')">🌟</span>${esc(e.titel)}<span class="cat">${esc(e.categorie||"Anders")}</span></h3>
-        <div class="meta"><span>🕙 ${esc(e.tijd||"n.t.b.")}</span><span>📍 ${esc(e.locatie||"n.t.b.")}</span><span>🎟️ ${n} inschrijving${n===1?"":"en"}</span></div>
+        <h3><span class="ster ${e.uitgelicht?"aan":""}" title="Uitlichten aan/uit" onclick="toggleSter('${e.id}')">🌟</span>${esc(e.titel)}<span class="cat ${evType(e)==="vlechtworkshop"?"roze":""}">${evType(e)==="vlechtworkshop"?"🎀 vlechtworkshop":"🎪 ander evenement"}</span><span class="cat">${esc(e.categorie||"Anders")}</span></h3>
+        <div class="meta"><span>🕙 ${esc(e.tijd||"n.t.b.")}</span><span>📍 ${esc(e.locatie||"n.t.b.")}</span><span>🎟️ ${n} inschrijving${n===1?"":"en"}</span>${e.fotos&&e.fotos.length?`<span>📷 ${e.fotos.length}</span>`:""}</div>
       </div>
       <div class="ev-acties">
+        <button class="icoon-btn groen" title="Landingspagina openen" onclick="window.open('../evenement.html?id='+encodeURIComponent('${e.id}'),'_blank')">🔗</button>
         <button class="icoon-btn bewerk" title="Bewerken" onclick="bewerk('${e.id}')">✏️</button>
         <button class="icoon-btn verwijder" title="Verwijderen" onclick="verwijder('${e.id}')">🗑️</button>
       </div>
@@ -327,23 +359,61 @@ function renderEvents(){
   }).join("");
 }
 
+/* ---------- Foto's bij evenement ---------- */
+let formFotos = [];
+const fotoInput = document.getElementById("fotoInput");
+document.getElementById("fotoKies").addEventListener("click", ()=>fotoInput.click());
+fotoInput.addEventListener("change", async ()=>{
+  for(const file of fotoInput.files){
+    if(!file.type.startsWith("image/")) continue;
+    formFotos.push(await verkleinFoto(file));
+  }
+  fotoInput.value = "";
+  renderFotoThumbs();
+});
+function verkleinFoto(file){
+  return new Promise(res=>{
+    const img = new Image();
+    img.onload = ()=>{
+      const max = 1200;
+      const s = Math.min(1, max/Math.max(img.width, img.height));
+      const c = document.createElement("canvas");
+      c.width = Math.round(img.width*s); c.height = Math.round(img.height*s);
+      c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(img.src);
+      res(c.toDataURL("image/jpeg", .78));
+    };
+    img.src = URL.createObjectURL(file);
+  });
+}
+function renderFotoThumbs(){
+  document.getElementById("fotoThumbs").innerHTML = formFotos.map((f,i)=>
+    `<div class="foto-thumb"><img src="${f}" alt="Foto ${i+1}"><button type="button" title="Foto verwijderen" onclick="verwijderFoto(${i})">✕</button></div>`
+  ).join("");
+}
+function verwijderFoto(i){ formFotos.splice(i,1); renderFotoThumbs(); }
+
 document.getElementById("eventForm").addEventListener("submit", ev=>{
   ev.preventDefault();
   const id = document.getElementById("editId").value;
   const item = {
     id: id || "ev-"+Date.now(),
     titel: document.getElementById("titel").value.trim(),
+    type: document.querySelector('input[name="evType"]:checked').value,
     datum: document.getElementById("datum").value,
     tijd: document.getElementById("tijd").value,
     locatie: document.getElementById("locatie").value.trim(),
     categorie: document.getElementById("categorie").value,
     beschrijving: document.getElementById("beschrijving").value.trim(),
-    uitgelicht: document.getElementById("uitgelicht").checked
+    uitgelicht: document.getElementById("uitgelicht").checked,
+    fotos: formFotos.slice()
   };
   let events = load();
-  if(id){ events = events.map(e=>e.id===id?item:e); toast("Evenement bijgewerkt ✏️"); }
-  else{ events.push(item); toast("Evenement aangemaakt 🎉"); confetti(); }
-  save(events);
+  if(id){ events = events.map(e=>e.id===id?item:e); }
+  else{ events.push(item); }
+  if(!save(events)) return;
+  if(id){ toast("Evenement bijgewerkt ✏️"); }
+  else{ toast("Evenement aangemaakt 🎉"); confetti(); }
   resetForm();
   renderAlles();
 });
@@ -353,12 +423,15 @@ function bewerk(id){
   if(!e) return;
   document.getElementById("editId").value = e.id;
   document.getElementById("titel").value = e.titel;
+  document.querySelector(`input[name="evType"][value="${evType(e)}"]`).checked = true;
   document.getElementById("datum").value = e.datum;
   document.getElementById("tijd").value = e.tijd||"";
   document.getElementById("locatie").value = e.locatie||"";
   document.getElementById("categorie").value = e.categorie||"Anders";
   document.getElementById("beschrijving").value = e.beschrijving||"";
   document.getElementById("uitgelicht").checked = !!e.uitgelicht;
+  formFotos = (e.fotos||[]).slice();
+  renderFotoThumbs();
   document.getElementById("formTitel").textContent = "✏️ Evenement bewerken";
   document.getElementById("opslaanBtn").textContent = "Bijwerken ✔";
   document.getElementById("annuleerBtn").style.display = "inline-flex";
@@ -389,6 +462,8 @@ function toggleSter(id){
 function resetForm(){
   document.getElementById("eventForm").reset();
   document.getElementById("editId").value = "";
+  formFotos = [];
+  renderFotoThumbs();
   document.getElementById("formTitel").textContent = "✨ Nieuw evenement";
   document.getElementById("opslaanBtn").textContent = "Opslaan 🎉";
   document.getElementById("annuleerBtn").style.display = "none";
