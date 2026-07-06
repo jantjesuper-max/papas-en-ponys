@@ -5,6 +5,19 @@ Het format volgt [Keep a Changelog](https://keepachangelog.com/nl/1.1.0/).
 
 ## [Unreleased]
 
+## [0.12.1] - 2026-07-06
+
+### Toegevoegd
+- Subtiele micro-animaties, met respect voor `prefers-reduced-motion`:
+  - de pony in het logo wiebelt af en toe even (pauzeert bij hover)
+  - glans-sweep over gouden knoppen bij hover
+  - waarden-chips poppen een voor een op als de sectie in beeld komt
+  - kloppend hartje 💛 in de footer
+  - fotobijschriften in de sfeersectie tillen iets op bij hover
+  - hero-badges op de vlechtworkshop-pagina komen een voor een op
+  - zachte aandacht-puls op de betaalknop
+  - statistiek-cijfers in het beheer tellen bij het openen zachtjes op
+
 ## [0.12.0] - 2026-07-06
 
 ### Toegevoegd

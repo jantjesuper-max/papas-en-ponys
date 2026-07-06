@@ -451,16 +451,32 @@ function evType(e){ return e.type || (e.categorie === "Workshop" ? "vlechtworksh
 function fmtDatum(iso){ const d=new Date(iso); return `${d.getDate()} ${maanden[d.getMonth()]} '${String(d.getFullYear()).slice(2)}`; }
 
 /* ---------- Stats + tabtellers ---------- */
+/* De cijfers tellen bij het openen van de pagina zachtjes op; daarna gewoon direct */
+let statsGeanimeerd = false;
+function zetStat(id, waarde){
+  const el = document.getElementById(id);
+  if(statsGeanimeerd || waarde === 0 || matchMedia("(prefers-reduced-motion: reduce)").matches){
+    el.textContent = waarde;
+    return;
+  }
+  const duur = 550, start = performance.now();
+  (function stap(nu){
+    const t = Math.min(1, (nu - start) / duur);
+    el.textContent = Math.round(waarde * (1 - Math.pow(1 - t, 3)));
+    if(t < 1) requestAnimationFrame(stap);
+  })(start);
+}
 function renderStats(){
   const events = load(), signups = loadList(SIGNUP_KEY), wa = loadList(WA_KEY);
   const t = vandaag();
-  document.getElementById("statTotaal").textContent = events.length;
-  document.getElementById("statKomend").textContent = events.filter(e=>new Date(e.datum+"T00:00:00")>=t).length;
-  document.getElementById("statUitgelicht").textContent = events.filter(e=>e.uitgelicht).length;
-  document.getElementById("statInschrijvingen").textContent = signups.length;
+  zetStat("statTotaal", events.length);
+  zetStat("statKomend", events.filter(e=>new Date(e.datum+"T00:00:00")>=t).length);
+  zetStat("statUitgelicht", events.filter(e=>e.uitgelicht).length);
+  zetStat("statInschrijvingen", signups.length);
   document.getElementById("statWhatsapp").textContent = wa.filter(w=>w.status!=="toegevoegd").length + " nieuw";
   document.getElementById("telInschrijvingen").textContent = signups.length;
   document.getElementById("telWhatsapp").textContent = wa.length;
+  statsGeanimeerd = true;
 }
 
 /* ---------- Tabs ---------- */
