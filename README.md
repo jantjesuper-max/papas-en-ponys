@@ -52,6 +52,7 @@ git commit -m "Beschrijving van je wijziging"
 
 > ⚠️ `github-token.txt` staat in [`.gitignore`](.gitignore) en hoort **nooit** in de repo terecht te komen.
 
-## 📋 Wijzigingen
+## 📋 Meer documentatie
 
-Zie de [CHANGELOG](CHANGELOG.md) voor de volledige geschiedenis.
+- [CHANGELOG.md](CHANGELOG.md) — volledige wijzigingsgeschiedenis per versie
+- [CLAUDE.md](CLAUDE.md) — technisch overzicht: architectuur, datamodel, afspraken en valkuilen (voor ontwikkelaars en AI-assistenten)

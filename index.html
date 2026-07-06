@@ -1,4 +1,10 @@
 <!DOCTYPE html>
+<!--
+  Papa & Pony's — homepage
+  Statische pagina, geen build-stap. Secties: hero, missie, sfeerfoto's,
+  evenementen (uit localStorage), waarden, WhatsApp-aanmelding, oprichter, contact.
+  Architectuur, datamodel en afspraken: zie CLAUDE.md in de projectroot.
+-->
 <html lang="nl">
 <head>
 <meta charset="UTF-8">
@@ -450,6 +456,16 @@ footer .admin-link:hover{color:var(--accent-deep);border-color:var(--accent)}
 </footer>
 
 <script>
+/* ============================================================
+   HOMEPAGE-SCRIPT
+   Data leeft in localStorage en wordt gedeeld met evenement.html
+   en admin/index.html (sleutels: pp_events, pp_event_signups,
+   pp_wa_signups — vorm van de objecten staat in CLAUDE.md).
+
+   LET OP: seedEvents staat ook in evenement.html en (als seed)
+   in admin/index.html — wijzig je een seed, wijzig hem overal.
+   ============================================================ */
+
 /* ---------- Gedeelde evenementen-opslag (zelfde sleutel als /admin) ---------- */
 const PP_KEY = "pp_events";
 const seedEvents = [
@@ -499,6 +515,7 @@ function renderEvents(){
   list.querySelectorAll(".btn-inschrijf").forEach(b => b.addEventListener("click", () => openInschrijf(b.dataset.id)));
   observeReveals();
 }
+/* HTML-escaper: alle gebruikersinvoer gaat hierdoorheen voordat het in innerHTML belandt (XSS) */
 function esc(s){ const d=document.createElement("div"); d.textContent=s??""; return d.innerHTML; }
 
 /* ---------- Scroll reveals (met vangnet) ---------- */

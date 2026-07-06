@@ -1,4 +1,14 @@
 <!DOCTYPE html>
+<!--
+  Papa & Pony's — landingspagina per evenement
+  Gebruik: evenement.html?id=<event-id> (bijv. ?id=seed-1).
+  Rendert volledig client-side vanuit localStorage (pp_events).
+  Twee varianten op basis van het evenementtype:
+    - "vlechtworkshop": roze hero + vlecht-animatie, alle sfeerfoto's
+      uit fotos/, krantensectie en stappenplan
+    - "ander": sobere variant, alleen eigen geüploade foto's
+  Architectuur en datamodel: zie CLAUDE.md in de projectroot.
+-->
 <html lang="nl">
 <head>
 <meta charset="UTF-8">
@@ -208,6 +218,17 @@ footer a:hover{color:var(--accent-deep);border-color:var(--accent)}
 </footer>
 
 <script>
+/* ============================================================
+   EVENEMENTPAGINA-SCRIPT
+   Leest ?id= uit de URL, zoekt het evenement in localStorage en
+   bouwt de hele pagina met innerHTML. Onbekend id → nette
+   "niet gevonden"-pagina; datum voorbij → "al geweest"-variant
+   zonder inschrijfformulier.
+
+   LET OP: seedEvents hieronder is een kopie van die in index.html
+   (en de seed in admin) — wijzig je een seed, wijzig hem overal.
+   ============================================================ */
+
 /* ---------- Gedeelde opslag (zelfde sleutels als homepage en /admin) ---------- */
 const PP_KEY = "pp_events";
 const SIGNUP_KEY = "pp_event_signups";
@@ -226,6 +247,7 @@ function loadEvents(){
 }
 function loadList(k){ try{ return JSON.parse(localStorage.getItem(k)) || []; }catch(e){ return []; } }
 function saveList(k,v){ localStorage.setItem(k, JSON.stringify(v)); }
+/* HTML-escaper: alle gebruikersinvoer gaat hierdoorheen voordat het in innerHTML belandt (XSS) */
 function esc(s){ const d=document.createElement("div"); d.textContent=s??""; return d.innerHTML; }
 /* Evenementen van voor de tags krijgen er automatisch een o.b.v. hun categorie */
 function evType(e){ return e.type || (e.categorie === "Workshop" ? "vlechtworkshop" : "ander"); }

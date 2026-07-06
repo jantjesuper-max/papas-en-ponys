@@ -1,4 +1,13 @@
 <!DOCTYPE html>
+<!--
+  Papa & Pony's — beheeromgeving (niet geïndexeerd, noindex)
+  Drie tabs:
+    1. Evenementen  — aanmaken/bewerken/verwijderen, foto-upload, type-tag
+    2. Inschrijvingen — per evenement bekijken, mailen (BCC), Excel-export
+    3. WhatsApp     — aanmeldingen voor de communitygroep, CSV-export
+  Schrijft naar dezelfde localStorage-sleutels als de publieke pagina's.
+  Architectuur en datamodel: zie CLAUDE.md in de projectroot.
+-->
 <html lang="nl">
 <head>
 <meta charset="UTF-8">
@@ -286,6 +295,20 @@ textarea{resize:vertical;min-height:74px}
 <div id="toast"></div>
 
 <script>
+/* ============================================================
+   BEHEER-SCRIPT
+   Alle data leeft in localStorage, gedeeld met index.html en
+   evenement.html. Objectvormen staan in CLAUDE.md.
+
+   Sleutels:
+   - pp_events         evenementen (incl. fotos als data-URLs)
+   - pp_event_signups  inschrijvingen (email + telefoon sinds v0.7,
+                       oudere records hebben één 'contact'-veld)
+   - pp_wa_signups     WhatsApp-aanmeldingen
+
+   Renderpatroon: elke mutatie → save*() → renderAlles() bouwt
+   alle lijsten en tellers opnieuw op.
+   ============================================================ */
 const PP_KEY = "pp_events";
 const SIGNUP_KEY = "pp_event_signups";
 const WA_KEY = "pp_wa_signups";
@@ -293,6 +316,8 @@ const maanden = ["jan","feb","mrt","apr","mei","jun","jul","aug","sep","okt","no
 let filter = "komend";
 
 function load(){ try{ return JSON.parse(localStorage.getItem(PP_KEY)) || []; }catch(e){ return []; } }
+/* localStorage heeft ±5MB ruimte; foto's als data-URLs kunnen dat vullen,
+   vandaar de QuotaExceededError-afvang. Retourneert false als opslaan mislukt. */
 function save(v){
   try{ localStorage.setItem(PP_KEY, JSON.stringify(v)); return true; }
   catch(e){ toast("Opslag vol! Verwijder eerst wat foto's 📦"); return false; }
@@ -374,6 +399,8 @@ fotoInput.addEventListener("change", async ()=>{
   fotoInput.value = "";
   renderFotoThumbs();
 });
+/* Schaalt een geüploade foto naar max 1200px (langste zijde) en geeft
+   een JPEG-data-URL terug (kwaliteit 0.78) — houdt localStorage klein. */
 function verkleinFoto(file){
   return new Promise(res=>{
     const img = new Image();
@@ -534,7 +561,9 @@ function verwijderInschrijving(id){
   }, 280);
 }
 
-/* ---------- Deelnemers mailen (BCC: iedereen krijgt de mail los van elkaar) ---------- */
+/* ---------- Deelnemers mailen (BCC: iedereen krijgt de mail los van elkaar) ----------
+   mailDeelnemers(null) mailt iedereen; mailDeelnemers(eventId) één groep.
+   Adressen gaan in de BCC zodat deelnemers elkaars adres niet zien. */
 function mailAdressen(rows){
   return [...new Set(rows.map(s=>(s.email||"").trim().toLowerCase()).filter(a=>a.includes("@")))];
 }
@@ -551,7 +580,13 @@ function mailDeelnemers(eventId){
 }
 document.getElementById("mailAlleDeelnemers").addEventListener("click", ()=>mailDeelnemers(null));
 
-/* ---------- Excel-export in huisstijl, met mailknop erin ---------- */
+/* ---------- Excel-export in huisstijl, met mailknop erin ----------
+   Formaat: SpreadsheetML (XML Spreadsheet 2003, extensie .xls) — het
+   enige Excel-formaat dat je zonder libraries in de browser kunt
+   genereren mét opmaak. Een echte VBA-macro kan niet; in plaats
+   daarvan bevat het bestand klikbare mailto-hyperlinks (BCC) om alle
+   deelnemers of één groep te mailen. Excel toont bij openen een
+   onschuldige melding dat de extensie niet bij het formaat past. */
 function xmlEsc(s){ return String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
 document.getElementById("exportInschrijvingen").addEventListener("click", ()=>{
   const signups = loadList(SIGNUP_KEY);

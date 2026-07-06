@@ -1,0 +1,112 @@
+# CLAUDE.md — Papa & Pony's
+
+Gids voor het werken aan dit project (voor Claude Code én menselijke ontwikkelaars).
+
+## Wat is dit project?
+
+Community-website voor "meisjespapa's die leren vlechten". Statische site zonder frameworks, zonder build-stap en zonder server: pure HTML/CSS/JS, gehost op GitHub Pages via https://jantjesuper-max.github.io/papas-en-ponys/
+
+## Bestandsoverzicht
+
+| Bestand | Rol |
+|---|---|
+| `index.html` | Homepage: hero, missie, sfeerfoto's, evenementenlijst, waarden, WhatsApp-aanmelding, oprichter (Faizi), contact |
+| `evenement.html` | Landingspagina per evenement via `?id=<event-id>`. Vlechtworkshops krijgen een uitgebreide variant (roze hero, krantensectie, stappenplan) |
+| `admin/index.html` | Beheer: evenementen CRUD + foto-upload, inschrijvingen bekijken/mailen/exporteren, WhatsApp-aanmeldingen |
+| `fotos/` | Sfeerfoto's (web-veilige kebab-case namen). Worden getoond op vlechtworkshop-pagina's en de homepage |
+| `push-naar-github.ps1` | Pusht naar GitHub met het token uit `github-token.txt` |
+| `github-token.txt` | GitHub-token (fine-grained PAT). **In `.gitignore`, nooit committen** |
+| `CHANGELOG.md` | Wijzigingsgeschiedenis (Keep a Changelog). Bij elke feature bijwerken |
+
+## Architectuur & datamodel
+
+**Alles draait op localStorage** — er is geen backend. De drie pagina's delen dezelfde sleutels:
+
+| Sleutel | Inhoud |
+|---|---|
+| `pp_events` | Array van evenementen |
+| `pp_event_signups` | Array van inschrijvingen |
+| `pp_wa_signups` | Array van WhatsApp-aanmeldingen |
+
+### Vorm van een evenement
+
+```js
+{
+  id: "ev-1712345678901",        // "seed-1..3" voor de meegeleverde voorbeelden
+  titel: "Vlechtworkshop: ...",
+  type: "vlechtworkshop" | "ander",  // bepaalt welke landingspagina-variant rendert
+  datum: "2026-07-18",           // ISO, verplicht
+  tijd: "10:00",                 // optioneel
+  locatie: "...", categorie: "Workshop|Uitje|Borrel|Community|Anders",
+  beschrijving: "...",
+  uitgelicht: true|false,
+  fotos: ["data:image/jpeg;base64,..."]  // door beheer geüpload, verkleind naar max 1200px
+}
+```
+
+### Vorm van een inschrijving
+
+```js
+{
+  id: "in-<timestamp>",
+  eventId, eventTitel, eventDatum,   // gedenormaliseerd zodat verwijderde evenementen leesbaar blijven
+  naam, email, telefoon,             // email + telefoon sinds v0.7; oudere records hebben alleen `contact`
+  personen: "1",                     // sinds v0.6 altijd "1" (inschrijven per papa); oude records kunnen 2/3 zijn
+  dochterMee: true|false, opmerking,
+  aangemeldOp: ISO-string
+}
+```
+
+## Belangrijke afspraken
+
+- **Taal**: alles in het Nederlands — UI-teksten, functienamen (`verwijderFoto`, `mailDeelnemers`), comments en commitberichten.
+- **Huisstijl**: CSS-variabelen bovenaan elk bestand (`--ink`, `--paper`, `--accent` oker, `--rose`). Fonts: Outfit (display) + IBM Plex Mono (labels/pills). Afgeronde hoeken, zachte schaduwen, emoji als iconen.
+- **Elke pagina is zelfstandig**: eigen `<style>` en `<script>` inline, geen gedeelde bestanden. Gedeelde logica (zoals `evType()`, seeds, `esc()`) is dus **gedupliceerd** — wijzig je die, wijzig het dan op alle plekken (zie valkuilen).
+- **Toegankelijkheid**: `prefers-reduced-motion` respecteren, alt-teksten in het Nederlands, `aria-label`s op formuliervelden.
+- **Changelog**: bij elke feature een versie-entry in `CHANGELOG.md` (semver-achtig, datum erbij).
+
+## Valkuilen (echt lezen)
+
+1. **Seeds staan op 3 plekken**: `seedEvents` in `index.html` én `evenement.html`, en de seed in `admin/index.html` onderaan ("Seed als leeg"). Wijzig je een seed, doe het overal.
+2. **`evType(e)`-fallback**: evenementen van vóór de tags hebben geen `type`; de helper leidt hem af uit `categorie === "Workshop"`. Deze helper staat in alle drie de bestanden.
+3. **localStorage is per browser/apparaat**: inschrijvingen van echte bezoekers op de live site komen NIET in het beheer van de eigenaar terecht. Voor centrale data is een backend nodig (bewuste keuze om die er nog niet te hebben).
+4. **Opslaglimiet ±5MB**: foto-uploads worden verkleind (max 1200px, JPEG 0.78) en `save()` in het beheer vangt `QuotaExceededError` af met een toast.
+5. **Excel-export is SpreadsheetML** (XML, `.xls`): geen echte VBA-macro mogelijk vanuit de browser; de "mailknoppen" in het bestand zijn `mailto:`-hyperlinks met BCC.
+6. **GitHub Pages deploy kan sporadisch falen** met "Deployment failed, try again later" terwijl de build slaagt — GitHub-storing, geen codefout. Oplossing: lege commit pushen.
+7. **Fine-grained token**: kan pushen en Actions/Pages lezen, maar géén repo-beschrijving/topics wijzigen of Pages-builds triggeren (403).
+8. **Git-root**: de projectmap heeft een eigen repo; de home-map van de gebruiker is óók een git-repo — let op vanuit welke map je git-commando's draait.
+
+## Werkwijzen
+
+### Wijziging maken en publiceren
+
+```powershell
+# 1. Bewerk de bestanden
+# 2. Verifieer visueel (zie hieronder) en werk CHANGELOG.md bij
+git add <bestanden>
+git commit -m "Beschrijvend bericht in het Nederlands"
+.\push-naar-github.ps1        # pusht met token; Pages deployt automatisch (~1 min)
+```
+
+### Verifiëren
+
+Na UI-wijzigingen altijd een full-page screenshot maken (vaste afspraak met de eigenaar):
+
+```powershell
+npx -y playwright screenshot --full-page --viewport-size "1280,900" --wait-for-timeout 3000 "file:///C:/Users/JandeVriesKBenP/Claude/Projects/Papa & Pony's/index.html" screenshot.png
+```
+
+Voor gedrag (formulieren, localStorage, downloads): Playwright-script in Node dat de flows echt doorloopt — zie eerdere testpatronen; test tegen `file://`-URL's, localStorage wordt gedeeld tussen de pagina's, en ruim testdata op met `localStorage.clear()`.
+
+### Deploy controleren
+
+```powershell
+# Laatste Actions-run bekijken (token uit github-token.txt als Bearer-header):
+# GET https://api.github.com/repos/jantjesuper-max/papas-en-ponys/actions/runs?per_page=1
+```
+
+## Contact & externe links
+
+- Eigenaar/contact: jantje.super@gmail.com
+- Oprichter: Faizi (Mohammad Faizi Nazir) — despelendemens.com, LinkedIn `mohammad-faizi-nazir`, Instagram `@devoorleesvader`
+- Repo: https://github.com/jantjesuper-max/papas-en-ponys

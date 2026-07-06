@@ -5,6 +5,13 @@ Het format volgt [Keep a Changelog](https://keepachangelog.com/nl/1.1.0/).
 
 ## [Unreleased]
 
+## [0.8.1] - 2026-07-06
+
+### Toegevoegd
+- `CLAUDE.md`: technisch projectoverzicht met architectuur, localStorage-datamodel, huisstijl-afspraken, valkuilen (o.a. gedupliceerde seeds, opslaglimiet, Pages-storingen) en werkwijzen voor wijzigen, testen en deployen
+- Documentatie in de code: bestandskoppen in alle drie de HTML-bestanden, scriptoverzichten bovenaan elk `<script>`-blok en toelichting bij de foto-verkleining, opslag-quota-afvang, Excel-export en mailfuncties
+- README verwijst nu naar CLAUDE.md en de changelog
+
 ## [0.8.0] - 2026-07-06
 
 ### Toegevoegd
