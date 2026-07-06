@@ -1,0 +1,7 @@
+# Geheimen - NOOIT committen
+github-token.txt
+.env
+*.local.env
+
+# Backups
+*.zip
