@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Beheer | Papa &amp; Pony's</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1e2430;--ink-soft:#4a5264;--paper:#fffdf9;--paper-tint:#fdf6ec;
+  --accent:#e8a020;--accent-deep:#c9861a;--rose:#e8637e;--rose-soft:#fbe9ed;
+  --line:#e9e2d6;--groen:#3d9a6b;--groen-soft:#e7f4ed;--rood:#d64545;
+  --font-display:'Outfit',sans-serif;--font-mono:'IBM Plex Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font-display);background:var(--paper);color:var(--ink);line-height:1.55;min-height:100vh}
+::selection{background:var(--accent);color:#fff}
+
+header{position:sticky;top:0;z-index:50;background:rgba(255,253,249,.9);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.head-inner{max-width:1060px;margin:0 auto;padding:0 24px;height:68px;display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.1rem;text-decoration:none;color:var(--ink)}
+.logo .mark{width:36px;height:36px;display:grid;place-items:center;background:var(--rose-soft);border-radius:10px;transition:transform .4s cubic-bezier(.34,1.56,.64,1)}
+.logo:hover .mark{transform:rotate(-12deg) scale(1.1)}
+.logo .badge{font-family:var(--font-mono);font-size:.68rem;background:var(--ink);color:#fff;padding:3px 10px;border-radius:999px;margin-left:4px}
+.terug{font-size:.9rem;color:var(--ink-soft);text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:color .2s}
+.terug:hover{color:var(--ink)}
+.terug .pijl{transition:transform .25s ease;display:inline-block}
+.terug:hover .pijl{transform:translateX(-4px)}
+
+main{max-width:1060px;margin:0 auto;padding:36px 24px 80px}
+
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:24px}
+.stat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px;transition:transform .2s ease,border-color .2s}
+.stat:hover{transform:translateY(-3px);border-color:var(--accent)}
+.stat .num{font-size:1.7rem;font-weight:800;line-height:1.1}
+.stat .lbl{font-family:var(--font-mono);font-size:.68rem;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.05em}
+
+/* tabs */
+.tabs{display:flex;gap:8px;margin-bottom:26px;border-bottom:1px solid var(--line);padding-bottom:0}
+.tab{font-family:var(--font-display);font-weight:600;font-size:.95rem;background:none;border:none;border-bottom:3px solid transparent;padding:10px 16px 12px;cursor:pointer;color:var(--ink-soft);display:inline-flex;align-items:center;gap:8px;transition:color .2s,border-color .2s}
+.tab:hover{color:var(--ink)}
+.tab.actief{color:var(--ink);border-bottom-color:var(--accent)}
+.tab .tel{font-family:var(--font-mono);font-size:.68rem;background:var(--paper-tint);border:1px solid var(--line);padding:2px 8px;border-radius:999px;transition:background .2s}
+.tab.actief .tel{background:var(--accent);color:#fff;border-color:var(--accent)}
+.tabpane{display:none;animation:fadein .3s ease}
+.tabpane.actief{display:block}
+@keyframes fadein{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* evenementen-tab layout */
+.ev-grid{display:grid;grid-template-columns:380px 1fr;gap:28px;align-items:start}
+
+/* form */
+.panel{background:#fff;border:1px solid var(--line);border-radius:18px;padding:26px;position:sticky;top:92px}
+.panel h2{font-size:1.2rem;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.panel .sub{font-size:.85rem;color:var(--ink-soft);margin-bottom:18px}
+label{display:block;font-size:.82rem;font-weight:600;margin:14px 0 5px}
+input,textarea,select{width:100%;font-family:var(--font-display);font-size:.95rem;padding:10px 13px;border:1.5px solid var(--line);border-radius:10px;background:var(--paper);color:var(--ink);transition:border-color .2s,box-shadow .2s}
+input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(232,160,32,.15)}
+input:hover,textarea:hover,select:hover{border-color:#d8cfbe}
+textarea{resize:vertical;min-height:74px}
+.rij{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.check{display:flex;align-items:center;gap:10px;margin-top:16px;cursor:pointer;user-select:none;font-size:.9rem;font-weight:500}
+.check input{width:auto;accent-color:var(--accent);transform:scale(1.2);cursor:pointer}
+.form-acties{display:flex;gap:10px;margin-top:22px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-family:var(--font-display);background:var(--ink);color:#fff;font-weight:600;font-size:.92rem;padding:11px 20px;border-radius:999px;border:none;cursor:pointer;transition:transform .2s cubic-bezier(.34,1.56,.64,1),box-shadow .2s,background .2s}
+.btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(30,36,48,.18)}
+.btn:active{transform:scale(.96)}
+.btn.gold{background:var(--accent);flex:1}
+.btn.gold:hover{background:var(--accent-deep)}
+.btn.stil{background:transparent;color:var(--ink-soft);border:1.5px solid var(--line)}
+.btn.stil:hover{border-color:var(--ink);color:var(--ink);box-shadow:none}
+.btn.klein{font-size:.8rem;padding:8px 16px}
+
+/* lijsten */
+.lijst h2{font-size:1.2rem;font-weight:700;margin-bottom:14px}
+.lijst-kop{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:12px}
+.filters{display:flex;gap:8px}
+.filter{font-family:var(--font-mono);font-size:.75rem;padding:6px 14px;border-radius:999px;border:1.5px solid var(--line);background:#fff;cursor:pointer;color:var(--ink-soft);transition:all .2s}
+.filter:hover{border-color:var(--accent);color:var(--ink)}
+.filter.actief{background:var(--ink);color:#fff;border-color:var(--ink)}
+
+.ev{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin-bottom:12px;display:grid;grid-template-columns:64px 1fr auto;gap:16px;align-items:center;transition:transform .2s ease,box-shadow .2s,border-color .2s,opacity .3s;animation:slidein .35s ease}
+@keyframes slidein{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.ev:hover{border-color:var(--accent);box-shadow:0 10px 26px -16px rgba(30,36,48,.3)}
+.ev.weg{opacity:0;transform:translateX(30px) scale(.97)}
+.ev.voorbij{opacity:.55}
+.ev-datum{text-align:center;background:var(--paper-tint);border:1px solid var(--line);border-radius:10px;padding:8px 4px}
+.ev-datum .dag{font-size:1.25rem;font-weight:800;line-height:1}
+.ev-datum .mnd{font-family:var(--font-mono);font-size:.66rem;text-transform:uppercase;color:var(--ink-soft)}
+.ev-info h3{font-size:1rem;font-weight:700;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.ev-info .ster{cursor:pointer;font-size:.95rem;filter:grayscale(1);opacity:.45;transition:transform .25s cubic-bezier(.34,1.56,.64,1),filter .2s,opacity .2s}
+.ev-info .ster:hover{transform:scale(1.35) rotate(12deg)}
+.ev-info .ster.aan{filter:none;opacity:1}
+.ev-info .meta{font-size:.8rem;color:var(--ink-soft);display:flex;gap:12px;flex-wrap:wrap}
+.ev-info .cat{font-family:var(--font-mono);font-size:.66rem;color:var(--accent-deep);background:var(--paper-tint);padding:2px 8px;border-radius:999px;border:1px solid var(--line)}
+.ev-acties{display:flex;gap:6px}
+.icoon-btn{width:36px;height:36px;display:grid;place-items:center;border:1.5px solid var(--line);background:#fff;border-radius:10px;cursor:pointer;font-size:.95rem;transition:transform .2s cubic-bezier(.34,1.56,.64,1),border-color .2s,background .2s}
+.icoon-btn:hover{transform:translateY(-2px)}
+.icoon-btn.bewerk:hover{border-color:var(--accent);background:var(--paper-tint)}
+.icoon-btn.verwijder:hover{border-color:var(--rood);background:#fdeaea}
+.icoon-btn.groen:hover{border-color:var(--groen);background:var(--groen-soft)}
+.icoon-btn:active{transform:scale(.9)}
+.leeg{text-align:center;padding:48px 24px;background:var(--paper-tint);border:1.5px dashed var(--line);border-radius:14px;color:var(--ink-soft)}
+.leeg .icon{font-size:2rem;display:block;margin-bottom:10px;animation:zweef 4s ease-in-out infinite}
+@keyframes zweef{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+
+/* inschrijvingen */
+.groep{background:#fff;border:1px solid var(--line);border-radius:16px;margin-bottom:18px;overflow:hidden;animation:slidein .35s ease}
+.groep-kop{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 20px;background:var(--paper-tint);border-bottom:1px solid var(--line);flex-wrap:wrap}
+.groep-kop h3{font-size:1rem;font-weight:700;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.groep-kop .datum{font-family:var(--font-mono);font-size:.72rem;color:var(--ink-soft)}
+.groep-kop .aantal{font-family:var(--font-mono);font-size:.7rem;background:var(--accent);color:#fff;padding:3px 10px;border-radius:999px}
+.inschrijving{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:14px 20px;border-bottom:1px solid var(--line);transition:background .2s,opacity .3s,transform .3s}
+.inschrijving:last-child{border-bottom:none}
+.inschrijving:hover{background:var(--paper-tint)}
+.inschrijving.weg{opacity:0;transform:translateX(30px)}
+.inschrijving .naam{font-weight:700;font-size:.95rem;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.inschrijving .naam .pill{font-family:var(--font-mono);font-size:.64rem;background:var(--rose-soft);color:var(--rose);padding:2px 8px;border-radius:999px}
+.inschrijving .detail{font-size:.8rem;color:var(--ink-soft);display:flex;gap:14px;flex-wrap:wrap;margin-top:2px}
+.inschrijving .opm{font-size:.82rem;color:var(--ink-soft);font-style:italic;margin-top:4px}
+
+/* whatsapp */
+.wa-kaart{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 20px;margin-bottom:12px;display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;transition:border-color .2s,box-shadow .2s,opacity .3s,transform .3s;animation:slidein .35s ease}
+.wa-kaart:hover{border-color:var(--accent);box-shadow:0 10px 26px -16px rgba(30,36,48,.3)}
+.wa-kaart.weg{opacity:0;transform:translateX(30px)}
+.wa-kaart.klaar{border-left:4px solid var(--groen)}
+.wa-kaart .naam{font-weight:700;font-size:.98rem;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.status-pill{font-family:var(--font-mono);font-size:.66rem;padding:3px 10px;border-radius:999px}
+.status-pill.nieuw{background:var(--rose-soft);color:var(--rose)}
+.status-pill.toegevoegd{background:var(--groen-soft);color:var(--groen)}
+.wa-kaart .detail{font-size:.82rem;color:var(--ink-soft);display:flex;gap:14px;flex-wrap:wrap;margin-top:2px}
+.wa-kaart .bericht{font-size:.84rem;color:var(--ink-soft);font-style:italic;margin-top:6px;max-width:64ch}
+
+/* toast + confetti */
+#toast{position:fixed;bottom:28px;left:50%;transform:translate(-50%,80px);background:var(--ink);color:#fff;padding:13px 24px;border-radius:999px;font-size:.9rem;font-weight:500;box-shadow:0 12px 30px rgba(30,36,48,.3);transition:transform .4s cubic-bezier(.34,1.56,.64,1);z-index:200}
+#toast.zichtbaar{transform:translate(-50%,0)}
+.confetti{position:fixed;top:-12px;pointer-events:none;z-index:300;font-size:1rem;animation:vallen linear forwards}
+@keyframes vallen{to{transform:translateY(105vh) rotate(720deg);opacity:.2}}
+
+@media (max-width:900px){
+  .ev-grid{grid-template-columns:1fr}
+  .panel{position:static}
+  .stats{grid-template-columns:repeat(3,1fr)}
+}
+@media (max-width:560px){
+  .stats{grid-template-columns:1fr 1fr}
+  .ev{grid-template-columns:52px 1fr}
+  .ev-acties{grid-column:2;justify-content:flex-end}
+  .tabs{overflow-x:auto}
+  .tab{white-space:nowrap}
+}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="head-inner">
+    <a class="logo" href="../index.html"><span class="mark">🐴</span>Papa &amp; Pony's<span class="badge">beheer</span></a>
+    <a class="terug" href="../index.html"><span class="pijl">←</span> Naar de site</a>
+  </div>
+</header>
+
+<main>
+  <div class="stats">
+    <div class="stat"><div class="num" id="statTotaal">0</div><div class="lbl">Evenementen</div></div>
+    <div class="stat"><div class="num" id="statKomend">0</div><div class="lbl">Aankomend</div></div>
+    <div class="stat"><div class="num" id="statUitgelicht">0</div><div class="lbl">Uitgelicht</div></div>
+    <div class="stat"><div class="num" id="statInschrijvingen">0</div><div class="lbl">Inschrijvingen</div></div>
+    <div class="stat"><div class="num" id="statWhatsapp">0</div><div class="lbl">WhatsApp</div></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab actief" data-tab="evenementen">🗓️ Evenementen</button>
+    <button class="tab" data-tab="inschrijvingen">🎟️ Inschrijvingen <span class="tel" id="telInschrijvingen">0</span></button>
+    <button class="tab" data-tab="whatsapp">💬 WhatsApp-aanmeldingen <span class="tel" id="telWhatsapp">0</span></button>
+  </div>
+
+  <!-- TAB 1: evenementen -->
+  <div class="tabpane actief" id="tab-evenementen">
+    <div class="ev-grid">
+      <div class="panel">
+        <h2 id="formTitel">✨ Nieuw evenement</h2>
+        <p class="sub">Verschijnt direct op de homepagina.</p>
+        <form id="eventForm">
+          <input type="hidden" id="editId">
+          <label for="titel">Titel *</label>
+          <input id="titel" required maxlength="80" placeholder="Vlechtworkshop: de basisvlecht">
+          <div class="rij">
+            <div>
+              <label for="datum">Datum *</label>
+              <input id="datum" type="date" required>
+            </div>
+            <div>
+              <label for="tijd">Tijd</label>
+              <input id="tijd" type="time">
+            </div>
+          </div>
+          <label for="locatie">Locatie</label>
+          <input id="locatie" maxlength="80" placeholder="Buurthuis De Schakel">
+          <label for="categorie">Categorie</label>
+          <select id="categorie">
+            <option>Workshop</option>
+            <option>Uitje</option>
+            <option>Borrel</option>
+            <option>Community</option>
+            <option>Anders</option>
+          </select>
+          <label for="beschrijving">Beschrijving</label>
+          <textarea id="beschrijving" maxlength="280" placeholder="Wat gaan we doen, wat neem je mee, zijn dochters welkom?"></textarea>
+          <label class="check"><input type="checkbox" id="uitgelicht"> Uitlichten op de homepage 🌟</label>
+          <div class="form-acties">
+            <button type="submit" class="btn gold" id="opslaanBtn">Opslaan 🎉</button>
+            <button type="button" class="btn stil" id="annuleerBtn" style="display:none">Annuleer</button>
+          </div>
+        </form>
+      </div>
+      <div class="lijst">
+        <div class="lijst-kop">
+          <h2 style="margin:0">Alle evenementen</h2>
+          <div class="filters">
+            <button class="filter actief" data-f="komend">Aankomend</button>
+            <button class="filter" data-f="voorbij">Voorbij</button>
+            <button class="filter" data-f="alles">Alles</button>
+          </div>
+        </div>
+        <div id="eventLijst"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 2: inschrijvingen -->
+  <div class="tabpane" id="tab-inschrijvingen">
+    <div class="lijst-kop">
+      <h2 style="margin:0">Inschrijvingen per evenement</h2>
+      <button class="btn stil klein" id="exportInschrijvingen">⬇ Exporteer CSV</button>
+    </div>
+    <div id="inschrijvingenLijst"></div>
+  </div>
+
+  <!-- TAB 3: whatsapp -->
+  <div class="tabpane" id="tab-whatsapp">
+    <div class="lijst-kop">
+      <h2 style="margin:0">Aanmeldingen WhatsApp-community</h2>
+      <button class="btn stil klein" id="exportWhatsapp">⬇ Exporteer CSV</button>
+    </div>
+    <div id="whatsappLijst"></div>
+  </div>
+</main>
+
+<div id="toast"></div>
+
+<script>
+const PP_KEY = "pp_events";
+const SIGNUP_KEY = "pp_event_signups";
+const WA_KEY = "pp_wa_signups";
+const maanden = ["jan","feb","mrt","apr","mei","jun","jul","aug","sep","okt","nov","dec"];
+let filter = "komend";
+
+function load(){ try{ return JSON.parse(localStorage.getItem(PP_KEY)) || []; }catch(e){ return []; } }
+function save(v){ localStorage.setItem(PP_KEY, JSON.stringify(v)); }
+function loadList(k){ try{ return JSON.parse(localStorage.getItem(k)) || []; }catch(e){ return []; } }
+function saveList(k,v){ localStorage.setItem(k, JSON.stringify(v)); }
+function esc(s){ const d=document.createElement("div"); d.textContent=s??""; return d.innerHTML; }
+function vandaag(){ const t=new Date(); t.setHours(0,0,0,0); return t; }
+function fmtDatum(iso){ const d=new Date(iso); return `${d.getDate()} ${maanden[d.getMonth()]} '${String(d.getFullYear()).slice(2)}`; }
+
+/* ---------- Stats + tabtellers ---------- */
+function renderStats(){
+  const events = load(), signups = loadList(SIGNUP_KEY), wa = loadList(WA_KEY);
+  const t = vandaag();
+  document.getElementById("statTotaal").textContent = events.length;
+  document.getElementById("statKomend").textContent = events.filter(e=>new Date(e.datum+"T00:00:00")>=t).length;
+  document.getElementById("statUitgelicht").textContent = events.filter(e=>e.uitgelicht).length;
+  document.getElementById("statInschrijvingen").textContent = signups.length;
+  document.getElementById("statWhatsapp").textContent = wa.filter(w=>w.status!=="toegevoegd").length + " nieuw";
+  document.getElementById("telInschrijvingen").textContent = signups.length;
+  document.getElementById("telWhatsapp").textContent = wa.length;
+}
+
+/* ---------- Tabs ---------- */
+document.querySelectorAll(".tab").forEach(b=>{
+  b.addEventListener("click", ()=>{
+    document.querySelectorAll(".tab").forEach(x=>x.classList.remove("actief"));
+    document.querySelectorAll(".tabpane").forEach(x=>x.classList.remove("actief"));
+    b.classList.add("actief");
+    document.getElementById("tab-"+b.dataset.tab).classList.add("actief");
+    renderAlles();
+  });
+});
+
+/* ---------- TAB 1: evenementen ---------- */
+function renderEvents(){
+  const events = load().sort((a,b)=>a.datum.localeCompare(b.datum));
+  const t = vandaag();
+  const signups = loadList(SIGNUP_KEY);
+  let toon = events;
+  if(filter==="komend") toon = events.filter(e=>new Date(e.datum+"T00:00:00")>=t);
+  if(filter==="voorbij") toon = events.filter(e=>new Date(e.datum+"T00:00:00")<t).reverse();
+
+  const lijst = document.getElementById("eventLijst");
+  if(toon.length===0){
+    lijst.innerHTML = `<div class="leeg"><span class="icon">🗓️</span>Niets te zien hier. Maak links een nieuw evenement aan!</div>`;
+    return;
+  }
+  lijst.innerHTML = toon.map(e=>{
+    const d = new Date(e.datum+"T00:00:00");
+    const voorbij = d < t;
+    const n = signups.filter(s=>s.eventId===e.id).length;
+    return `<div class="ev ${voorbij?"voorbij":""}" data-id="${e.id}">
+      <div class="ev-datum"><div class="dag">${d.getDate()}</div><div class="mnd">${maanden[d.getMonth()]} '${String(d.getFullYear()).slice(2)}</div></div>
+      <div class="ev-info">
+        <h3><span class="ster ${e.uitgelicht?"aan":""}" title="Uitlichten aan/uit" onclick="toggleSter('${e.id}')">🌟</span>${esc(e.titel)}<span class="cat">${esc(e.categorie||"Anders")}</span></h3>
+        <div class="meta"><span>🕙 ${esc(e.tijd||"n.t.b.")}</span><span>📍 ${esc(e.locatie||"n.t.b.")}</span><span>🎟️ ${n} inschrijving${n===1?"":"en"}</span></div>
+      </div>
+      <div class="ev-acties">
+        <button class="icoon-btn bewerk" title="Bewerken" onclick="bewerk('${e.id}')">✏️</button>
+        <button class="icoon-btn verwijder" title="Verwijderen" onclick="verwijder('${e.id}')">🗑️</button>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+document.getElementById("eventForm").addEventListener("submit", ev=>{
+  ev.preventDefault();
+  const id = document.getElementById("editId").value;
+  const item = {
+    id: id || "ev-"+Date.now(),
+    titel: document.getElementById("titel").value.trim(),
+    datum: document.getElementById("datum").value,
+    tijd: document.getElementById("tijd").value,
+    locatie: document.getElementById("locatie").value.trim(),
+    categorie: document.getElementById("categorie").value,
+    beschrijving: document.getElementById("beschrijving").value.trim(),
+    uitgelicht: document.getElementById("uitgelicht").checked
+  };
+  let events = load();
+  if(id){ events = events.map(e=>e.id===id?item:e); toast("Evenement bijgewerkt ✏️"); }
+  else{ events.push(item); toast("Evenement aangemaakt 🎉"); confetti(); }
+  save(events);
+  resetForm();
+  renderAlles();
+});
+
+function bewerk(id){
+  const e = load().find(x=>x.id===id);
+  if(!e) return;
+  document.getElementById("editId").value = e.id;
+  document.getElementById("titel").value = e.titel;
+  document.getElementById("datum").value = e.datum;
+  document.getElementById("tijd").value = e.tijd||"";
+  document.getElementById("locatie").value = e.locatie||"";
+  document.getElementById("categorie").value = e.categorie||"Anders";
+  document.getElementById("beschrijving").value = e.beschrijving||"";
+  document.getElementById("uitgelicht").checked = !!e.uitgelicht;
+  document.getElementById("formTitel").textContent = "✏️ Evenement bewerken";
+  document.getElementById("opslaanBtn").textContent = "Bijwerken ✔";
+  document.getElementById("annuleerBtn").style.display = "inline-flex";
+  document.querySelector(".panel").scrollIntoView({behavior:"smooth", block:"start"});
+  document.getElementById("titel").focus();
+}
+
+function verwijder(id){
+  const e = load().find(x=>x.id===id);
+  if(!e) return;
+  const nInschrijvingen = loadList(SIGNUP_KEY).filter(s=>s.eventId===id).length;
+  const extra = nInschrijvingen>0 ? `\nLet op: er zijn ${nInschrijvingen} inschrijving(en) voor dit evenement. Die blijven bewaard onder "Inschrijvingen".` : "";
+  if(!confirm(`"${e.titel}" verwijderen?${extra}`)) return;
+  const kaart = document.querySelector(`.ev[data-id="${id}"]`);
+  if(kaart) kaart.classList.add("weg");
+  setTimeout(()=>{
+    save(load().filter(x=>x.id!==id));
+    toast("Evenement verwijderd 🗑️");
+    renderAlles();
+  }, 280);
+}
+
+function toggleSter(id){
+  save(load().map(e=>e.id===id?{...e, uitgelicht:!e.uitgelicht}:e));
+  renderAlles();
+}
+
+function resetForm(){
+  document.getElementById("eventForm").reset();
+  document.getElementById("editId").value = "";
+  document.getElementById("formTitel").textContent = "✨ Nieuw evenement";
+  document.getElementById("opslaanBtn").textContent = "Opslaan 🎉";
+  document.getElementById("annuleerBtn").style.display = "none";
+}
+document.getElementById("annuleerBtn").addEventListener("click", resetForm);
+
+document.querySelectorAll(".filter").forEach(b=>{
+  b.addEventListener("click", ()=>{
+    document.querySelectorAll(".filter").forEach(x=>x.classList.remove("actief"));
+    b.classList.add("actief");
+    filter = b.dataset.f;
+    renderEvents();
+  });
+});
+
+/* ---------- TAB 2: inschrijvingen ---------- */
+function renderInschrijvingen(){
+  const lijst = document.getElementById("inschrijvingenLijst");
+  const signups = loadList(SIGNUP_KEY);
+  if(signups.length===0){
+    lijst.innerHTML = `<div class="leeg"><span class="icon">🎟️</span>Nog geen inschrijvingen. Zodra iemand zich via de site inschrijft, verschijnt die hier.</div>`;
+    return;
+  }
+  const events = load();
+  const groepen = {};
+  signups.forEach(s=>{ (groepen[s.eventId] = groepen[s.eventId] || []).push(s); });
+
+  lijst.innerHTML = Object.entries(groepen)
+    .sort((a,b)=>(a[1][0].eventDatum||"").localeCompare(b[1][0].eventDatum||""))
+    .map(([eventId, rows])=>{
+      const ev = events.find(e=>e.id===eventId);
+      const titel = ev ? ev.titel : (rows[0].eventTitel || "Verwijderd evenement");
+      const datum = ev ? ev.datum : rows[0].eventDatum;
+      const totaal = rows.reduce((n,s)=>n+(parseInt(s.personen)||1),0);
+      return `<div class="groep">
+        <div class="groep-kop">
+          <h3>${esc(titel)}${!ev?' <span class="status-pill nieuw">evenement verwijderd</span>':''}<span class="datum">${datum?fmtDatum(datum+"T00:00:00"):""}</span></h3>
+          <span class="aantal">${totaal} ${totaal===1?"papa":"papa's"}</span>
+        </div>
+        ${rows.sort((a,b)=>(a.aangemeldOp||"").localeCompare(b.aangemeldOp||"")).map(s=>`
+        <div class="inschrijving" data-id="${s.id}">
+          <div>
+            <div class="naam">${esc(s.naam)}${s.dochterMee?'<span class="pill">🎀 dochter mee</span>':''}</div>
+            <div class="detail"><span>📞 ${esc(s.contact)}</span><span>👥 ${esc(s.personen||"1")} papa('s)</span><span>🗓️ aangemeld ${fmtDatum(s.aangemeldOp)}</span></div>
+            ${s.opmerking?`<div class="opm">"${esc(s.opmerking)}"</div>`:""}
+          </div>
+          <button class="icoon-btn verwijder" title="Inschrijving verwijderen" onclick="verwijderInschrijving('${s.id}')">🗑️</button>
+        </div>`).join("")}
+      </div>`;
+    }).join("");
+}
+
+function verwijderInschrijving(id){
+  const s = loadList(SIGNUP_KEY).find(x=>x.id===id);
+  if(!s || !confirm(`Inschrijving van ${s.naam} verwijderen?`)) return;
+  const rij = document.querySelector(`.inschrijving[data-id="${id}"]`);
+  if(rij) rij.classList.add("weg");
+  setTimeout(()=>{
+    saveList(SIGNUP_KEY, loadList(SIGNUP_KEY).filter(x=>x.id!==id));
+    toast("Inschrijving verwijderd 🗑️");
+    renderAlles();
+  }, 280);
+}
+
+document.getElementById("exportInschrijvingen").addEventListener("click", ()=>{
+  const rows = loadList(SIGNUP_KEY).map(s=>({
+    evenement:s.eventTitel, datum:s.eventDatum, naam:s.naam, contact:s.contact,
+    personen:s.personen, dochter_mee:s.dochterMee?"ja":"nee", opmerking:s.opmerking,
+    aangemeld_op:(s.aangemeldOp||"").slice(0,10)
+  }));
+  exportCsv(rows, ["evenement","datum","naam","contact","personen","dochter_mee","opmerking","aangemeld_op"], "inschrijvingen-papas-en-ponys.csv");
+});
+
+/* ---------- TAB 3: whatsapp ---------- */
+function renderWhatsapp(){
+  const lijst = document.getElementById("whatsappLijst");
+  const wa = loadList(WA_KEY).sort((a,b)=>(b.aangemeldOp||"").localeCompare(a.aangemeldOp||""));
+  if(wa.length===0){
+    lijst.innerHTML = `<div class="leeg"><span class="icon">💬</span>Nog geen aanmeldingen voor de WhatsApp-groep.</div>`;
+    return;
+  }
+  lijst.innerHTML = wa.map(w=>{
+    const klaar = w.status==="toegevoegd";
+    return `<div class="wa-kaart ${klaar?"klaar":""}" data-id="${w.id}">
+      <div>
+        <div class="naam">${esc(w.naam)}<span class="status-pill ${klaar?"toegevoegd":"nieuw"}">${klaar?"✔ toegevoegd":"nieuw"}</span></div>
+        <div class="detail"><span>📞 ${esc(w.telefoon)}</span>${w.dochters?`<span>🎀 ${esc(w.dochters)} dochter(s)</span>`:""}<span>🗓️ ${fmtDatum(w.aangemeldOp)}</span></div>
+        ${w.bericht?`<div class="bericht">"${esc(w.bericht)}"</div>`:""}
+      </div>
+      <div class="ev-acties">
+        <button class="icoon-btn groen" title="${klaar?"Markeer als nieuw":"Markeer als toegevoegd aan de groep"}" onclick="toggleWa('${w.id}')">${klaar?"↩️":"✔"}</button>
+        <button class="icoon-btn verwijder" title="Aanmelding verwijderen" onclick="verwijderWa('${w.id}')">🗑️</button>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+function toggleWa(id){
+  const wa = loadList(WA_KEY).map(w=>w.id===id?{...w, status:w.status==="toegevoegd"?"nieuw":"toegevoegd"}:w);
+  saveList(WA_KEY, wa);
+  const w = wa.find(x=>x.id===id);
+  if(w && w.status==="toegevoegd"){ toast(`${w.naam} toegevoegd aan de groep 💛`); confetti(); }
+  renderAlles();
+}
+
+function verwijderWa(id){
+  const w = loadList(WA_KEY).find(x=>x.id===id);
+  if(!w || !confirm(`Aanmelding van ${w.naam} verwijderen?`)) return;
+  const kaart = document.querySelector(`.wa-kaart[data-id="${id}"]`);
+  if(kaart) kaart.classList.add("weg");
+  setTimeout(()=>{
+    saveList(WA_KEY, loadList(WA_KEY).filter(x=>x.id!==id));
+    toast("Aanmelding verwijderd 🗑️");
+    renderAlles();
+  }, 280);
+}
+
+document.getElementById("exportWhatsapp").addEventListener("click", ()=>{
+  const rows = loadList(WA_KEY).map(w=>({
+    naam:w.naam, telefoon:w.telefoon, dochters:w.dochters, bericht:w.bericht,
+    status:w.status, aangemeld_op:(w.aangemeldOp||"").slice(0,10)
+  }));
+  exportCsv(rows, ["naam","telefoon","dochters","bericht","status","aangemeld_op"], "whatsapp-aanmeldingen-papas-en-ponys.csv");
+});
+
+/* ---------- CSV export ---------- */
+function exportCsv(rows, kolommen, bestandsnaam){
+  if(rows.length===0){ toast("Niets te exporteren"); return; }
+  const csv = [kolommen.join(";")]
+    .concat(rows.map(r=>kolommen.map(k=>`"${String(r[k]??"").replace(/"/g,'""')}"`).join(";")))
+    .join("\r\n");
+  const blob = new Blob(["﻿"+csv], {type:"text/csv;charset=utf-8"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = bestandsnaam;
+  a.click();
+  URL.revokeObjectURL(a.href);
+  toast("CSV gedownload ⬇");
+}
+
+/* ---------- Toast & confetti ---------- */
+let toastTimer;
+function toast(txt){
+  const t = document.getElementById("toast");
+  t.textContent = txt;
+  t.classList.add("zichtbaar");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove("zichtbaar"), 2600);
+}
+function confetti(){
+  if(matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const emojis = ["🎀","💛","✨","🐴","🎉"];
+  for(let i=0;i<24;i++){
+    const s = document.createElement("span");
+    s.className = "confetti";
+    s.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+    s.style.left = Math.random()*100 + "vw";
+    s.style.animationDuration = (1.8 + Math.random()*1.6) + "s";
+    s.style.animationDelay = (Math.random()*.4) + "s";
+    s.style.fontSize = (0.8 + Math.random()*0.9) + "rem";
+    document.body.appendChild(s);
+    setTimeout(()=>s.remove(), 4000);
+  }
+}
+
+/* ---------- Seed als leeg ---------- */
+if(!localStorage.getItem(PP_KEY)){
+  save([
+    {id:"seed-1", titel:"Vlechtworkshop: de basisvlecht", datum:"2026-07-18", tijd:"10:00", locatie:"Buurthuis De Schakel", categorie:"Workshop", beschrijving:"Voor beginners. Neem een borstel, elastiekjes en (als het kan) een geduldige dochter mee.", uitgelicht:true},
+    {id:"seed-2", titel:"Papa & Pony's zomerpicknick", datum:"2026-08-02", tijd:"12:30", locatie:"Stadspark, grote weide", categorie:"Uitje", beschrijving:"Kleedjes, broodjes en spelletjes. Dochters (en zonen) van harte welkom.", uitgelicht:false},
+    {id:"seed-3", titel:"Vlechtworkshop: visgraat & invlecht", datum:"2026-09-12", tijd:"10:00", locatie:"Buurthuis De Schakel", categorie:"Workshop", beschrijving:"Vervolgworkshop voor wie de basis onder de knie heeft.", uitgelicht:false}
+  ]);
+}
+
+function renderAlles(){ renderStats(); renderEvents(); renderInschrijvingen(); renderWhatsapp(); }
+renderAlles();
+</script>
+</body>
+</html>
