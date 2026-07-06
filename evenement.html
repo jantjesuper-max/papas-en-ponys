@@ -369,10 +369,17 @@ if(!event){
       <h2>Ben je erbij?</h2>
       <p class="sub">Schrijf jezelf in — komt er een vriend mee, dan schrijft hij zich ook even in.</p>
       <form class="in-form" id="inschrijfForm">
-        <input id="inNaam" required maxlength="60" placeholder="Je naam *" aria-label="Naam">
+        <div class="rij">
+          <input id="inVoornaam" required maxlength="40" placeholder="Voornaam *" aria-label="Voornaam">
+          <input id="inAchternaam" required maxlength="40" placeholder="Achternaam *" aria-label="Achternaam">
+        </div>
         <div class="rij">
           <input id="inEmail" type="email" required maxlength="80" placeholder="E-mailadres *" aria-label="E-mailadres">
           <input id="inTelefoon" type="tel" required maxlength="20" placeholder="06-nummer *" aria-label="Telefoonnummer">
+        </div>
+        <div class="rij">
+          <input id="inWoonplaats" maxlength="60" placeholder="Woonplaats (optioneel)" aria-label="Woonplaats">
+          <input id="inLeeftijden" maxlength="40" placeholder="Leeftijd dochter(s), bijv. 4 en 7" aria-label="Leeftijd dochters">
         </div>
         <label class="check"><input type="checkbox" id="inDochter"> Dochter(s) mee</label>
         <textarea id="inOpmerking" maxlength="240" placeholder="Allergieën, vragen, of gewoon iets leuks (optioneel)" aria-label="Opmerking"></textarea>
@@ -406,9 +413,13 @@ if(!event){
         eventId: event.id,
         eventTitel: event.titel,
         eventDatum: event.datum,
-        naam: document.getElementById("inNaam").value.trim(),
+        voornaam: document.getElementById("inVoornaam").value.trim(),
+        achternaam: document.getElementById("inAchternaam").value.trim(),
+        naam: `${document.getElementById("inVoornaam").value.trim()} ${document.getElementById("inAchternaam").value.trim()}`.trim(),
         email: document.getElementById("inEmail").value.trim(),
         telefoon: document.getElementById("inTelefoon").value.trim(),
+        woonplaats: document.getElementById("inWoonplaats").value.trim(),
+        dochterLeeftijden: document.getElementById("inLeeftijden").value.trim(),
         personen: "1",
         dochterMee: document.getElementById("inDochter").checked,
         opmerking: document.getElementById("inOpmerking").value.trim(),

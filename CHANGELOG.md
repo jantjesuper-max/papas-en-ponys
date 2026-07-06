@@ -5,6 +5,15 @@ Het format volgt [Keep a Changelog](https://keepachangelog.com/nl/1.1.0/).
 
 ## [Unreleased]
 
+## [0.12.0] - 2026-07-06
+
+### Toegevoegd
+- Naam is overal gesplitst in voornaam + achternaam (evenement-inschrijving, homepage-modal, WhatsApp-aanmelding, beheer); oude records met één naamveld worden automatisch gesplitst op de eerste spatie
+- Extra velden bij evenement-inschrijvingen: woonplaats en leeftijd dochter(s) (beide optioneel), zichtbaar in het beheer en in de Excel-export
+- Extra velden bij WhatsApp-aanmelding: e-mailadres en woonplaats (beide optioneel), zichtbaar in het beheer en de CSV-export
+- Contactsectie is een volledig formulier geworden (voornaam, achternaam, e-mail, onderwerp, bericht) dat het mailprogramma opent met alles ingevuld
+- Excel-export heeft nu kolommen Voornaam, Achternaam, Woonplaats en Leeftijd dochters
+
 ## [0.11.0] - 2026-07-06
 
 ### Toegevoegd

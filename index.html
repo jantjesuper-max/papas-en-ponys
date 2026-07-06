@@ -369,13 +369,20 @@ footer .admin-link:hover{color:var(--accent-deep);border-color:var(--accent)}
     <p>Meld je aan voor de WhatsApp-community. Een moderator neemt contact met je op en voegt je toe aan de groep.</p>
     <form class="wa-form" id="waForm">
       <div class="rij">
-        <input id="waNaam" required maxlength="60" placeholder="Je voornaam *" aria-label="Voornaam">
-        <input id="waTelefoon" type="tel" required maxlength="20" placeholder="06-nummer *" aria-label="Telefoonnummer">
+        <input id="waVoornaam" required maxlength="40" placeholder="Voornaam *" aria-label="Voornaam">
+        <input id="waAchternaam" required maxlength="40" placeholder="Achternaam *" aria-label="Achternaam">
       </div>
-      <select id="waDochters" aria-label="Aantal dochters">
-        <option value="">Aantal dochters (optioneel)</option>
-        <option>1</option><option>2</option><option>3</option><option>4 of meer</option>
-      </select>
+      <div class="rij">
+        <input id="waTelefoon" type="tel" required maxlength="20" placeholder="06-nummer *" aria-label="Telefoonnummer">
+        <input id="waEmail" type="email" maxlength="80" placeholder="E-mailadres (optioneel)" aria-label="E-mailadres">
+      </div>
+      <div class="rij">
+        <input id="waWoonplaats" maxlength="60" placeholder="Woonplaats (optioneel)" aria-label="Woonplaats">
+        <select id="waDochters" aria-label="Aantal dochters">
+          <option value="">Aantal dochters (optioneel)</option>
+          <option>1</option><option>2</option><option>3</option><option>4 of meer</option>
+        </select>
+      </div>
       <textarea id="waBericht" maxlength="240" placeholder="Vertel kort iets over jezelf (optioneel)" aria-label="Bericht"></textarea>
       <button type="submit" class="btn gold">Meld je aan <span class="arrow">→</span></button>
     </form>
@@ -414,9 +421,18 @@ footer .admin-link:hover{color:var(--accent-deep);border-color:var(--accent)}
   <div class="contact-kaart">
     <span class="contact-icoon">💌</span>
     <h2>Vragen, ideeën of gewoon hoi zeggen?</h2>
-    <p>Mail ons — we antwoorden sneller dan je een staartje maakt.</p>
-    <a class="btn gold" href="mailto:jantje.super@gmail.com?subject=Vraag%20aan%20Papa%20%26%20Pony's">📬 Mail naar Papa &amp; Pony's <span class="arrow">→</span></a>
-    <p class="contact-adres">jantje.super@gmail.com</p>
+    <p>Vul het formulier in — het opent je mailprogramma met alles netjes ingevuld.</p>
+    <form class="wa-form" id="contactForm">
+      <div class="rij">
+        <input id="ctVoornaam" required maxlength="40" placeholder="Voornaam *" aria-label="Voornaam">
+        <input id="ctAchternaam" required maxlength="40" placeholder="Achternaam *" aria-label="Achternaam">
+      </div>
+      <input id="ctEmail" type="email" required maxlength="80" placeholder="Je e-mailadres *" aria-label="E-mailadres">
+      <input id="ctOnderwerp" required maxlength="100" placeholder="Onderwerp *" aria-label="Onderwerp">
+      <textarea id="ctBericht" required maxlength="1000" placeholder="Je bericht *" aria-label="Bericht"></textarea>
+      <button type="submit" class="btn gold">📬 Verstuur je bericht <span class="arrow">→</span></button>
+    </form>
+    <p class="contact-adres">of mail direct: jantje.super@gmail.com</p>
   </div>
 </section>
 
@@ -427,12 +443,30 @@ footer .admin-link:hover{color:var(--accent-deep);border-color:var(--accent)}
       <h3 id="modalTitel">Inschrijven</h3>
       <p class="modal-sub" id="modalSub"></p>
       <form id="inschrijfForm">
-        <label for="inNaam">Je naam *</label>
-        <input id="inNaam" required maxlength="60" placeholder="Voornaam (+ achternaam mag)">
+        <div class="rij">
+          <div>
+            <label for="inVoornaam">Voornaam *</label>
+            <input id="inVoornaam" required maxlength="40" placeholder="Jan">
+          </div>
+          <div>
+            <label for="inAchternaam">Achternaam *</label>
+            <input id="inAchternaam" required maxlength="40" placeholder="de Vries">
+          </div>
+        </div>
         <label for="inEmail">E-mailadres *</label>
         <input id="inEmail" type="email" required maxlength="80" placeholder="Voor de bevestiging en updates">
         <label for="inTelefoon">Telefoonnummer *</label>
         <input id="inTelefoon" type="tel" required maxlength="20" placeholder="Voor last-minute wijzigingen">
+        <div class="rij">
+          <div>
+            <label for="inWoonplaats">Woonplaats</label>
+            <input id="inWoonplaats" maxlength="60" placeholder="Rotterdam (optioneel)">
+          </div>
+          <div>
+            <label for="inLeeftijden">Leeftijd dochter(s)</label>
+            <input id="inLeeftijden" maxlength="40" placeholder="bijv. 4 en 7 (optioneel)">
+          </div>
+        </div>
         <label class="check"><input type="checkbox" id="inDochter"> Dochter(s) mee</label>
         <p class="modal-sub" style="margin-top:10px">Komt er een vriend mee? Dan schrijft hij zich ook even los in.</p>
         <label for="inOpmerking">Opmerking</label>
@@ -551,7 +585,7 @@ function openInschrijf(id){
   document.getElementById("modalSucces").style.display = "none";
   document.getElementById("inschrijfForm").reset();
   modalBg.classList.add("open");
-  setTimeout(() => document.getElementById("inNaam").focus(), 250);
+  setTimeout(() => document.getElementById("inVoornaam").focus(), 250);
 }
 function sluitModal(){ modalBg.classList.remove("open"); }
 document.getElementById("modalSluit").addEventListener("click", sluitModal);
@@ -567,9 +601,13 @@ document.getElementById("inschrijfForm").addEventListener("submit", ev => {
     eventId: actiefEvent.id,
     eventTitel: actiefEvent.titel,
     eventDatum: actiefEvent.datum,
-    naam: document.getElementById("inNaam").value.trim(),
+    voornaam: document.getElementById("inVoornaam").value.trim(),
+    achternaam: document.getElementById("inAchternaam").value.trim(),
+    naam: `${document.getElementById("inVoornaam").value.trim()} ${document.getElementById("inAchternaam").value.trim()}`.trim(),
     email: document.getElementById("inEmail").value.trim(),
     telefoon: document.getElementById("inTelefoon").value.trim(),
+    woonplaats: document.getElementById("inWoonplaats").value.trim(),
+    dochterLeeftijden: document.getElementById("inLeeftijden").value.trim(),
     personen: "1",
     dochterMee: document.getElementById("inDochter").checked,
     opmerking: document.getElementById("inOpmerking").value.trim(),
@@ -588,8 +626,12 @@ document.getElementById("waForm").addEventListener("submit", ev => {
   const list = loadList(WA_KEY);
   list.push({
     id: "wa-" + Date.now(),
-    naam: document.getElementById("waNaam").value.trim(),
+    voornaam: document.getElementById("waVoornaam").value.trim(),
+    achternaam: document.getElementById("waAchternaam").value.trim(),
+    naam: `${document.getElementById("waVoornaam").value.trim()} ${document.getElementById("waAchternaam").value.trim()}`.trim(),
     telefoon: document.getElementById("waTelefoon").value.trim(),
+    email: document.getElementById("waEmail").value.trim(),
+    woonplaats: document.getElementById("waWoonplaats").value.trim(),
     dochters: document.getElementById("waDochters").value,
     bericht: document.getElementById("waBericht").value.trim(),
     status: "nieuw",
@@ -599,6 +641,17 @@ document.getElementById("waForm").addEventListener("submit", ev => {
   document.getElementById("waForm").style.display = "none";
   document.getElementById("waSucces").style.display = "";
   toast("Aanmelding verstuurd 💛");
+});
+
+/* ---------- Contactformulier: opent het mailprogramma met alles ingevuld ---------- */
+document.getElementById("contactForm").addEventListener("submit", ev => {
+  ev.preventDefault();
+  const voornaam = document.getElementById("ctVoornaam").value.trim();
+  const achternaam = document.getElementById("ctAchternaam").value.trim();
+  const onderwerp = document.getElementById("ctOnderwerp").value.trim();
+  const body = `Hoi Papa & Pony's,\n\n${document.getElementById("ctBericht").value.trim()}\n\nGroeten,\n${voornaam} ${achternaam}\n${document.getElementById("ctEmail").value.trim()}`;
+  location.href = `mailto:jantje.super@gmail.com?subject=${encodeURIComponent(onderwerp + " — " + voornaam + " " + achternaam)}&body=${encodeURIComponent(body)}`;
+  toast("Je mailprogramma wordt geopend 📬");
 });
 
 let toastTimer;

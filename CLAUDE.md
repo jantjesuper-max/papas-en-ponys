@@ -53,10 +53,26 @@ Community-website voor "meisjespapa's die leren vlechten". Statische site zonder
 {
   id: "in-<timestamp>",
   eventId, eventTitel, eventDatum,   // gedenormaliseerd zodat verwijderde evenementen leesbaar blijven
-  naam, email, telefoon,             // email + telefoon sinds v0.7; oudere records hebben alleen `contact`
+  voornaam, achternaam,              // sinds v0.12; `naam` blijft de gecombineerde weergavenaam
+  naam,                              // "voornaam achternaam" — oudere records hebben alléén dit veld (splits op eerste spatie)
+  email, telefoon,                   // sinds v0.7; oudere records hebben alleen `contact`
+  woonplaats, dochterLeeftijden,     // optioneel, sinds v0.12
   personen: "1",                     // sinds v0.6 altijd "1" (inschrijven per papa); oude records kunnen 2/3 zijn
   dochterMee: true|false, opmerking,
   betaald: true|false,               // handmatig afgevinkt in het beheer (stap 1 van betalingen)
+  aangemeldOp: ISO-string
+}
+```
+
+### Vorm van een WhatsApp-aanmelding
+
+```js
+{
+  id: "wa-<timestamp>",
+  voornaam, achternaam, naam,        // zelfde conventie als inschrijvingen
+  telefoon, email, woonplaats,       // email + woonplaats optioneel, sinds v0.12
+  dochters: "1|2|3|4 of meer",
+  bericht, status: "nieuw|toegevoegd",
   aangemeldOp: ISO-string
 }
 ```
