@@ -507,7 +507,7 @@ function renderInschrijvingen(){
         <div class="inschrijving" data-id="${s.id}">
           <div>
             <div class="naam">${esc(s.naam)}${s.dochterMee?'<span class="pill">🎀 dochter mee</span>':''}</div>
-            <div class="detail"><span>📞 ${esc(s.contact)}</span><span>👥 ${esc(s.personen||"1")} papa('s)</span><span>🗓️ aangemeld ${fmtDatum(s.aangemeldOp)}</span></div>
+            <div class="detail"><span>📞 ${esc(s.contact)}</span>${(parseInt(s.personen)||1)>1?`<span>👥 ${esc(s.personen)} papa's (oude inschrijving)</span>`:""}<span>🗓️ aangemeld ${fmtDatum(s.aangemeldOp)}</span></div>
             ${s.opmerking?`<div class="opm">"${esc(s.opmerking)}"</div>`:""}
           </div>
           <button class="icoon-btn verwijder" title="Inschrijving verwijderen" onclick="verwijderInschrijving('${s.id}')">🗑️</button>

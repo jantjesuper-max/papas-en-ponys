@@ -5,6 +5,17 @@ Het format volgt [Keep a Changelog](https://keepachangelog.com/nl/1.1.0/).
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-07-06
+
+### Toegevoegd
+- Vlechtworkshop-landingspagina flink uitgebreid: krantenartikel-sectie ("35 vaders leerden vlechten"), stappenplan "Zo werkt zo'n avond", introzin en badges in de hero, en een meenemen-regel in de infokaart
+- Krantenfoto toegevoegd aan `fotos/` en verwerkt als krantenknipsel met papier-effect
+
+### Gewijzigd
+- Alle sfeerfoto's uit `fotos/` staan voortaan op elke vlechtworkshop-pagina; andere evenementen tonen alleen hun eigen geüploade foto's
+- Inschrijven is voortaan per papa: de aantal-selector is verwijderd uit beide inschrijfformulieren; vrienden schrijven zich los in
+- Fotoraster vult een onvolle laatste rij nu netjes met een brede foto
+
 ## [0.5.0] - 2026-07-06
 
 ### Toegevoegd

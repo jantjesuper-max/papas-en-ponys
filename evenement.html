@@ -72,6 +72,32 @@ h1{font-size:clamp(2rem,4.6vw,3.2rem);font-weight:800;line-height:1.1;letter-spa
 .ev-ctas{display:flex;justify-content:center;gap:14px;flex-wrap:wrap}
 .badge-voorbij{display:inline-block;font-family:var(--font-mono);font-size:.78rem;background:var(--ink);color:#fff;padding:6px 16px;border-radius:999px;margin-bottom:20px}
 
+/* hero-extra's voor vlechtworkshops */
+.hero-sub{max-width:54ch;margin:-6px auto 22px;color:var(--ink-soft);font-size:1.06rem}
+.hero-stats{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:28px}
+.hero-stats span{font-family:var(--font-mono);font-size:.75rem;background:rgba(255,255,255,.75);border:1px solid var(--line);padding:7px 15px;border-radius:999px;color:var(--ink-soft)}
+
+/* ---------- In de krant ---------- */
+.pers{max-width:1120px;margin:0 auto;padding:40px 24px}
+.pers-inner{background:var(--paper-tint);border:1px solid var(--line);border-radius:32px;padding:52px 48px;display:grid;grid-template-columns:.85fr 1.15fr;gap:48px;align-items:center}
+.krant{margin:0;background:#fff;padding:12px 12px 16px;border:1px solid var(--line);border-radius:6px;box-shadow:0 24px 55px -24px rgba(30,36,48,.4);transform:rotate(-2deg);transition:transform .35s cubic-bezier(.34,1.56,.64,1)}
+.krant:hover{transform:rotate(0deg) scale(1.02)}
+.krant img{width:100%;display:block}
+.pers-label{display:inline-flex;align-items:center;gap:8px;font-family:var(--font-mono);font-size:.78rem;color:var(--accent-deep);background:#fff;border:1px solid var(--line);padding:6px 14px;border-radius:999px;margin-bottom:16px}
+.pers-tekst h2{font-size:clamp(1.5rem,3vw,2.1rem);font-weight:800;line-height:1.2;letter-spacing:-.01em;margin-bottom:12px}
+.pers-tekst h2 em{font-style:normal;color:var(--rose)}
+.pers-tekst p{color:var(--ink-soft);font-size:1.02rem}
+
+/* ---------- Zo werkt de avond ---------- */
+.stappen{max-width:900px;margin:0 auto;padding:24px 24px 8px}
+.stappen h2{font-size:1.45rem;font-weight:800;letter-spacing:-.01em;margin-bottom:18px;text-align:center}
+.stappen-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.stap{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:24px;transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease}
+.stap:hover{transform:translateY(-4px);box-shadow:0 16px 40px -20px rgba(30,36,48,.25);border-color:var(--rose)}
+.stap .nr{display:inline-block;font-family:var(--font-mono);font-size:.72rem;color:var(--rose);background:var(--rose-soft);padding:4px 11px;border-radius:999px;margin-bottom:12px}
+.stap h3{font-size:1.05rem;font-weight:700;margin-bottom:6px}
+.stap p{color:var(--ink-soft);font-size:.92rem}
+
 /* ---------- Foto's ---------- */
 .ev-fotos{max-width:1120px;margin:0 auto;padding:24px}
 .foto-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
@@ -86,6 +112,10 @@ h1{font-size:clamp(2rem,4.6vw,3.2rem);font-weight:800;line-height:1.1;letter-spa
 .foto-grid.twee{grid-template-columns:1fr 1fr}
 .foto-grid.twee figure:first-child{grid-column:auto;grid-row:auto}
 .foto-grid.twee figure:first-child img{aspect-ratio:4/3;height:auto}
+/* onvolle laatste rij netjes vullen */
+.foto-grid:not(.een):not(.twee) figure:last-child:nth-child(3n+1){grid-column:1/-1}
+.foto-grid:not(.een):not(.twee) figure:last-child:nth-child(3n+1) img{aspect-ratio:21/8}
+.foto-grid:not(.een):not(.twee) figure:nth-last-child(2):nth-child(3n+1){grid-column:span 2}
 .foto-noot{text-align:center;font-family:var(--font-mono);font-size:.78rem;color:var(--ink-soft);margin-top:14px}
 
 /* ---------- Inhoud ---------- */
@@ -146,6 +176,8 @@ footer a:hover{color:var(--accent-deep);border-color:var(--accent)}
 @media (max-width:860px){
   .ev-body{grid-template-columns:1fr}
   .info-card{position:static}
+  .pers-inner{grid-template-columns:1fr;padding:32px 26px;gap:30px}
+  .stappen-grid{grid-template-columns:1fr}
   .foto-grid{grid-template-columns:1fr 1fr}
   .foto-grid figure:first-child{grid-column:span 2;grid-row:auto}
   .foto-grid figure:first-child img{aspect-ratio:16/10}
@@ -198,8 +230,8 @@ function esc(s){ const d=document.createElement("div"); d.textContent=s??""; ret
 /* Evenementen van voor de tags krijgen er automatisch een o.b.v. hun categorie */
 function evType(e){ return e.type || (e.categorie === "Workshop" ? "vlechtworkshop" : "ander"); }
 
-/* Sfeerfoto's van eerdere avonden, als een evenement (nog) geen eigen foto's heeft */
-const fallbackFotos = ["fotos/twee-lachende-mannen.jpg","fotos/vlechten.jpg","fotos/presenteren.jpg"];
+/* Alle sfeerfoto's uit de fotomap — horen bij vlechtworkshops, niet bij andere evenementen */
+const folderFotos = ["fotos/vlechten.jpg","fotos/twee-lachende-mannen.jpg","fotos/presenteren.jpg","fotos/presenteren-met-powerpoint.jpg"];
 
 const params = new URLSearchParams(location.search);
 const event = loadEvents().find(e => e.id === params.get("id"));
@@ -220,11 +252,12 @@ if(!event){
   const voorbij = d < vandaag;
   const datumTekst = `${d.getDate()} ${maanden[d.getMonth()]} ${d.getFullYear()}`;
   const aantal = loadList(SIGNUP_KEY).filter(s => s.eventId === event.id).reduce((n,s) => n + (parseInt(s.personen)||1), 0);
-  const fotos = (event.fotos && event.fotos.length) ? event.fotos : fallbackFotos;
-  const eigenFotos = !!(event.fotos && event.fotos.length);
 
   const type = evType(event);
   const isVlecht = type === "vlechtworkshop";
+  const eigenFotos = !!(event.fotos && event.fotos.length);
+  /* Vlechtworkshops tonen altijd alle sfeerfoto's (na eventuele eigen foto's); andere evenementen alleen eigen foto's */
+  const fotos = isVlecht ? [...(event.fotos || []), ...folderFotos] : (event.fotos || []);
 
   pagina.innerHTML = `
   <div class="hero-wrap ${isVlecht ? "vlecht" : ""}">
@@ -237,22 +270,48 @@ if(!event){
       <path class="strand s3" d="M40 190 C 120 190, 120 110, 200 190 S 280 30, 360 30"/>
     </svg>` : ""}
     <h1>${esc(event.titel)}</h1>
+    ${isVlecht ? '<p class="hero-sub">Hands-on oefenen met andere papa\'s — van je eerste staartje tot een vlecht om trots op te zijn.</p>' : ''}
     <div class="ev-meta">
       <span>🕙 ${esc(event.tijd || "tijd n.t.b.")}</span>
       <span>📍 ${esc(event.locatie || "locatie n.t.b.")}</span>
       ${aantal > 0 ? `<span>👥 ${aantal} aangemeld</span>` : ""}
     </div>
+    ${isVlecht ? '<div class="hero-stats"><span>👨‍👧 35 papa\'s gingen je voor</span><span>📰 bekend uit de krant</span><span>🎀 oefenhoofden aanwezig</span></div>' : ''}
     ${voorbij ? '<div class="ev-ctas"><a class="btn ghost" href="index.html#evenementen">Bekijk aankomende evenementen</a></div>'
               : '<div class="ev-ctas"><a class="btn gold" href="#inschrijven">Schrijf je in <span class="arrow">→</span></a><a class="btn ghost" href="index.html#evenementen">Alle evenementen</a></div>'}
   </header>
   </div>
 
+  ${fotos.length ? `
   <section class="ev-fotos reveal">
     <div class="foto-grid ${fotos.length===1?"een":fotos.length===2?"twee":""}">
       ${fotos.map((f,i) => `<figure><img src="${f}" alt="Foto ${i+1} bij ${esc(event.titel)}" loading="${i===0?"eager":"lazy"}"></figure>`).join("")}
     </div>
-    ${eigenFotos ? "" : '<p class="foto-noot">sfeerimpressie van eerdere Papa &amp; Pony\'s avonden</p>'}
+    ${eigenFotos || !isVlecht ? "" : '<p class="foto-noot">sfeerimpressie van eerdere Papa &amp; Pony\'s avonden</p>'}
+  </section>` : ""}
+
+  ${isVlecht ? `
+  <section class="pers reveal">
+    <div class="pers-inner">
+      <figure class="krant">
+        <img src="fotos/krantenartikel-evenement.jpg" alt="Krantenartikel: 35 vaders leren vlechten omdat dochters voor hun haar vaak naar mama gaan" loading="lazy">
+      </figure>
+      <div class="pers-tekst">
+        <span class="pers-label">📰 uit de krant</span>
+        <h2>35 vaders leerden vlechten: <em>„Ik wil ook die band hebben"</em></h2>
+        <p>De krant kwam langs bij een van onze workshopavonden. Vijfendertig papa's met oefenhoofden, elastiekjes en veel geduld — omdat dochters voor hun haar vaak automatisch naar mama gaan, en dat ook anders kan.</p>
+      </div>
+    </div>
   </section>
+
+  <section class="stappen reveal">
+    <h2>Zo werkt zo'n avond</h2>
+    <div class="stappen-grid">
+      <div class="stap"><span class="nr">stap 1</span><h3>Warm welkom</h3><p>Koffie, kennismaken en een oefenhoofd uitzoeken. Geen ervaring nodig — iedereen begint bij nul.</p></div>
+      <div class="stap"><span class="nr">stap 2</span><h3>Oefenen, oefenen</h3><p>Stap voor stap aan de slag, in je eigen tempo. Scheve vlechtjes horen erbij en daar lachen we samen om.</p></div>
+      <div class="stap"><span class="nr">stap 3</span><h3>Thuis laten zien</h3><p>Je gaat naar huis met een techniek die je morgen op je dochter kunt proberen. En de groepsapp helpt je verder.</p></div>
+    </div>
+  </section>` : ""}
 
   <div class="ev-body">
     <div class="ev-tekst reveal">
@@ -265,6 +324,7 @@ if(!event){
       <div class="info-rij"><span class="lbl">tijd</span><span>${esc(event.tijd || "n.t.b.")}</span></div>
       <div class="info-rij"><span class="lbl">locatie</span><span>${esc(event.locatie || "n.t.b.")}</span></div>
       <div class="info-rij"><span class="lbl">voor wie</span><span>meisjespapa's — dochters welkom waar aangegeven</span></div>
+      ${isVlecht ? '<div class="info-rij"><span class="lbl">meenemen</span><span>borstel, elastiekjes en (als het kan) een geduldige dochter</span></div>' : ''}
       <div class="deel">
         <button class="btn ghost" id="kopieerLink">🔗 Kopieer link</button>
         <a class="btn ghost" id="deelWhatsapp" target="_blank" rel="noopener">💬 Deel via WhatsApp</a>
@@ -279,16 +339,13 @@ if(!event){
       <span class="sparkle" style="top:70%;left:90%;animation-delay:1.5s">🎀</span>
       <span class="sparkle" style="top:20%;left:86%;animation-delay:3s">💛</span>
       <h2>Ben je erbij?</h2>
-      <p class="sub">Schrijf je in, dan weten we op hoeveel papa's we kunnen rekenen.</p>
+      <p class="sub">Schrijf jezelf in — komt er een vriend mee, dan schrijft hij zich ook even in.</p>
       <form class="in-form" id="inschrijfForm">
         <div class="rij">
           <input id="inNaam" required maxlength="60" placeholder="Je naam *" aria-label="Naam">
           <input id="inContact" required maxlength="80" placeholder="Telefoon of e-mail *" aria-label="Telefoonnummer of e-mail">
         </div>
-        <div class="rij">
-          <select id="inPersonen" aria-label="Aantal papa's"><option value="1">1 papa</option><option value="2">2 papa's</option><option value="3">3 papa's</option></select>
-          <label class="check"><input type="checkbox" id="inDochter"> Dochter(s) mee</label>
-        </div>
+        <label class="check"><input type="checkbox" id="inDochter"> Dochter(s) mee</label>
         <textarea id="inOpmerking" maxlength="240" placeholder="Allergieën, vragen, of gewoon iets leuks (optioneel)" aria-label="Opmerking"></textarea>
         <button type="submit" class="btn gold">Schrijf me in 🎉</button>
       </form>
@@ -321,7 +378,7 @@ if(!event){
         eventDatum: event.datum,
         naam: document.getElementById("inNaam").value.trim(),
         contact: document.getElementById("inContact").value.trim(),
-        personen: document.getElementById("inPersonen").value,
+        personen: "1",
         dochterMee: document.getElementById("inDochter").checked,
         opmerking: document.getElementById("inOpmerking").value.trim(),
         aangemeldOp: new Date().toISOString()

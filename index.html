@@ -407,15 +407,8 @@ footer .admin-link:hover{color:var(--accent-deep);border-color:var(--accent)}
         <input id="inNaam" required maxlength="60" placeholder="Voornaam (+ achternaam mag)">
         <label for="inContact">Telefoonnummer of e-mail *</label>
         <input id="inContact" required maxlength="80" placeholder="Zodat we je kunnen bereiken">
-        <div class="rij">
-          <div>
-            <label for="inPersonen">Aantal papa's</label>
-            <select id="inPersonen"><option>1</option><option>2</option><option>3</option></select>
-          </div>
-          <div>
-            <label class="check" style="margin-top:32px"><input type="checkbox" id="inDochter"> Dochter(s) mee</label>
-          </div>
-        </div>
+        <label class="check"><input type="checkbox" id="inDochter"> Dochter(s) mee</label>
+        <p class="modal-sub" style="margin-top:10px">Komt er een vriend mee? Dan schrijft hij zich ook even los in.</p>
         <label for="inOpmerking">Opmerking</label>
         <textarea id="inOpmerking" maxlength="240" placeholder="Allergieën, vragen, of gewoon iets leuks (optioneel)"></textarea>
         <button type="submit" class="btn gold">Schrijf me in 🎉</button>
@@ -539,7 +532,7 @@ document.getElementById("inschrijfForm").addEventListener("submit", ev => {
     eventDatum: actiefEvent.datum,
     naam: document.getElementById("inNaam").value.trim(),
     contact: document.getElementById("inContact").value.trim(),
-    personen: document.getElementById("inPersonen").value,
+    personen: "1",
     dochterMee: document.getElementById("inDochter").checked,
     opmerking: document.getElementById("inOpmerking").value.trim(),
     aangemeldOp: new Date().toISOString()
