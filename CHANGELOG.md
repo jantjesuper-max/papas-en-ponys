@@ -5,6 +5,19 @@ Het format volgt [Keep a Changelog](https://keepachangelog.com/nl/1.1.0/).
 
 ## [Unreleased]
 
+## [0.14.0] - 2026-07-07
+
+### Toegevoegd
+- Volledige technische SEO-laag:
+  - `robots.txt` (admin uitgesloten) en `sitemap.xml` met de evenement-slug-URL's
+  - Canonical-, Open Graph- en Twitter-tags op alle publieke pagina's, met absolute foto-URL als social preview
+  - Organization- en WebSite-schema (JSON-LD) op de homepage, inclusief oprichter met links
+  - Dynamisch **Event-schema** per evenementpagina (naam, datum+tijd, locatie, prijs in euro's, foto's, organisator) — hiermee kan Google evenementen als rich results tonen
+  - ItemList-schema van aankomende evenementen op de homepage
+  - Per evenement dynamische title met datum, meta description en canonical op de slug-URL; onbekende evenementen krijgen noindex
+  - Nette 404-pagina in huisstijl (`404.html`)
+  - Homepage-title en -description aangescherpt op de zoekwoorden vlechtworkshop/meisjespapa's; herofoto krijgt laadprioriteit
+
 ## [0.13.1] - 2026-07-06
 
 ### Toegevoegd

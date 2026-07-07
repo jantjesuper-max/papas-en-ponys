@@ -15,6 +15,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Evenement | Papa &amp; Pony's</title>
 <meta name="description" content="Bekijk dit evenement van Papa & Pony's en schrijf je direct in.">
+<link rel="canonical" href="https://jantjesuper-max.github.io/papas-en-ponys/evenement.html" id="canonicalLink">
+<meta name="theme-color" content="#fffdf9">
+<!-- Open Graph — wordt per evenement dynamisch ingevuld -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Papa & Pony's">
+<meta property="og:title" content="Evenement | Papa & Pony's">
+<meta property="og:description" content="Bekijk dit evenement van Papa & Pony's en schrijf je direct in.">
+<meta property="og:url" content="https://jantjesuper-max.github.io/papas-en-ponys/evenement.html">
+<meta property="og:image" content="https://jantjesuper-max.github.io/papas-en-ponys/fotos/twee-lachende-mannen.jpg">
+<meta property="og:locale" content="nl_NL">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -288,8 +299,63 @@ if(event){
 }
 const pagina = document.getElementById("pagina");
 
+/* ---------- SEO: per evenement de juiste meta, canonical en Event-schema ---------- */
+const SITE_URL = "https://jantjesuper-max.github.io/papas-en-ponys";
+function zetMeta(attr, naam, inhoud){
+  let el = document.querySelector(`meta[${attr}="${naam}"]`);
+  if(!el){ el = document.createElement("meta"); el.setAttribute(attr, naam); document.head.appendChild(el); }
+  el.setAttribute("content", inhoud);
+}
+function zetSeo(ev){
+  const url = `${SITE_URL}/evenement.html?e=${slugify(ev.titel)}`;
+  const d = new Date(ev.datum + "T00:00:00");
+  const maandenSeo = ["januari","februari","maart","april","mei","juni","juli","augustus","september","oktober","november","december"];
+  const titel = `${ev.titel} — ${d.getDate()} ${maandenSeo[d.getMonth()]} ${d.getFullYear()} | Papa & Pony's`;
+  const omschrijving = ev.beschrijving
+    ? `${ev.beschrijving} 📍 ${ev.locatie || "locatie volgt"} · schrijf je direct in.`
+    : `${ev.titel} bij Papa & Pony's — schrijf je direct in.`;
+  document.title = titel;
+  document.getElementById("canonicalLink").href = url;
+  zetMeta("name", "description", omschrijving);
+  zetMeta("property", "og:title", titel);
+  zetMeta("property", "og:description", omschrijving);
+  zetMeta("property", "og:url", url);
+
+  /* Event-schema (schema.org) — hiermee kan Google het evenement als rich result tonen */
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "Event",
+    "name": ev.titel,
+    "description": ev.beschrijving || `${ev.titel} bij Papa & Pony's`,
+    "startDate": ev.tijd ? `${ev.datum}T${ev.tijd}:00+02:00` : ev.datum,
+    "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
+    "eventStatus": "https://schema.org/EventScheduled",
+    "inLanguage": "nl",
+    "url": url,
+    "image": folderFotos.map(f => `${SITE_URL}/${f}`),
+    "location": {
+      "@type": "Place",
+      "name": ev.locatie || "Locatie volgt",
+      "address": { "@type": "PostalAddress", "addressCountry": "NL" }
+    },
+    "organizer": { "@type": "Organization", "name": "Papa & Pony's", "url": SITE_URL, "email": "jantje.super@gmail.com" },
+    "offers": {
+      "@type": "Offer",
+      "price": ev.prijs ? ev.prijs.replace(",", ".") : "0",
+      "priceCurrency": "EUR",
+      "availability": "https://schema.org/InStock",
+      "url": url
+    }
+  };
+  const script = document.createElement("script");
+  script.type = "application/ld+json";
+  script.textContent = JSON.stringify(schema);
+  document.head.appendChild(script);
+}
+
 if(!event){
   document.title = "Evenement niet gevonden | Papa & Pony's";
+  zetMeta("name", "robots", "noindex");
   pagina.innerHTML = `<div class="niet-gevonden">
     <span class="icon">🐴</span>
     <h1>Dit evenement kennen we niet (meer)</h1>
@@ -297,7 +363,7 @@ if(!event){
     <a class="btn gold" href="index.html#evenementen">Bekijk alle evenementen <span class="arrow">→</span></a>
   </div>`;
 }else{
-  document.title = event.titel + " | Papa & Pony's";
+  zetSeo(event);
   const d = new Date(event.datum + "T00:00:00");
   const vandaag = new Date(); vandaag.setHours(0,0,0,0);
   const voorbij = d < vandaag;

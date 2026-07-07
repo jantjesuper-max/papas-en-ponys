@@ -18,6 +18,8 @@ Community-website voor "meisjespapa's die leren vlechten". Statische site zonder
 | `push-naar-github.ps1` | Pusht naar GitHub met het token uit `github-token.txt` |
 | `github-token.txt` | GitHub-token (fine-grained PAT). **In `.gitignore`, nooit committen** |
 | `CHANGELOG.md` | Wijzigingsgeschiedenis (Keep a Changelog). Bij elke feature bijwerken |
+| `robots.txt` / `sitemap.xml` | SEO: admin uitgesloten, sitemap met homepage, voorwaarden en de evenement-slug-URL's. **Nieuw evenement dat lang vindbaar moet zijn? Voeg de slug-URL toe aan sitemap.xml** |
+| `404.html` | Nette 404 in huisstijl (GitHub Pages serveert deze automatisch), noindex |
 
 ## Architectuur & datamodel
 
@@ -86,6 +88,7 @@ Community-website voor "meisjespapa's die leren vlechten". Statische site zonder
 - **Toegankelijkheid**: `prefers-reduced-motion` respecteren, alt-teksten in het Nederlands, `aria-label`s op formuliervelden.
 - **Changelog**: bij elke feature een versie-entry in `CHANGELOG.md` (semver-achtig, datum erbij).
 - **Sjablonen groeien mee**: voeg je een veld toe aan (of wijzig je een veld van) inschrijvingen/contactpersonen of evenementen, werk dan óók de mailsjablonen bij: `SJABLOON_VELDEN` én `vulSjabloon()` in `admin/index.html`, de hint-tekst onder de veld-chips, en de sjablonenrij in dit document.
+- **SEO**: elke publieke pagina heeft canonical + Open Graph-tags; homepage draagt Organization/WebSite-schema en een dynamische ItemList van evenementen; `evenement.html` zet per evenement dynamisch title (met datum), meta description, canonical en **Event-schema** (JSON-LD, voor Google rich results) via `zetSeo()`. Onbekende evenementen krijgen noindex. Bij structurele wijzigingen aan evenementvelden ook `zetSeo()` bijwerken.
 - **Evenement-URL's**: de nette vorm is `evenement.html?e=<slug-van-titel>` (gemaakt door `slugify()`, gedupliceerd in alle drie de pagina's); `?id=` blijft als fallback werken en wordt via `history.replaceState` herschreven naar de slug. Let op: twee evenementen met exact dezelfde titel delen een slug — de eerste wint. Gebruik dus unieke titels.
 
 ## Valkuilen (echt lezen)

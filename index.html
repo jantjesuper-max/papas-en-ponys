@@ -9,8 +9,52 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Papa &amp; Pony's | Voor meisjespapa's die vlechten</title>
-<meta name="description" content="Papa & Pony's: de community waar meisjespapa's leren vlechten, samen activiteiten doen en elkaar verder helpen.">
+<title>Papa &amp; Pony's | Vlechtworkshops en community voor meisjespapa's</title>
+<meta name="description" content="Papa & Pony's: de community waar vaders van dochters leren vlechten. Vlechtworkshops, papa-dochter activiteiten en een warme WhatsApp-community. Bekend uit de krant — 35 vaders gingen je voor.">
+<link rel="canonical" href="https://jantjesuper-max.github.io/papas-en-ponys/">
+<meta name="theme-color" content="#fffdf9">
+<!-- Open Graph / social previews -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Papa & Pony's">
+<meta property="og:title" content="Papa & Pony's | Vlechtworkshops en community voor meisjespapa's">
+<meta property="og:description" content="De community waar vaders van dochters leren vlechten, samen activiteiten doen en elkaar verder helpen.">
+<meta property="og:url" content="https://jantjesuper-max.github.io/papas-en-ponys/">
+<meta property="og:image" content="https://jantjesuper-max.github.io/papas-en-ponys/fotos/twee-lachende-mannen.jpg">
+<meta property="og:locale" content="nl_NL">
+<meta name="twitter:card" content="summary_large_image">
+<!-- Structured data: organisatie + website -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://jantjesuper-max.github.io/papas-en-ponys/#organisatie",
+      "name": "Papa & Pony's",
+      "url": "https://jantjesuper-max.github.io/papas-en-ponys/",
+      "description": "Community waar meisjespapa's leren vlechten, samen activiteiten doen en elkaar verder helpen.",
+      "email": "jantje.super@gmail.com",
+      "logo": "https://jantjesuper-max.github.io/papas-en-ponys/fotos/vlechten.jpg",
+      "founder": {
+        "@type": "Person",
+        "name": "Mohammad Faizi Nazir",
+        "url": "https://www.despelendemens.com",
+        "sameAs": [
+          "https://www.linkedin.com/in/mohammad-faizi-nazir/",
+          "https://www.instagram.com/devoorleesvader/"
+        ]
+      }
+    },
+    {
+      "@type": "WebSite",
+      "name": "Papa & Pony's",
+      "url": "https://jantjesuper-max.github.io/papas-en-ponys/",
+      "inLanguage": "nl",
+      "publisher": { "@id": "https://jantjesuper-max.github.io/papas-en-ponys/#organisatie" }
+    }
+  ]
+}
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -314,7 +358,7 @@ footer .admin-link:hover{color:var(--accent-deep);border-color:var(--accent)}
       <span class="float f1">🎀</span>
       <span class="float f2">💛</span>
       <span class="float f3">✨</span>
-      <img class="foto" src="fotos/vlechten.jpg" alt="Een papa oefent geconcentreerd een vlecht op een oefenhoofd tijdens een workshopavond">
+      <img class="foto" src="fotos/vlechten.jpg" alt="Een papa oefent geconcentreerd een vlecht op een oefenhoofd tijdens een workshopavond" fetchpriority="high" decoding="async">
       <svg class="braid" viewBox="0 0 400 220" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" aria-label="Gevlochten linten">
         <path class="strand s1" d="M40 30 C 120 30, 120 110, 200 110 S 280 190, 360 190"/>
         <path class="strand s2" d="M40 110 C 120 110, 120 30, 200 30 S 280 110, 360 110"/>
@@ -551,6 +595,24 @@ function evType(e){ return e.type || (e.categorie === "Workshop" ? "vlechtworksh
 /* Mooie leesbare evenement-URL op basis van de titel; ?id= blijft als fallback werken */
 function slugify(t){ return (t||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,""); }
 function eventUrl(e){ return `evenement.html?e=${slugify(e.titel)}`; }
+const SITE_URL = "https://jantjesuper-max.github.io/papas-en-ponys";
+
+/* SEO: lijst van aankomende evenementen als ItemList-schema, zodat Google de evenementpagina's vindt */
+function zetEventsSchema(events){
+  let el = document.getElementById("eventsSchema");
+  if(!el){ el = document.createElement("script"); el.type = "application/ld+json"; el.id = "eventsSchema"; document.head.appendChild(el); }
+  el.textContent = JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": "Aankomende evenementen van Papa & Pony's",
+    "itemListElement": events.map((e, i) => ({
+      "@type": "ListItem",
+      "position": i + 1,
+      "name": e.titel,
+      "url": `${SITE_URL}/${eventUrl(e)}`
+    }))
+  });
+}
 function renderEvents(){
   const list = document.getElementById("eventList");
   const today = new Date(); today.setHours(0,0,0,0);
@@ -581,6 +643,7 @@ function renderEvents(){
     </article>`;
   }).join("");
   list.querySelectorAll(".btn-inschrijf").forEach(b => b.addEventListener("click", () => openInschrijf(b.dataset.id)));
+  zetEventsSchema(events);
   observeReveals();
 }
 /* HTML-escaper: alle gebruikersinvoer gaat hierdoorheen voordat het in innerHTML belandt (XSS) */
