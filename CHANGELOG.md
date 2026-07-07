@@ -5,6 +5,17 @@ Het format volgt [Keep a Changelog](https://keepachangelog.com/nl/1.1.0/).
 
 ## [Unreleased]
 
+## [0.15.0] - 2026-07-07
+
+### Toegevoegd
+- `word-lid.html`: losse deelbare pagina voor WhatsApp-aanmeldingen en contact, om direct naar geïnteresseerde papa's te sturen
+  - Hero met nagebouwde WhatsApp-kanalenlijst (Welkom & Voorstellen, Vlechten & Haar, Algemeen, Zelfontwikkeling, Playdates & Events, Verhalen & Anekdotes, Opvoeding & Dagelijkse Praktijk, Seksuele Voorlichting) met omschrijving per kanaal en "er komen steeds meer kanalen bij" — bewust als design-element in plaats van de screenshot, want daar staan telefoonnummers op (huisregel 2)
+  - Drie uitlegkaarten over wat de groep inhoudt, met link naar de huisregels
+  - Podcast-teaser: vanuit de community wordt aan een Papa & Pony's podcast gewerkt
+  - WhatsApp-aanmeldformulier (zelfde opslag als de homepage, dus zichtbaar in het beheer) en contactformulier
+  - "Deel deze pagina"-knop die de link kopieert; SEO-tags en opgenomen in de sitemap
+- Homepage linkt vanuit de community-sectie naar de deelpagina
+
 ## [0.14.0] - 2026-07-07
 
 ### Toegevoegd

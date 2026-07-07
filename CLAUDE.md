@@ -14,6 +14,7 @@ Community-website voor "meisjespapa's die leren vlechten". Statische site zonder
 | `evenement.html` | Landingspagina per evenement via `?id=<event-id>`. Vlechtworkshops krijgen een uitgebreide variant (roze hero, krantensectie, stappenplan) |
 | `admin/index.html` | Beheer: evenementen CRUD + foto-upload, inschrijvingen bekijken/mailen/exporteren, WhatsApp-aanmeldingen |
 | `voorwaarden.html` | Algemene voorwaarden: gedrag, de zes huisregels en de betaalverplichting. Verplicht akkoord-vinkje (`voorwaardenAkkoord: true` op het record) in het WhatsApp-formulier en beide inschrijfformulieren |
+| `word-lid.html` | Losse deelbare aanmeldpagina: uitleg over de WhatsApp-community, nagebouwde kanalenlijst (bewust géén screenshot — daar staan telefoonnummers op), podcast-teaser, WhatsApp-aanmeldformulier (zelfde `pp_wa_signups`) en contactformulier |
 | `fotos/` | Sfeerfoto's (web-veilige kebab-case namen). Worden getoond op vlechtworkshop-pagina's en de homepage |
 | `push-naar-github.ps1` | Pusht naar GitHub met het token uit `github-token.txt` |
 | `github-token.txt` | GitHub-token (fine-grained PAT). **In `.gitignore`, nooit committen** |
