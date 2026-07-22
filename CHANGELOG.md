@@ -5,6 +5,11 @@ Het format volgt [Keep a Changelog](https://keepachangelog.com/nl/1.1.0/).
 
 ## [Unreleased]
 
+## [0.16.1] - 2026-07-22
+
+### Gewijzigd
+- Het vinkje "Dochters mogen mee 🎀" staat bij een nieuw evenement standaard **uit**: de beheerder vinkt het bewust aan als dochters welkom zijn (bestaande evenementen van vóór dit veld blijven dochters toestaan)
+
 ## [0.16.0] - 2026-07-22
 
 ### Toegevoegd
