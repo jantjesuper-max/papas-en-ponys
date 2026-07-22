@@ -12,7 +12,7 @@ Community-website voor "meisjespapa's die leren vlechten". Statische site zonder
 |---|---|
 | `index.html` | Homepage: hero, missie, sfeerfoto's, evenementenlijst, waarden, WhatsApp-aanmelding, oprichter (Faizi), contact |
 | `evenement.html` | Landingspagina per evenement via `?id=<event-id>`. Vlechtworkshops krijgen een uitgebreide variant (roze hero, krantensectie, stappenplan) |
-| `admin/index.html` | Beheer: evenementen CRUD + foto-upload, inschrijvingen bekijken/mailen/exporteren, WhatsApp-aanmeldingen |
+| `admin/index.html` | Beheer, achter een client-side inlog (tab Beheerders beheert de accounts): evenementen CRUD + foto-upload, inschrijvingen bekijken/mailen/exporteren, WhatsApp-aanmeldingen |
 | `voorwaarden.html` | Algemene voorwaarden: gedrag, de zes huisregels en de betaalverplichting. Verplicht akkoord-vinkje (`voorwaardenAkkoord: true` op het record) in het WhatsApp-formulier en beide inschrijfformulieren |
 | `word-lid.html` | Losse deelbare aanmeldpagina: uitleg over de WhatsApp-community, nagebouwde kanalenlijst (bewust géén screenshot — daar staan telefoonnummers op), podcast-teaser, WhatsApp-aanmeldformulier (zelfde `pp_wa_signups`) en contactformulier |
 | `fotos/` | Sfeerfoto's (web-veilige kebab-case namen). Worden getoond op vlechtworkshop-pagina's en de homepage |
@@ -32,6 +32,7 @@ Community-website voor "meisjespapa's die leren vlechten". Statische site zonder
 | `pp_event_signups` | Array van inschrijvingen |
 | `pp_wa_signups` | Array van WhatsApp-aanmeldingen |
 | `pp_mail_sjablonen` | Array van mailsjablonen: `{id, naam, onderwerp, tekst}` met dynamische velden `{naam}`, `{voornaam}`, `{achternaam}`, `{evenement}`, `{datum}`, `{tijd}`, `{locatie}`, `{categorie}`, `{beschrijving}`, `{dochters}`, `{link}` — ingevuld door `vulSjabloon()` in het beheer. Bij groepsmail (BCC) worden `{naam}`/`{voornaam}` "papa's" en vervalt `{achternaam}` |
+| `pp_beheerders` | Alleen gebruikt door het beheer (sinds v0.18): array van beheerdersaccounts `{id, naam, gebruikersnaam, salt, wachtwoordHash, aangemaaktOp, aangemaaktDoor}`. Wachtwoord = SHA-256(salt+":"+wachtwoord) via Web Crypto. Seed-account bij lege sleutel: `faizi` / `PapaPonys2026!`. Sessie in **sessionStorage** onder `pp_beheer_sessie`. **Let op: client-side slot, geen echte beveiliging** — broncode en localStorage zijn op het apparaat leesbaar |
 
 ### Vorm van een evenement
 
@@ -48,7 +49,8 @@ Community-website voor "meisjespapa's die leren vlechten". Statische site zonder
   uitgelicht: true|false,
   prijs: "7,50",                 // leeg = gratis; weergave altijd met €-prefix
   betaallink: "https://...",     // Tikkie/betaalverzoek/payment link; alleen http(s) wordt gerenderd
-  fotos: ["data:image/jpeg;base64,..."]  // door beheer geüpload, verkleind naar max 1200px
+  fotos: ["data:image/jpeg;base64,..."],  // door beheer geüpload, verkleind naar max 1200px
+  aangemaaktDoor: "Faizi"        // sinds v0.18: naam van de ingelogde beheerder; blijft staan bij bewerken. Seeds/oudere evenementen missen het veld
 }
 ```
 
@@ -65,6 +67,7 @@ Community-website voor "meisjespapa's die leren vlechten". Statische site zonder
   personen: "1",                     // sinds v0.6 altijd "1" (inschrijven per papa); oude records kunnen 2/3 zijn
   dochterMee: true|false, opmerking,
   betaald: true|false,               // handmatig afgevinkt in het beheer (stap 1 van betalingen)
+  betaaldDoor: "Faizi", betaaldOp: ISO-string,  // sinds v0.18: wie het afvinkte en wanneer; worden gewist bij terugdraaien
   aangemeldOp: ISO-string
 }
 ```
@@ -103,6 +106,7 @@ Community-website voor "meisjespapa's die leren vlechten". Statische site zonder
 6. **GitHub Pages deploy kan sporadisch falen** met "Deployment failed, try again later" terwijl de build slaagt — GitHub-storing, geen codefout. Oplossing: lege commit pushen.
 7. **Fine-grained token**: kan pushen en Actions/Pages lezen, maar géén repo-beschrijving/topics wijzigen of Pages-builds triggeren (403). Ook pusht het géén wijzigingen aan `.github/workflows/` zolang de repository-permissie "Workflows: Read and write" niet is aangezet op het token (remote rejected).
 8. **Git-root**: de projectmap heeft een eigen repo; de home-map van de gebruiker is óók een git-repo — let op vanuit welke map je git-commando's draait.
+9. **Beheer-inlog is per apparaat én client-side**: `pp_beheerders` leeft in localStorage, dus elke nieuwe browser begint weer met het seed-account (`faizi` / `PapaPonys2026!`) en zelf aangemaakte accounts bestaan alleen op dat apparaat. Het is een slot tegen meekijkers, geen echte beveiliging — wie devtools opent kan erlangs.
 
 ## Werkwijzen
 

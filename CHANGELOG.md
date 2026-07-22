@@ -5,6 +5,18 @@ Het format volgt [Keep a Changelog](https://keepachangelog.com/nl/1.1.0/).
 
 ## [Unreleased]
 
+## [0.18.0] - 2026-07-22
+
+### Toegevoegd
+- Het beheer zit nu achter een inlogscherm met beheerdersaccounts (nieuwe localStorage-sleutel `pp_beheerders`)
+  - Eerste inlog op een apparaat: gebruikersnaam `faizi`, wachtwoord `PapaPonys2026!` — wijzig dat wachtwoord direct na de eerste keer inloggen
+  - Nieuwe tab "🔐 Beheerders": accounts aanmaken, bewerken (naam/gebruikersnaam/wachtwoord resetten) en verwijderen; jezelf of de laatste beheerder verwijderen kan niet
+  - Wachtwoorden worden nooit leesbaar opgeslagen, alleen als SHA-256-hash met salt per account (Web Crypto); de sessie staat in sessionStorage en verloopt zodra de browser sluit
+  - Header toont wie er is ingelogd, met uitlogknop
+  - Bewust benoemd in de UI en de code: dit is een client-side slot (er is geen server) — het houdt meekijkers buiten, maar is geen echte beveiliging
+- Audit-velden: evenementen krijgen `aangemaaktDoor` (zichtbaar in de evenementenlijst), en het afvinken van een betaling legt `betaaldDoor` + `betaaldOp` vast (zichtbaar bij de inschrijving en in de Excel-export; terugdraaien wist de velden weer)
+  - Dit zijn administratieve velden — bewust niet toegevoegd aan de mailsjablonen, die zijn voor mails aan deelnemers
+
 ## [0.17.0] - 2026-07-22
 
 ### Toegevoegd

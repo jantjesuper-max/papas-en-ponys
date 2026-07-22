@@ -1,12 +1,17 @@
 <!DOCTYPE html>
 <!--
   Papa & Pony's — beheeromgeving (niet geïndexeerd, noindex)
-  Drie tabs:
+  Achter een inlog (zie "Inloggen & beheerders" in het script). Vijf tabs:
     1. Evenementen  — aanmaken/bewerken/verwijderen, foto-upload, type-tag
     2. Inschrijvingen — per evenement bekijken, mailen (BCC), Excel-export
     3. WhatsApp     — aanmeldingen voor de communitygroep, CSV-export
+    4. Sjablonen    — mailsjablonen met dynamische velden
+    5. Beheerders   — inlogaccounts aanmaken/bewerken/verwijderen
   Schrijft naar dezelfde localStorage-sleutels als de publieke pagina's.
   Architectuur en datamodel: zie CLAUDE.md in de projectroot.
+  Let op: de inlog is een client-side slot (er is geen server) — het houdt
+  meekijkers en per ongeluk klikkende huisgenoten buiten, maar is geen echte
+  beveiliging: de broncode en localStorage zijn op het apparaat zelf leesbaar.
 -->
 <html lang="nl">
 <head>
@@ -184,6 +189,24 @@ textarea{resize:vertical;min-height:74px}
 .sjabloon-kaart .tekst{font-size:.8rem;color:var(--ink-soft);margin-top:8px;white-space:pre-line;max-height:72px;overflow:hidden;position:relative;font-style:italic}
 .sjabloon-kaart .tekst::after{content:"";position:absolute;left:0;right:0;bottom:0;height:28px;background:linear-gradient(transparent,#fff)}
 
+/* inlogscherm — dekt het hele beheer af tot er is ingelogd */
+body:not(.ingelogd){overflow:hidden}
+#loginScherm{position:fixed;inset:0;z-index:400;background:var(--paper-tint);display:grid;place-items:center;padding:24px}
+body.ingelogd #loginScherm{display:none}
+.login-kaart{background:#fff;border:1px solid var(--line);border-radius:22px;padding:34px 32px 28px;width:min(400px,100%);box-shadow:0 30px 70px -30px rgba(30,36,48,.35);text-align:center;animation:slidein .35s ease}
+.login-kaart .mark{width:56px;height:56px;margin:0 auto 12px;display:grid;place-items:center;background:var(--rose-soft);border-radius:16px;font-size:1.6rem}
+.login-kaart h1{font-size:1.3rem;font-weight:800}
+.login-kaart .sub{font-size:.88rem;color:var(--ink-soft);margin-top:4px}
+.login-kaart form{text-align:left;margin-top:6px}
+.login-fout{display:none;background:#fdeaea;color:var(--rood);font-size:.84rem;border-radius:10px;padding:9px 13px;margin-top:14px}
+.login-fout.zichtbaar{display:block;animation:slidein .25s ease}
+.login-hint{font-size:.78rem;color:var(--ink-soft);margin-top:18px}
+
+/* ingelogd-als in de header */
+.sessie{display:none;align-items:center;gap:10px;font-size:.85rem;color:var(--ink-soft)}
+body.ingelogd .sessie{display:flex}
+.sessie b{color:var(--ink)}
+
 /* toast + confetti */
 #toast{position:fixed;bottom:28px;left:50%;transform:translate(-50%,80px);background:var(--ink);color:#fff;padding:13px 24px;border-radius:999px;font-size:.9rem;font-weight:500;box-shadow:0 12px 30px rgba(30,36,48,.3);transition:transform .4s cubic-bezier(.34,1.56,.64,1);z-index:200}
 #toast.zichtbaar{transform:translate(-50%,0)}
@@ -209,10 +232,31 @@ textarea{resize:vertical;min-height:74px}
 </head>
 <body>
 
+<!-- Inlogscherm: het beheer wordt pas gerenderd en zichtbaar na inloggen (script onderaan) -->
+<div id="loginScherm">
+  <div class="login-kaart">
+    <div class="mark">🐴</div>
+    <h1>Beheer — Papa &amp; Pony's</h1>
+    <p class="sub">Log in met je beheerdersaccount.</p>
+    <form id="loginForm">
+      <label for="loginGebruiker">Gebruikersnaam</label>
+      <input id="loginGebruiker" required maxlength="40" autocomplete="username" placeholder="gebruikersnaam">
+      <label for="loginWachtwoord">Wachtwoord</label>
+      <input id="loginWachtwoord" type="password" required maxlength="80" autocomplete="current-password" placeholder="••••••••">
+      <p class="login-fout" id="loginFout">Onjuiste gebruikersnaam of wachtwoord. Probeer het nog eens.</p>
+      <div class="form-acties"><button type="submit" class="btn gold">Inloggen 🔓</button></div>
+    </form>
+    <p class="login-hint">Wachtwoord kwijt? Een andere beheerder kan het resetten via de tab Beheerders.</p>
+  </div>
+</div>
+
 <header>
   <div class="head-inner">
     <a class="logo" href="../index.html"><span class="mark">🐴</span>Papa &amp; Pony's<span class="badge">beheer</span></a>
-    <a class="terug" href="../index.html"><span class="pijl">←</span> Naar de site</a>
+    <div style="display:flex;align-items:center;gap:16px">
+      <span class="sessie">👤 <b id="sessieNaam"></b><button class="btn stil klein" id="uitlogBtn">Uitloggen</button></span>
+      <a class="terug" href="../index.html"><span class="pijl">←</span> Naar de site</a>
+    </div>
   </div>
 </header>
 
@@ -230,6 +274,7 @@ textarea{resize:vertical;min-height:74px}
     <button class="tab" data-tab="inschrijvingen">🎟️ Inschrijvingen <span class="tel" id="telInschrijvingen">0</span></button>
     <button class="tab" data-tab="whatsapp">💬 WhatsApp-aanmeldingen <span class="tel" id="telWhatsapp">0</span></button>
     <button class="tab" data-tab="sjablonen">📝 Sjablonen <span class="tel" id="telSjablonen">0</span></button>
+    <button class="tab" data-tab="beheerders">🔐 Beheerders <span class="tel" id="telBeheerders">0</span></button>
   </div>
 
   <!-- TAB 1: evenementen -->
@@ -411,6 +456,35 @@ textarea{resize:vertical;min-height:74px}
       </div>
     </div>
   </div>
+
+  <!-- TAB 5: beheerders -->
+  <div class="tabpane" id="tab-beheerders">
+    <div class="ev-grid">
+      <div class="panel">
+        <h2 id="beheerderFormTitel">🔐 Nieuwe beheerder</h2>
+        <p class="sub">Extra inlogaccounts voor dit beheer. Iedere beheerder logt in met een eigen gebruikersnaam en wachtwoord.</p>
+        <form id="beheerderForm">
+          <input type="hidden" id="beheerderEditId">
+          <label for="beheerderNaam">Naam *</label>
+          <input id="beheerderNaam" required maxlength="60" placeholder="Faizi">
+          <label for="beheerderGebruiker">Gebruikersnaam *</label>
+          <input id="beheerderGebruiker" required maxlength="40" autocomplete="off" placeholder="faizi">
+          <label for="beheerderWachtwoord">Wachtwoord</label>
+          <input id="beheerderWachtwoord" type="password" maxlength="80" autocomplete="new-password" placeholder="Minimaal 8 tekens">
+          <p class="foto-hint">Minimaal 8 tekens. Bij bewerken: laat dit veld leeg om het wachtwoord ongewijzigd te laten.</p>
+          <div class="form-acties">
+            <button type="submit" class="btn gold" id="beheerderOpslaanBtn">Opslaan 🎉</button>
+            <button type="button" class="btn stil" id="beheerderAnnuleerBtn" style="display:none">Annuleer</button>
+          </div>
+        </form>
+      </div>
+      <div class="lijst">
+        <h2>Alle beheerders</h2>
+        <div id="beheerderLijst"></div>
+        <p class="foto-hint" style="margin-top:14px">Beheerdersaccounts leven — net als alle data — in de browser op dit apparaat. Het slot houdt meekijkers buiten, maar is geen echte beveiliging: daarvoor is een backend nodig.</p>
+      </div>
+    </div>
+  </div>
 </main>
 
 <div id="toast"></div>
@@ -456,6 +530,161 @@ function dochtersWelkom(e){ return e.dochtersWelkom !== false; }
 function slugify(t){ return (t||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,""); }
 function openLanding(id){ const e = load().find(x=>x.id===id); if(e) window.open("../evenement.html?e="+slugify(e.titel), "_blank"); }
 function fmtDatum(iso){ const d=new Date(iso); return `${d.getDate()} ${maanden[d.getMonth()]} '${String(d.getFullYear()).slice(2)}`; }
+
+/* ---------- Inloggen & beheerders ----------
+   Client-side slot: wachtwoorden worden nooit leesbaar opgeslagen, alleen
+   als SHA-256-hash met een salt per account (Web Crypto). De sessie staat
+   in sessionStorage en verloopt dus zodra de browser sluit. Dit houdt
+   meekijkers buiten, maar is geen echte beveiliging — er is geen server. */
+const BEHEERDER_KEY = "pp_beheerders";
+const SESSIE_KEY = "pp_beheer_sessie";
+
+async function hashWachtwoord(wachtwoord, salt){
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(salt + ":" + wachtwoord));
+  return [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,"0")).join("");
+}
+function maakSalt(){ return [...crypto.getRandomValues(new Uint8Array(16))].map(b=>b.toString(16).padStart(2,"0")).join(""); }
+
+/* Eerste inlog op een nieuw apparaat: faizi / PapaPonys2026!
+   Wijzig dat wachtwoord meteen na de eerste keer inloggen (tab Beheerders). */
+async function seedBeheerders(){
+  if(loadList(BEHEERDER_KEY).length) return;
+  const salt = maakSalt();
+  saveList(BEHEERDER_KEY, [{
+    id:"bh-1", naam:"Faizi", gebruikersnaam:"faizi",
+    salt, wachtwoordHash: await hashWachtwoord("PapaPonys2026!", salt),
+    aangemaaktOp:new Date().toISOString(), aangemaaktDoor:"systeem"
+  }]);
+}
+
+function huidigeSessie(){ try{ return JSON.parse(sessionStorage.getItem(SESSIE_KEY)); }catch(e){ return null; } }
+function ingelogdeNaam(){ const s = huidigeSessie(); return s ? s.naam : ""; }
+
+function zetIngelogd(sessie){
+  document.body.classList.add("ingelogd");
+  document.getElementById("sessieNaam").textContent = sessie.naam;
+  renderAlles();
+}
+
+document.getElementById("loginForm").addEventListener("submit", async ev=>{
+  ev.preventDefault();
+  const gebruiker = document.getElementById("loginGebruiker").value.trim().toLowerCase();
+  const wachtwoord = document.getElementById("loginWachtwoord").value;
+  const b = loadList(BEHEERDER_KEY).find(x=>(x.gebruikersnaam||"").toLowerCase()===gebruiker);
+  const fout = document.getElementById("loginFout");
+  if(!b || await hashWachtwoord(wachtwoord, b.salt) !== b.wachtwoordHash){
+    fout.classList.add("zichtbaar");
+    document.getElementById("loginWachtwoord").value = "";
+    document.getElementById("loginWachtwoord").focus();
+    return;
+  }
+  fout.classList.remove("zichtbaar");
+  const sessie = {beheerderId:b.id, naam:b.naam, ingelogdOp:new Date().toISOString()};
+  sessionStorage.setItem(SESSIE_KEY, JSON.stringify(sessie));
+  document.getElementById("loginForm").reset();
+  zetIngelogd(sessie);
+  toast(`Welkom, ${b.naam}! 💛`);
+});
+
+document.getElementById("uitlogBtn").addEventListener("click", ()=>{
+  sessionStorage.removeItem(SESSIE_KEY);
+  document.body.classList.remove("ingelogd");
+  document.getElementById("loginGebruiker").focus();
+});
+
+/* ---------- TAB 5: beheerders ---------- */
+function renderBeheerders(){
+  const beheerders = loadList(BEHEERDER_KEY);
+  document.getElementById("telBeheerders").textContent = beheerders.length;
+  const s = huidigeSessie();
+  document.getElementById("beheerderLijst").innerHTML = beheerders.map(b=>`
+    <div class="wa-kaart" data-id="${b.id}">
+      <div>
+        <div class="naam">👤 ${esc(b.naam)}${s && s.beheerderId===b.id?'<span class="status-pill toegevoegd">dat ben jij</span>':''}</div>
+        <div class="detail"><span>🔑 ${esc(b.gebruikersnaam)}</span><span>🗓️ aangemaakt ${fmtDatum(b.aangemaaktOp)}</span>${b.aangemaaktDoor?`<span>👤 door ${esc(b.aangemaaktDoor)}</span>`:""}</div>
+      </div>
+      <div class="ev-acties">
+        <button class="icoon-btn bewerk" title="Bewerken / wachtwoord wijzigen" onclick="bewerkBeheerder('${b.id}')">✏️</button>
+        <button class="icoon-btn verwijder" title="Verwijderen" onclick="verwijderBeheerder('${b.id}')">🗑️</button>
+      </div>
+    </div>`).join("");
+}
+
+document.getElementById("beheerderForm").addEventListener("submit", async ev=>{
+  ev.preventDefault();
+  const id = document.getElementById("beheerderEditId").value;
+  const naam = document.getElementById("beheerderNaam").value.trim();
+  const gebruikersnaam = document.getElementById("beheerderGebruiker").value.trim().toLowerCase();
+  const wachtwoord = document.getElementById("beheerderWachtwoord").value;
+  let beheerders = loadList(BEHEERDER_KEY);
+  if(beheerders.some(b=>(b.gebruikersnaam||"").toLowerCase()===gebruikersnaam && b.id!==id)){
+    toast("Die gebruikersnaam bestaat al 🔑"); return;
+  }
+  if((!id || wachtwoord) && wachtwoord.length < 8){
+    toast("Kies een wachtwoord van minimaal 8 tekens 🔒"); return;
+  }
+  if(id){
+    const bestaand = beheerders.find(b=>b.id===id);
+    if(!bestaand) return;
+    const item = {...bestaand, naam, gebruikersnaam};
+    if(wachtwoord){ item.salt = maakSalt(); item.wachtwoordHash = await hashWachtwoord(wachtwoord, item.salt); }
+    saveList(BEHEERDER_KEY, beheerders.map(b=>b.id===id?item:b));
+    const s = huidigeSessie();
+    if(s && s.beheerderId===id){ s.naam = naam; sessionStorage.setItem(SESSIE_KEY, JSON.stringify(s)); document.getElementById("sessieNaam").textContent = naam; }
+    toast(wachtwoord ? "Beheerder bijgewerkt, nieuw wachtwoord actief 🔒" : "Beheerder bijgewerkt ✏️");
+  } else {
+    const salt = maakSalt();
+    beheerders.push({
+      id:"bh-"+Date.now(), naam, gebruikersnaam,
+      salt, wachtwoordHash: await hashWachtwoord(wachtwoord, salt),
+      aangemaaktOp:new Date().toISOString(), aangemaaktDoor: ingelogdeNaam()
+    });
+    saveList(BEHEERDER_KEY, beheerders);
+    toast("Beheerder aangemaakt 🎉"); confetti();
+  }
+  resetBeheerderForm();
+  renderAlles();
+});
+
+function bewerkBeheerder(id){
+  const b = loadList(BEHEERDER_KEY).find(x=>x.id===id);
+  if(!b) return;
+  document.getElementById("beheerderEditId").value = b.id;
+  document.getElementById("beheerderNaam").value = b.naam;
+  document.getElementById("beheerderGebruiker").value = b.gebruikersnaam;
+  document.getElementById("beheerderWachtwoord").value = "";
+  document.getElementById("beheerderFormTitel").textContent = "✏️ Beheerder bewerken";
+  document.getElementById("beheerderOpslaanBtn").textContent = "Bijwerken ✔";
+  document.getElementById("beheerderAnnuleerBtn").style.display = "inline-flex";
+  document.querySelector("#tab-beheerders .panel").scrollIntoView({behavior:"smooth", block:"start"});
+  document.getElementById("beheerderNaam").focus();
+}
+
+function verwijderBeheerder(id){
+  const beheerders = loadList(BEHEERDER_KEY);
+  const b = beheerders.find(x=>x.id===id);
+  if(!b) return;
+  const s = huidigeSessie();
+  if(s && s.beheerderId===id){ toast("Je kunt jezelf niet verwijderen 🙅"); return; }
+  if(beheerders.length<=1){ toast("De laatste beheerder kan niet weg 🙅"); return; }
+  if(!confirm(`Beheerder ${b.naam} verwijderen? Die kan daarna niet meer inloggen.`)) return;
+  const kaart = document.querySelector(`#beheerderLijst .wa-kaart[data-id="${id}"]`);
+  if(kaart) kaart.classList.add("weg");
+  setTimeout(()=>{
+    saveList(BEHEERDER_KEY, loadList(BEHEERDER_KEY).filter(x=>x.id!==id));
+    toast("Beheerder verwijderd 🗑️");
+    renderAlles();
+  }, 280);
+}
+
+function resetBeheerderForm(){
+  document.getElementById("beheerderForm").reset();
+  document.getElementById("beheerderEditId").value = "";
+  document.getElementById("beheerderFormTitel").textContent = "🔐 Nieuwe beheerder";
+  document.getElementById("beheerderOpslaanBtn").textContent = "Opslaan 🎉";
+  document.getElementById("beheerderAnnuleerBtn").style.display = "none";
+}
+document.getElementById("beheerderAnnuleerBtn").addEventListener("click", resetBeheerderForm);
 
 /* ---------- Stats + tabtellers ---------- */
 /* De cijfers tellen bij het openen van de pagina zachtjes op; daarna gewoon direct */
@@ -519,7 +748,7 @@ function renderEvents(){
       <div class="ev-datum"><div class="dag">${d.getDate()}</div><div class="mnd">${maanden[d.getMonth()]} '${String(d.getFullYear()).slice(2)}</div></div>
       <div class="ev-info">
         <h3><span class="ster ${e.uitgelicht?"aan":""}" title="Uitlichten aan/uit" onclick="toggleSter('${e.id}')">🌟</span>${esc(e.titel)}<span class="cat ${evType(e)==="vlechtworkshop"?"roze":""}">${evType(e)==="vlechtworkshop"?"🎀 vlechtworkshop":"🎪 ander evenement"}</span><span class="cat">${esc(e.categorie||"Anders")}</span></h3>
-        <div class="meta"><span>🕙 ${esc(e.tijd||"n.t.b.")}</span><span>📍 ${esc(e.locatie||"n.t.b.")}</span><span>🎟️ ${n} inschrijving${n===1?"":"en"}</span><span>💶 ${e.prijs?"€"+esc(e.prijs):"gratis"}</span><span>${dochtersWelkom(e)?"🎀 dochters mee":"👨 alleen papa's"}</span>${e.fotos&&e.fotos.length?`<span>📷 ${e.fotos.length}</span>`:""}</div>
+        <div class="meta"><span>🕙 ${esc(e.tijd||"n.t.b.")}</span><span>📍 ${esc(e.locatie||"n.t.b.")}</span><span>🎟️ ${n} inschrijving${n===1?"":"en"}</span><span>💶 ${e.prijs?"€"+esc(e.prijs):"gratis"}</span><span>${dochtersWelkom(e)?"🎀 dochters mee":"👨 alleen papa's"}</span>${e.fotos&&e.fotos.length?`<span>📷 ${e.fotos.length}</span>`:""}${e.aangemaaktDoor?`<span title="Aangemaakt door">👤 ${esc(e.aangemaaktDoor)}</span>`:""}</div>
       </div>
       <div class="ev-acties">
         <button class="icoon-btn groen" title="Landingspagina openen" onclick="openLanding('${e.id}')">🔗</button>
@@ -569,8 +798,11 @@ function verwijderFoto(i){ formFotos.splice(i,1); renderFotoThumbs(); }
 document.getElementById("eventForm").addEventListener("submit", ev=>{
   ev.preventDefault();
   const id = document.getElementById("editId").value;
+  /* bij bewerken blijft de oorspronkelijke maker staan */
+  const bestaandEvent = id ? load().find(e=>e.id===id) : null;
   const item = {
     id: id || "ev-"+Date.now(),
+    aangemaaktDoor: bestaandEvent ? bestaandEvent.aangemaaktDoor : ingelogdeNaam(),
     titel: document.getElementById("titel").value.trim(),
     type: document.querySelector('input[name="evType"]:checked').value,
     datum: document.getElementById("datum").value,
@@ -694,7 +926,7 @@ function renderInschrijvingen(){
         <div class="inschrijving" data-id="${s.id}">
           <div>
             <div class="naam">${esc(s.naam)}${s.dochterMee?'<span class="pill">🎀 dochter mee</span>':''}${s.betaald?'<span class="pill betaald">💶 betaald</span>':(heeftPrijs?'<span class="pill open">nog niet betaald</span>':'')}</div>
-            <div class="detail">${s.email?`<span>📧 ${esc(s.email)}</span>`:""}${(s.telefoon||s.contact)?`<span>📞 ${esc(s.telefoon||s.contact)}</span>`:""}${s.woonplaats?`<span>🏠 ${esc(s.woonplaats)}</span>`:""}${s.dochterLeeftijden?`<span>👧 ${esc(s.dochterLeeftijden)} jaar</span>`:""}${(parseInt(s.personen)||1)>1?`<span>👥 ${esc(s.personen)} papa's (oude inschrijving)</span>`:""}<span>🗓️ aangemeld ${fmtDatum(s.aangemeldOp)}</span></div>
+            <div class="detail">${s.email?`<span>📧 ${esc(s.email)}</span>`:""}${(s.telefoon||s.contact)?`<span>📞 ${esc(s.telefoon||s.contact)}</span>`:""}${s.woonplaats?`<span>🏠 ${esc(s.woonplaats)}</span>`:""}${s.dochterLeeftijden?`<span>👧 ${esc(s.dochterLeeftijden)} jaar</span>`:""}${(parseInt(s.personen)||1)>1?`<span>👥 ${esc(s.personen)} papa's (oude inschrijving)</span>`:""}<span>🗓️ aangemeld ${fmtDatum(s.aangemeldOp)}</span>${s.betaald&&s.betaaldDoor?`<span>💶 afgevinkt door ${esc(s.betaaldDoor)}${s.betaaldOp?` op ${fmtDatum(s.betaaldOp)}`:""}</span>`:""}</div>
             ${s.opmerking?`<div class="opm">"${esc(s.opmerking)}"</div>`:""}
           </div>
           <div class="ev-acties">
@@ -757,6 +989,8 @@ document.getElementById("inschrijfBeheerForm").addEventListener("submit", ev=>{
     betaald: bestaand ? !!bestaand.betaald : false,
     aangemeldOp: bestaand ? bestaand.aangemeldOp : new Date().toISOString()
   };
+  /* betaal-audit meenemen bij bewerken (het record wordt hier opnieuw opgebouwd) */
+  if(bestaand && bestaand.betaaldDoor){ item.betaaldDoor = bestaand.betaaldDoor; item.betaaldOp = bestaand.betaaldOp; }
   let signups = loadList(SIGNUP_KEY);
   if(id){ signups = signups.map(s=>s.id===id?item:s); toast("Inschrijving bijgewerkt ✏️"); }
   else{ signups.push(item); toast("Inschrijving toegevoegd 🎟️"); confetti(); }
@@ -801,8 +1035,13 @@ function resetInschrijfForm(){
 }
 document.getElementById("inschrijfAnnuleerBtn").addEventListener("click", resetInschrijfForm);
 
+/* Afvinken legt ook vast wíe het afvinkte en wanneer; terugdraaien wist dat weer */
 function toggleBetaald(id){
-  const signups = loadList(SIGNUP_KEY).map(s=>s.id===id?{...s, betaald:!s.betaald}:s);
+  const signups = loadList(SIGNUP_KEY).map(s=>{
+    if(s.id!==id) return s;
+    if(s.betaald){ const kopie = {...s, betaald:false}; delete kopie.betaaldDoor; delete kopie.betaaldOp; return kopie; }
+    return {...s, betaald:true, betaaldDoor: ingelogdeNaam(), betaaldOp: new Date().toISOString()};
+  });
   saveList(SIGNUP_KEY, signups);
   const s = signups.find(x=>x.id===id);
   if(s && s.betaald){ toast(`${s.naam} heeft betaald 💶`); }
@@ -1019,7 +1258,7 @@ document.getElementById("exportInschrijvingen").addEventListener("click", ()=>{
         const stijl = i%2 ? "rijB" : "rijA";
         const cel = v=>`<Cell ss:StyleID="${stijl}"><Data ss:Type="String">${xmlEsc(v)}</Data></Cell>`;
         const naamDelen = (s.naam||"").split(" ");
-        rijen += `<Row>${cel(s.voornaam||naamDelen[0]||"")}${cel(s.achternaam||naamDelen.slice(1).join(" "))}${cel(s.email||s.contact||"")}${cel(s.telefoon||"")}${cel(s.woonplaats||"")}${cel(s.dochterLeeftijden||"")}${cel(s.dochterMee?"ja":"nee")}${cel(s.betaald?"ja":"nee")}${cel(s.opmerking||"")}${cel((s.aangemeldOp||"").slice(0,10))}</Row>`;
+        rijen += `<Row>${cel(s.voornaam||naamDelen[0]||"")}${cel(s.achternaam||naamDelen.slice(1).join(" "))}${cel(s.email||s.contact||"")}${cel(s.telefoon||"")}${cel(s.woonplaats||"")}${cel(s.dochterLeeftijden||"")}${cel(s.dochterMee?"ja":"nee")}${cel(s.betaald?("ja"+(s.betaaldDoor?` (${s.betaaldDoor})`:"")):"nee")}${cel(s.opmerking||"")}${cel((s.aangemeldOp||"").slice(0,10))}</Row>`;
       });
     });
 
@@ -1158,8 +1397,15 @@ if(!localStorage.getItem(PP_KEY)){
   ]);
 }
 
-function renderAlles(){ renderStats(); renderEvents(); renderInschrijvingen(); renderInschrijfEventOpties(); renderWhatsapp(); renderSjablonen(); }
-renderAlles();
+function renderAlles(){ renderStats(); renderEvents(); renderInschrijvingen(); renderInschrijfEventOpties(); renderWhatsapp(); renderSjablonen(); renderBeheerders(); }
+
+/* ---------- Start: eerst inloggen, dan pas renderen ---------- */
+(async function start(){
+  await seedBeheerders();
+  const s = huidigeSessie();
+  if(s && loadList(BEHEERDER_KEY).some(b=>b.id===s.beheerderId)){ zetIngelogd(s); }
+  else{ document.getElementById("loginGebruiker").focus(); }
+})();
 </script>
 </body>
 </html>
