@@ -101,7 +101,7 @@ Community-website voor "meisjespapa's die leren vlechten". Statische site zonder
 4. **Opslaglimiet ±5MB**: foto-uploads worden verkleind (max 1200px, JPEG 0.78) en `save()` in het beheer vangt `QuotaExceededError` af met een toast.
 5. **Excel-export is SpreadsheetML** (XML, `.xls`): geen echte VBA-macro mogelijk vanuit de browser; de "mailknoppen" in het bestand zijn `mailto:`-hyperlinks met BCC.
 6. **GitHub Pages deploy kan sporadisch falen** met "Deployment failed, try again later" terwijl de build slaagt — GitHub-storing, geen codefout. Oplossing: lege commit pushen.
-7. **Fine-grained token**: kan pushen en Actions/Pages lezen, maar géén repo-beschrijving/topics wijzigen of Pages-builds triggeren (403).
+7. **Fine-grained token**: kan pushen en Actions/Pages lezen, maar géén repo-beschrijving/topics wijzigen of Pages-builds triggeren (403). Ook pusht het géén wijzigingen aan `.github/workflows/` zolang de repository-permissie "Workflows: Read and write" niet is aangezet op het token (remote rejected).
 8. **Git-root**: de projectmap heeft een eigen repo; de home-map van de gebruiker is óók een git-repo — let op vanuit welke map je git-commando's draait.
 
 ## Werkwijzen
