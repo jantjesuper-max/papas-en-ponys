@@ -281,6 +281,8 @@ function saveList(k,v){ localStorage.setItem(k, JSON.stringify(v)); }
 function esc(s){ const d=document.createElement("div"); d.textContent=s??""; return d.innerHTML; }
 /* Evenementen van voor de tags krijgen er automatisch een o.b.v. hun categorie */
 function evType(e){ return e.type || (e.categorie === "Workshop" ? "vlechtworkshop" : "ander"); }
+/* Evenementen van voor dit veld (undefined) blijven dochters toestaan — alleen expliciet uitgevinkt is nee */
+function dochtersWelkom(e){ return e.dochtersWelkom !== false; }
 /* Mooie leesbare evenement-URL op basis van de titel; ?id= blijft als fallback werken */
 function slugify(t){ return (t||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,""); }
 
@@ -372,6 +374,7 @@ if(!event){
 
   const type = evType(event);
   const isVlecht = type === "vlechtworkshop";
+  const metDochters = dochtersWelkom(event);
   /* Betaallink alleen gebruiken als het een echte http(s)-URL is */
   const betaalUrl = /^https?:\/\//i.test(event.betaallink || "") ? event.betaallink : "";
   const prijsTekst = event.prijs ? "€" + event.prijs : "";
@@ -444,8 +447,8 @@ if(!event){
       <div class="info-rij"><span class="lbl">datum</span><span>${datumTekst}</span></div>
       <div class="info-rij"><span class="lbl">tijd</span><span>${esc(event.tijd || "n.t.b.")}</span></div>
       <div class="info-rij"><span class="lbl">locatie</span><span>${esc(event.locatie || "n.t.b.")}</span></div>
-      <div class="info-rij"><span class="lbl">voor wie</span><span>meisjespapa's — dochters welkom waar aangegeven</span></div>
-      ${isVlecht ? '<div class="info-rij"><span class="lbl">meenemen</span><span>borstel, elastiekjes en (als het kan) een geduldige dochter</span></div>' : ''}
+      <div class="info-rij"><span class="lbl">voor wie</span><span>${metDochters ? "meisjespapa's — dochters van harte welkom" : "alleen papa's — dit keer zonder dochters"}</span></div>
+      ${isVlecht ? `<div class="info-rij"><span class="lbl">meenemen</span><span>${metDochters ? "borstel, elastiekjes en (als het kan) een geduldige dochter" : "borstel en elastiekjes"}</span></div>` : ''}
       <div class="info-rij"><span class="lbl">prijs</span><span>${prijsTekst ? esc(prijsTekst) + " per papa" : "gratis"}</span></div>
       ${betaalUrl ? `<a class="btn gold betaal-knop" style="width:100%;justify-content:center;margin-top:16px" href="${esc(betaalUrl)}" target="_blank" rel="noopener">💳 Betaal ${esc(prijsTekst) || "nu"}</a>` : ""}
       <div class="deel">
@@ -474,9 +477,9 @@ if(!event){
         </div>
         <div class="rij">
           <input id="inWoonplaats" maxlength="60" placeholder="Woonplaats (optioneel)" aria-label="Woonplaats">
-          <input id="inLeeftijden" maxlength="40" placeholder="Leeftijd dochter(s), bijv. 4 en 7" aria-label="Leeftijd dochters">
+          ${metDochters ? '<input id="inLeeftijden" maxlength="40" placeholder="Hoeveel dochter(s) en hoe oud? bijv. 2, van 4 en 7" aria-label="Hoeveel dochters en hoe oud">' : ''}
         </div>
-        <label class="check"><input type="checkbox" id="inDochter"> Dochter(s) mee</label>
+        ${metDochters ? '<label class="check"><input type="checkbox" id="inDochter"> Dochter(s) mee</label>' : ''}
         <textarea id="inOpmerking" maxlength="240" placeholder="Allergieën, vragen, of gewoon iets leuks (optioneel)" aria-label="Opmerking"></textarea>
         <label class="check"><input type="checkbox" id="inAkkoord" required><span>Ik ga akkoord met de <a href="voorwaarden.html" target="_blank" rel="noopener">algemene voorwaarden</a>, waaronder betalen bij aanmelding *</span></label>
         <button type="submit" class="btn gold">Schrijf me in 🎉</button>
@@ -515,9 +518,9 @@ if(!event){
         email: document.getElementById("inEmail").value.trim(),
         telefoon: document.getElementById("inTelefoon").value.trim(),
         woonplaats: document.getElementById("inWoonplaats").value.trim(),
-        dochterLeeftijden: document.getElementById("inLeeftijden").value.trim(),
+        dochterLeeftijden: metDochters ? document.getElementById("inLeeftijden").value.trim() : "",
         personen: "1",
-        dochterMee: document.getElementById("inDochter").checked,
+        dochterMee: metDochters ? document.getElementById("inDochter").checked : false,
         opmerking: document.getElementById("inOpmerking").value.trim(),
         voorwaardenAkkoord: true,
         aangemeldOp: new Date().toISOString()

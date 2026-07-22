@@ -31,7 +31,7 @@ Community-website voor "meisjespapa's die leren vlechten". Statische site zonder
 | `pp_events` | Array van evenementen |
 | `pp_event_signups` | Array van inschrijvingen |
 | `pp_wa_signups` | Array van WhatsApp-aanmeldingen |
-| `pp_mail_sjablonen` | Array van mailsjablonen: `{id, naam, onderwerp, tekst}` met dynamische velden `{naam}`, `{voornaam}`, `{achternaam}`, `{evenement}`, `{datum}`, `{tijd}`, `{locatie}`, `{categorie}`, `{beschrijving}`, `{link}` — ingevuld door `vulSjabloon()` in het beheer. Bij groepsmail (BCC) worden `{naam}`/`{voornaam}` "papa's" en vervalt `{achternaam}` |
+| `pp_mail_sjablonen` | Array van mailsjablonen: `{id, naam, onderwerp, tekst}` met dynamische velden `{naam}`, `{voornaam}`, `{achternaam}`, `{evenement}`, `{datum}`, `{tijd}`, `{locatie}`, `{categorie}`, `{beschrijving}`, `{dochters}`, `{link}` — ingevuld door `vulSjabloon()` in het beheer. Bij groepsmail (BCC) worden `{naam}`/`{voornaam}` "papa's" en vervalt `{achternaam}` |
 
 ### Vorm van een evenement
 
@@ -44,6 +44,7 @@ Community-website voor "meisjespapa's die leren vlechten". Statische site zonder
   tijd: "10:00",                 // optioneel
   locatie: "...", categorie: "Workshop|Uitje|Borrel|Community|Anders",
   beschrijving: "...",
+  dochtersWelkom: true|false,    // sinds v0.16; bepaalt of de inschrijfformulieren de dochtervelden tonen. Ontbreekt het veld (ouder evenement), dan geldt true — helper dochtersWelkom(e) in alle drie de pagina's
   uitgelicht: true|false,
   prijs: "7,50",                 // leeg = gratis; weergave altijd met €-prefix
   betaallink: "https://...",     // Tikkie/betaalverzoek/payment link; alleen http(s) wordt gerenderd

@@ -285,6 +285,8 @@ textarea{resize:vertical;min-height:74px}
           <button type="button" class="btn stil klein" id="fotoKies">📷 Foto's toevoegen</button>
           <div class="foto-thumbs" id="fotoThumbs"></div>
           <p class="foto-hint">Verschijnen op de landingspagina van het evenement. Worden automatisch verkleind.</p>
+          <label class="check"><input type="checkbox" id="dochtersWelkom" checked> Dochters mogen mee 🎀</label>
+          <p class="foto-hint">Aangevinkt = het inschrijfformulier vraagt of er dochter(s) meekomen en hoeveel/hoe oud ze zijn. Uitgevinkt = die vragen verdwijnen (alleen papa's).</p>
           <label class="check"><input type="checkbox" id="uitgelicht"> Uitlichten op de homepage 🌟</label>
           <div class="form-acties">
             <button type="submit" class="btn gold" id="opslaanBtn">Opslaan 🎉</button>
@@ -341,12 +343,12 @@ textarea{resize:vertical;min-height:74px}
               <label for="inschrijfWoonplaats">Woonplaats</label>
               <input id="inschrijfWoonplaats" maxlength="60" placeholder="Rotterdam">
             </div>
-            <div>
-              <label for="inschrijfLeeftijden">Leeftijd dochter(s)</label>
-              <input id="inschrijfLeeftijden" maxlength="40" placeholder="bijv. 4 en 7">
+            <div id="inschrijfLeeftijdenVeld">
+              <label for="inschrijfLeeftijden">Hoeveel dochter(s) &amp; leeftijd</label>
+              <input id="inschrijfLeeftijden" maxlength="40" placeholder="bijv. 2, van 4 en 7">
             </div>
           </div>
-          <label class="check"><input type="checkbox" id="inschrijfDochter"> Dochter(s) mee</label>
+          <label class="check" id="inschrijfDochterVeld"><input type="checkbox" id="inschrijfDochter"> Dochter(s) mee</label>
           <label for="inschrijfOpmerking">Opmerking</label>
           <textarea id="inschrijfOpmerking" maxlength="240" placeholder="Allergieën, vragen, bijzonderheden (optioneel)"></textarea>
           <div class="form-acties">
@@ -396,7 +398,7 @@ textarea{resize:vertical;min-height:74px}
           <textarea id="sjabloonTekst" required rows="9" style="min-height:180px" placeholder="Hoi {naam},&#10;&#10;Over twee weken is het zover..."></textarea>
           <label>Dynamische velden <span style="font-weight:400;color:var(--ink-soft)">(klik om in te voegen)</span></label>
           <div class="veld-chips" id="veldChips"></div>
-          <p class="foto-hint">Velden worden bij het versturen automatisch ingevuld met de gegevens van het evenement. Omdat groepsmails via BCC gaan, worden {naam} en {voornaam} daarin "papa's" en vervalt {achternaam}.</p>
+          <p class="foto-hint">Velden worden bij het versturen automatisch ingevuld met de gegevens van het evenement. Omdat groepsmails via BCC gaan, worden {naam} en {voornaam} daarin "papa's" en vervalt {achternaam}. {dochters} wordt "dochters zijn van harte welkom" of "dit keer zonder dochters".</p>
           <div class="form-acties">
             <button type="submit" class="btn gold" id="sjabloonOpslaanBtn">Opslaan 🎉</button>
             <button type="button" class="btn stil" id="sjabloonAnnuleerBtn" style="display:none">Annuleer</button>
@@ -448,6 +450,8 @@ function esc(s){ const d=document.createElement("div"); d.textContent=s??""; ret
 function vandaag(){ const t=new Date(); t.setHours(0,0,0,0); return t; }
 /* Evenementen van voor de tags krijgen er automatisch een o.b.v. hun categorie */
 function evType(e){ return e.type || (e.categorie === "Workshop" ? "vlechtworkshop" : "ander"); }
+/* Evenementen van voor dit veld (undefined) blijven dochters toestaan — alleen expliciet uitgevinkt is nee */
+function dochtersWelkom(e){ return e.dochtersWelkom !== false; }
 /* Mooie leesbare evenement-URL op basis van de titel (zelfde functie als op de publieke pagina's) */
 function slugify(t){ return (t||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,""); }
 function openLanding(id){ const e = load().find(x=>x.id===id); if(e) window.open("../evenement.html?e="+slugify(e.titel), "_blank"); }
@@ -515,7 +519,7 @@ function renderEvents(){
       <div class="ev-datum"><div class="dag">${d.getDate()}</div><div class="mnd">${maanden[d.getMonth()]} '${String(d.getFullYear()).slice(2)}</div></div>
       <div class="ev-info">
         <h3><span class="ster ${e.uitgelicht?"aan":""}" title="Uitlichten aan/uit" onclick="toggleSter('${e.id}')">🌟</span>${esc(e.titel)}<span class="cat ${evType(e)==="vlechtworkshop"?"roze":""}">${evType(e)==="vlechtworkshop"?"🎀 vlechtworkshop":"🎪 ander evenement"}</span><span class="cat">${esc(e.categorie||"Anders")}</span></h3>
-        <div class="meta"><span>🕙 ${esc(e.tijd||"n.t.b.")}</span><span>📍 ${esc(e.locatie||"n.t.b.")}</span><span>🎟️ ${n} inschrijving${n===1?"":"en"}</span><span>💶 ${e.prijs?"€"+esc(e.prijs):"gratis"}</span>${e.fotos&&e.fotos.length?`<span>📷 ${e.fotos.length}</span>`:""}</div>
+        <div class="meta"><span>🕙 ${esc(e.tijd||"n.t.b.")}</span><span>📍 ${esc(e.locatie||"n.t.b.")}</span><span>🎟️ ${n} inschrijving${n===1?"":"en"}</span><span>💶 ${e.prijs?"€"+esc(e.prijs):"gratis"}</span><span>${dochtersWelkom(e)?"🎀 dochters mee":"👨 alleen papa's"}</span>${e.fotos&&e.fotos.length?`<span>📷 ${e.fotos.length}</span>`:""}</div>
       </div>
       <div class="ev-acties">
         <button class="icoon-btn groen" title="Landingspagina openen" onclick="openLanding('${e.id}')">🔗</button>
@@ -576,6 +580,7 @@ document.getElementById("eventForm").addEventListener("submit", ev=>{
     prijs: document.getElementById("prijs").value.trim().replace(/^€\s*/, ""),
     betaallink: document.getElementById("betaallink").value.trim(),
     beschrijving: document.getElementById("beschrijving").value.trim(),
+    dochtersWelkom: document.getElementById("dochtersWelkom").checked,
     uitgelicht: document.getElementById("uitgelicht").checked,
     fotos: formFotos.slice()
   };
@@ -602,6 +607,7 @@ function bewerk(id){
   document.getElementById("prijs").value = e.prijs||"";
   document.getElementById("betaallink").value = e.betaallink||"";
   document.getElementById("beschrijving").value = e.beschrijving||"";
+  document.getElementById("dochtersWelkom").checked = dochtersWelkom(e);
   document.getElementById("uitgelicht").checked = !!e.uitgelicht;
   formFotos = (e.fotos||[]).slice();
   renderFotoThumbs();
@@ -709,7 +715,22 @@ function renderInschrijfEventOpties(){
   select.innerHTML = `<option value="" disabled ${huidige?"":"selected"}>Kies een evenement…</option>`
     + events.map(e=>`<option value="${e.id}">${esc(e.titel)} — ${fmtDatum(e.datum+"T00:00:00")}</option>`).join("");
   if(huidige && events.some(e=>e.id===huidige)) select.value = huidige;
+  updateInschrijfDochterVelden();
 }
+
+/* Toont de dochtervelden alleen als het gekozen evenement dochters toestaat
+   (of als een bestaande inschrijving al dochtergegevens heeft) */
+function updateInschrijfDochterVelden(forceTonen){
+  const ev = load().find(e=>e.id===document.getElementById("inschrijfEvent").value);
+  const tonen = forceTonen || !ev || dochtersWelkom(ev);
+  document.getElementById("inschrijfLeeftijdenVeld").style.display = tonen ? "" : "none";
+  document.getElementById("inschrijfDochterVeld").style.display = tonen ? "" : "none";
+  if(!tonen){
+    document.getElementById("inschrijfLeeftijden").value = "";
+    document.getElementById("inschrijfDochter").checked = false;
+  }
+}
+document.getElementById("inschrijfEvent").addEventListener("change", ()=>updateInschrijfDochterVelden());
 
 document.getElementById("inschrijfBeheerForm").addEventListener("submit", ev=>{
   ev.preventDefault();
@@ -761,6 +782,7 @@ function bewerkInschrijving(id){
   document.getElementById("inschrijfWoonplaats").value = s.woonplaats || "";
   document.getElementById("inschrijfLeeftijden").value = s.dochterLeeftijden || "";
   document.getElementById("inschrijfDochter").checked = !!s.dochterMee;
+  updateInschrijfDochterVelden(!!(s.dochterMee || s.dochterLeeftijden));
   document.getElementById("inschrijfOpmerking").value = s.opmerking || "";
   document.getElementById("inschrijfFormTitel").textContent = "✏️ Inschrijving bewerken";
   document.getElementById("inschrijfOpslaanBtn").textContent = "Bijwerken ✔";
@@ -806,7 +828,7 @@ function verwijderInschrijving(id){
    {naam} wordt in een groepsmail "papa's" (bij BCC kan er niet per
    ontvanger gepersonaliseerd worden). */
 const SJABLOON_KEY = "pp_mail_sjablonen";
-const SJABLOON_VELDEN = ["{naam}","{voornaam}","{achternaam}","{evenement}","{datum}","{tijd}","{locatie}","{categorie}","{beschrijving}","{link}"];
+const SJABLOON_VELDEN = ["{naam}","{voornaam}","{achternaam}","{evenement}","{datum}","{tijd}","{locatie}","{categorie}","{beschrijving}","{dochters}","{link}"];
 const SITE_URL = "https://jantjesuper-max.github.io/papas-en-ponys";
 
 const seedSjablonen = [
@@ -839,6 +861,7 @@ function vulSjabloon(tekst, ev){
     "{locatie}": ev ? (ev.locatie || "n.t.b.") : "",
     "{categorie}": ev ? (ev.categorie || "") : "",
     "{beschrijving}": ev ? (ev.beschrijving || "") : "",
+    "{dochters}": ev ? (dochtersWelkom(ev) ? "dochters zijn van harte welkom" : "dit keer zonder dochters") : "",
     "{link}": ev ? `${SITE_URL}/evenement.html?e=${slugify(ev.titel)}` : SITE_URL
   };
   return Object.entries(waarden).reduce((t,[veld,waarde]) => t.split(veld).join(waarde), tekst);

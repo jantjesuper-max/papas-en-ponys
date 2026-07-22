@@ -5,6 +5,16 @@ Het format volgt [Keep a Changelog](https://keepachangelog.com/nl/1.1.0/).
 
 ## [Unreleased]
 
+## [0.16.0] - 2026-07-22
+
+### Toegevoegd
+- Per evenement kan de beheerder aanvinken of dochters mee mogen ("Dochters mogen mee 🎀", nieuw veld `dochtersWelkom`)
+  - Mogen dochters mee, dan tonen de inschrijfformulieren (homepage-modal, evenementpagina en beheer) het vinkje "Dochter(s) mee" plus een veld voor hoeveel dochters en hoe oud; zo niet, dan verdwijnen die vragen en wordt `dochterMee: false` opgeslagen
+  - Evenementpagina toont bij "voor wie" nu "dochters van harte welkom" of "alleen papa's — dit keer zonder dochters"; bij vlechtworkshops zonder dochters vervalt de "geduldige dochter" uit de meeneemlijst
+  - Evenementenlijst in het beheer toont per evenement "🎀 dochters mee" of "👨 alleen papa's"
+  - Nieuw sjabloonveld `{dochters}` ("dochters zijn van harte welkom" / "dit keer zonder dochters")
+  - Bestaande evenementen zonder het veld blijven dochters toestaan (geen gedragswijziging)
+
 ## [0.15.0] - 2026-07-07
 
 ### Toegevoegd
