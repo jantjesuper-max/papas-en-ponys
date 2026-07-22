@@ -31,7 +31,7 @@ Community-website voor "meisjespapa's die leren vlechten". Statische site zonder
 | `pp_events` | Array van evenementen |
 | `pp_event_signups` | Array van inschrijvingen |
 | `pp_wa_signups` | Array van WhatsApp-aanmeldingen |
-| `pp_mail_sjablonen` | Array van mailsjablonen: `{id, naam, onderwerp, tekst}` met dynamische velden `{naam}`, `{voornaam}`, `{achternaam}`, `{evenement}`, `{datum}`, `{tijd}`, `{locatie}`, `{categorie}`, `{beschrijving}`, `{dochters}`, `{link}` — ingevuld door `vulSjabloon()` in het beheer. Bij groepsmail (BCC) worden `{naam}`/`{voornaam}` "papa's" en vervalt `{achternaam}` |
+| `pp_mail_sjablonen` | Array van mailsjablonen: `{id, naam, onderwerp, tekst}` met dynamische velden `{naam}`, `{voornaam}`, `{achternaam}`, `{evenement}`, `{datum}`, `{tijd}`, `{locatie}`, `{categorie}`, `{beschrijving}`, `{dochters}`, `{link}`, `{fotoalbum}` — ingevuld door `vulSjabloon()` in het beheer. `{datum}` toont bij een meerdaags evenement "van t/m tot". Bij groepsmail (BCC) worden `{naam}`/`{voornaam}` "papa's" en vervalt `{achternaam}` |
 | `pp_beheerders` | Alleen gebruikt door het beheer (sinds v0.18): array van beheerdersaccounts `{id, naam, gebruikersnaam, salt, wachtwoordHash, aangemaaktOp, aangemaaktDoor}`. Wachtwoord = SHA-256(salt+":"+wachtwoord) via Web Crypto. Seed-account bij lege sleutel: `faizi` / `PapaPonys2026!`. Sessie in **sessionStorage** onder `pp_beheer_sessie`. **Let op: client-side slot, geen echte beveiliging** — broncode en localStorage zijn op het apparaat leesbaar |
 
 ### Vorm van een evenement
@@ -41,7 +41,8 @@ Community-website voor "meisjespapa's die leren vlechten". Statische site zonder
   id: "ev-1712345678901",        // "seed-1..3" voor de meegeleverde voorbeelden
   titel: "Vlechtworkshop: ...",
   type: "vlechtworkshop" | "ander",  // bepaalt welke landingspagina-variant rendert
-  datum: "2026-07-18",           // ISO, verplicht
+  datum: "2026-07-18",           // ISO, verplicht (startdatum; bepaalt sortering en de datumbadges)
+  datumTot: "2026-07-19",        // sinds v0.19, optioneel: einddatum voor meerdaagse evenementen. Leeg/ontbreekt = eendaags. Helper eindDatum(e) (datumTot || datum) bepaalt in alle drie de pagina's of iets voorbij is; het beheer weigert een einddatum vóór de startdatum
   tijd: "10:00",                 // optioneel
   locatie: "...", categorie: "Workshop|Uitje|Borrel|Community|Anders",
   beschrijving: "...",
@@ -49,6 +50,8 @@ Community-website voor "meisjespapa's die leren vlechten". Statische site zonder
   uitgelicht: true|false,
   prijs: "7,50",                 // leeg = gratis; weergave altijd met €-prefix
   betaallink: "https://...",     // Tikkie/betaalverzoek/payment link; alleen http(s) wordt gerenderd
+  fotoalbum: "https://...",      // sinds v0.19, optioneel: link naar extern fotoalbum (bijv. gedeeld Google Foto's-album). Is het evenement voorbij, dan toont evenement.html "📸 Bekijk de foto's" (hero + info-kaart) i.p.v. de inschrijfknop; alleen http(s) wordt gerenderd
+  vragen: [{id:"vr-...", tekst:"Heb je allergieën?", verplicht:true}],  // sinds v0.19, optioneel: eigen inschrijfvragen. Helper evVragen(e) in alle drie de pagina's; de formulieren tonen ze als extra velden (verplicht → required)
   fotos: ["data:image/jpeg;base64,..."],  // door beheer geüpload, verkleind naar max 1200px
   aangemaaktDoor: "Faizi"        // sinds v0.18: naam van de ingelogde beheerder; blijft staan bij bewerken. Seeds/oudere evenementen missen het veld
 }
@@ -60,12 +63,14 @@ Community-website voor "meisjespapa's die leren vlechten". Statische site zonder
 {
   id: "in-<timestamp>",
   eventId, eventTitel, eventDatum,   // gedenormaliseerd zodat verwijderde evenementen leesbaar blijven
+  eventDatumTot,                     // sinds v0.19: gedenormaliseerde einddatum ("" bij eendaags)
   voornaam, achternaam,              // sinds v0.12; `naam` blijft de gecombineerde weergavenaam
   naam,                              // "voornaam achternaam" — oudere records hebben alléén dit veld (splits op eerste spatie)
   email, telefoon,                   // sinds v0.7; oudere records hebben alleen `contact`
   woonplaats, dochterLeeftijden,     // optioneel, sinds v0.12
   personen: "1",                     // sinds v0.6 altijd "1" (inschrijven per papa); oude records kunnen 2/3 zijn
   dochterMee: true|false, opmerking,
+  antwoorden: [{vraag:"Heb je allergieën?", antwoord:"..."}],  // sinds v0.19: antwoorden op de eigen inschrijfvragen van het evenement (vraagtekst gedenormaliseerd, zodat antwoorden leesbaar blijven als vragen wijzigen). Zichtbaar in het beheer en als extra kolommen per groep in de Excel-export
   betaald: true|false,               // handmatig afgevinkt in het beheer (stap 1 van betalingen)
   betaaldDoor: "Faizi", betaaldOp: ISO-string,  // sinds v0.18: wie het afvinkte en wanneer; worden gewist bij terugdraaien
   aangemeldOp: ISO-string
@@ -89,7 +94,7 @@ Community-website voor "meisjespapa's die leren vlechten". Statische site zonder
 
 - **Taal**: alles in het Nederlands — UI-teksten, functienamen (`verwijderFoto`, `mailDeelnemers`), comments en commitberichten.
 - **Huisstijl**: CSS-variabelen bovenaan elk bestand (`--ink`, `--paper`, `--accent` oker, `--rose`). Fonts: Outfit (display) + IBM Plex Mono (labels/pills). Afgeronde hoeken, zachte schaduwen, emoji als iconen.
-- **Elke pagina is zelfstandig**: eigen `<style>` en `<script>` inline, geen gedeelde bestanden. Gedeelde logica (zoals `evType()`, seeds, `esc()`) is dus **gedupliceerd** — wijzig je die, wijzig het dan op alle plekken (zie valkuilen).
+- **Elke pagina is zelfstandig**: eigen `<style>` en `<script>` inline, geen gedeelde bestanden. Gedeelde logica (zoals `evType()`, `eindDatum()`, `evVragen()`, seeds, `esc()`) is dus **gedupliceerd** — wijzig je die, wijzig het dan op alle plekken (zie valkuilen).
 - **Toegankelijkheid**: `prefers-reduced-motion` respecteren, alt-teksten in het Nederlands, `aria-label`s op formuliervelden.
 - **Changelog**: bij elke feature een versie-entry in `CHANGELOG.md` (semver-achtig, datum erbij).
 - **Sjablonen groeien mee**: voeg je een veld toe aan (of wijzig je een veld van) inschrijvingen/contactpersonen of evenementen, werk dan óók de mailsjablonen bij: `SJABLOON_VELDEN` én `vulSjabloon()` in `admin/index.html`, de hint-tekst onder de veld-chips, en de sjablonenrij in dit document.

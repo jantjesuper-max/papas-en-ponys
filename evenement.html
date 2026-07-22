@@ -183,6 +183,7 @@ h1{font-size:clamp(2rem,4.6vw,3.2rem);font-weight:800;line-height:1.1;letter-spa
 .in-form .check{display:flex;align-items:flex-start;gap:10px;font-size:.9rem;line-height:1.5;color:#d5dae4;cursor:pointer;user-select:none;text-align:left}
 .in-form .check input{width:auto;accent-color:var(--accent);transform:scale(1.2);cursor:pointer;flex-shrink:0;margin-top:4px}
 .in-form .check a{color:var(--accent);text-decoration:none;border-bottom:1px dashed var(--accent);white-space:nowrap}
+.in-form .vraag-label{display:block;font-size:.85rem;color:#d5dae4;margin:2px 0 6px;text-align:left}
 .in-form .btn.gold{width:100%;justify-content:center;margin-top:4px}
 .in-succes{text-align:center;padding:24px;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.15);border-radius:18px}
 .in-succes .vink{font-size:2.4rem;display:inline-block;animation:pop .5s cubic-bezier(.34,1.56,.64,1)}
@@ -283,6 +284,12 @@ function esc(s){ const d=document.createElement("div"); d.textContent=s??""; ret
 function evType(e){ return e.type || (e.categorie === "Workshop" ? "vlechtworkshop" : "ander"); }
 /* Evenementen van voor dit veld (undefined) blijven dochters toestaan — alleen expliciet uitgevinkt is nee */
 function dochtersWelkom(e){ return e.dochtersWelkom !== false; }
+/* Einddatum: datumTot als die er is, anders de (start)datum — bepaalt of een evenement voorbij is */
+function eindDatum(e){ return e.datumTot || e.datum; }
+/* Eigen inschrijfvragen van een evenement (ouder evenement zonder veld → geen vragen) */
+function evVragen(e){ return Array.isArray(e && e.vragen) ? e.vragen.filter(v=>v && v.tekst) : []; }
+/* Zoals esc(), maar ook veilig binnen een attribuut met dubbele quotes */
+function escAttr(s){ return esc(s).replace(/"/g,"&quot;"); }
 /* Mooie leesbare evenement-URL op basis van de titel; ?id= blijft als fallback werken */
 function slugify(t){ return (t||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,""); }
 
@@ -330,6 +337,7 @@ function zetSeo(ev){
     "name": ev.titel,
     "description": ev.beschrijving || `${ev.titel} bij Papa & Pony's`,
     "startDate": ev.tijd ? `${ev.datum}T${ev.tijd}:00+02:00` : ev.datum,
+    ...(ev.datumTot && ev.datumTot !== ev.datum ? {"endDate": ev.datumTot} : {}),
     "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
     "eventStatus": "https://schema.org/EventScheduled",
     "inLanguage": "nl",
@@ -368,15 +376,26 @@ if(!event){
   zetSeo(event);
   const d = new Date(event.datum + "T00:00:00");
   const vandaag = new Date(); vandaag.setHours(0,0,0,0);
-  const voorbij = d < vandaag;
-  const datumTekst = `${d.getDate()} ${maanden[d.getMonth()]} ${d.getFullYear()}`;
+  /* een meerdaags evenement is pas voorbij als ook de einddatum voorbij is */
+  const voorbij = new Date(eindDatum(event) + "T00:00:00") < vandaag;
+  const startTekst = `${d.getDate()} ${maanden[d.getMonth()]} ${d.getFullYear()}`;
+  /* "18 juli 2026", "18 t/m 19 juli 2026" of "30 juli t/m 2 augustus 2026" */
+  let datumTekst = startTekst;
+  if(event.datumTot && event.datumTot !== event.datum){
+    const dt = new Date(event.datumTot + "T00:00:00");
+    datumTekst = (dt.getMonth() === d.getMonth() && dt.getFullYear() === d.getFullYear())
+      ? `${d.getDate()} t/m ${dt.getDate()} ${maanden[dt.getMonth()]} ${dt.getFullYear()}`
+      : `${d.getDate()} ${maanden[d.getMonth()]}${dt.getFullYear() !== d.getFullYear() ? " " + d.getFullYear() : ""} t/m ${dt.getDate()} ${maanden[dt.getMonth()]} ${dt.getFullYear()}`;
+  }
   const aantal = loadList(SIGNUP_KEY).filter(s => s.eventId === event.id).reduce((n,s) => n + (parseInt(s.personen)||1), 0);
 
   const type = evType(event);
   const isVlecht = type === "vlechtworkshop";
   const metDochters = dochtersWelkom(event);
-  /* Betaallink alleen gebruiken als het een echte http(s)-URL is */
+  /* Betaal- en fotoalbumlink alleen gebruiken als het echte http(s)-URL's zijn */
   const betaalUrl = /^https?:\/\//i.test(event.betaallink || "") ? event.betaallink : "";
+  const albumUrl = /^https?:\/\//i.test(event.fotoalbum || "") ? event.fotoalbum : "";
+  const vragen = evVragen(event);
   const prijsTekst = event.prijs ? "€" + event.prijs : "";
   const eigenFotos = !!(event.fotos && event.fotos.length);
   /* Vlechtworkshops tonen altijd alle sfeerfoto's (na eventuele eigen foto's); andere evenementen alleen eigen foto's */
@@ -401,7 +420,7 @@ if(!event){
       ${aantal > 0 ? `<span>👥 ${aantal} aangemeld</span>` : ""}
     </div>
     ${isVlecht ? '<div class="hero-stats"><span>👨‍👧 35 papa\'s gingen je voor</span><span>📰 bekend uit de krant</span><span>🎀 oefenhoofden aanwezig</span></div>' : ''}
-    ${voorbij ? '<div class="ev-ctas"><a class="btn ghost" href="index.html#evenementen">Bekijk aankomende evenementen</a></div>'
+    ${voorbij ? `<div class="ev-ctas">${albumUrl ? `<a class="btn gold" href="${esc(albumUrl)}" target="_blank" rel="noopener">📸 Bekijk de foto's <span class="arrow">→</span></a>` : ""}<a class="btn ghost" href="index.html#evenementen">Bekijk aankomende evenementen</a></div>`
               : '<div class="ev-ctas"><a class="btn gold" href="#inschrijven">Schrijf je in <span class="arrow">→</span></a><a class="btn ghost" href="index.html#evenementen">Alle evenementen</a></div>'}
   </header>
   </div>
@@ -450,7 +469,8 @@ if(!event){
       <div class="info-rij"><span class="lbl">voor wie</span><span>${metDochters ? "meisjespapa's — dochters van harte welkom" : "alleen papa's — dit keer zonder dochters"}</span></div>
       ${isVlecht ? `<div class="info-rij"><span class="lbl">meenemen</span><span>${metDochters ? "borstel, elastiekjes en (als het kan) een geduldige dochter" : "borstel en elastiekjes"}</span></div>` : ''}
       <div class="info-rij"><span class="lbl">prijs</span><span>${prijsTekst ? esc(prijsTekst) + " per papa" : "gratis"}</span></div>
-      ${betaalUrl ? `<a class="btn gold betaal-knop" style="width:100%;justify-content:center;margin-top:16px" href="${esc(betaalUrl)}" target="_blank" rel="noopener">💳 Betaal ${esc(prijsTekst) || "nu"}</a>` : ""}
+      ${voorbij && albumUrl ? `<a class="btn gold" style="width:100%;justify-content:center;margin-top:16px" href="${esc(albumUrl)}" target="_blank" rel="noopener">📸 Bekijk de foto's</a>` : ""}
+      ${!voorbij && betaalUrl ? `<a class="btn gold betaal-knop" style="width:100%;justify-content:center;margin-top:16px" href="${esc(betaalUrl)}" target="_blank" rel="noopener">💳 Betaal ${esc(prijsTekst) || "nu"}</a>` : ""}
       <div class="deel">
         <button class="btn ghost" id="kopieerLink">🔗 Kopieer link</button>
         <a class="btn ghost" id="deelWhatsapp" target="_blank" rel="noopener">💬 Deel via WhatsApp</a>
@@ -480,6 +500,7 @@ if(!event){
           ${metDochters ? '<input id="inLeeftijden" maxlength="40" placeholder="Hoeveel dochter(s) en hoe oud? bijv. 2, van 4 en 7" aria-label="Hoeveel dochters en hoe oud">' : ''}
         </div>
         ${metDochters ? '<label class="check"><input type="checkbox" id="inDochter"> Dochter(s) mee</label>' : ''}
+        ${vragen.map((v,i) => `<div class="vraag-veld"><label class="vraag-label" for="inVraag${i}">${esc(v.tekst)}${v.verplicht ? " *" : ""}</label><input id="inVraag${i}" ${v.verplicht ? "required" : ""} maxlength="240" aria-label="${escAttr(v.tekst)}"></div>`).join("")}
         <textarea id="inOpmerking" maxlength="240" placeholder="Allergieën, vragen, of gewoon iets leuks (optioneel)" aria-label="Opmerking"></textarea>
         <label class="check"><input type="checkbox" id="inAkkoord" required><span>Ik ga akkoord met de <a href="voorwaarden.html" target="_blank" rel="noopener">algemene voorwaarden</a>, waaronder betalen bij aanmelding *</span></label>
         <button type="submit" class="btn gold">Schrijf me in 🎉</button>
@@ -487,7 +508,7 @@ if(!event){
       <div class="in-succes" id="inSucces" style="display:none">
         <span class="vink">🎉</span>
         <h4>Je staat op de lijst!</h4>
-        <p>Tot ${datumTekst} — we hebben er zin in.</p>
+        <p>Tot ${startTekst} — we hebben er zin in.</p>
         ${betaalUrl ? `<a class="btn gold" style="margin-top:16px" href="${esc(betaalUrl)}" target="_blank" rel="noopener">💳 Rond je inschrijving af: betaal ${esc(prijsTekst) || "nu"}</a>` : ""}
       </div>
     </div>
@@ -512,6 +533,7 @@ if(!event){
         eventId: event.id,
         eventTitel: event.titel,
         eventDatum: event.datum,
+        eventDatumTot: event.datumTot || "",
         voornaam: document.getElementById("inVoornaam").value.trim(),
         achternaam: document.getElementById("inAchternaam").value.trim(),
         naam: `${document.getElementById("inVoornaam").value.trim()} ${document.getElementById("inAchternaam").value.trim()}`.trim(),
@@ -521,6 +543,7 @@ if(!event){
         dochterLeeftijden: metDochters ? document.getElementById("inLeeftijden").value.trim() : "",
         personen: "1",
         dochterMee: metDochters ? document.getElementById("inDochter").checked : false,
+        antwoorden: vragen.map((v,i) => ({vraag: v.tekst, antwoord: document.getElementById("inVraag"+i).value.trim()})),
         opmerking: document.getElementById("inOpmerking").value.trim(),
         voorwaardenAkkoord: true,
         aangemeldOp: new Date().toISOString()

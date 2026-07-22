@@ -160,6 +160,11 @@ textarea{resize:vertical;min-height:74px}
 .type-optie input{width:auto;accent-color:var(--rose);cursor:pointer}
 .cat.roze{color:var(--rose);background:var(--rose-soft);border-color:var(--rose-soft)}
 
+/* inschrijfvragen in het evenementformulier */
+.vraag-rij{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;margin-bottom:8px;animation:slidein .3s ease}
+.vraag-verplicht{display:flex;align-items:center;gap:5px;font-family:var(--font-mono);font-size:.7rem;color:var(--ink-soft);cursor:pointer;user-select:none;white-space:nowrap}
+.vraag-verplicht input{width:auto;accent-color:var(--accent);cursor:pointer}
+
 /* foto-upload */
 .foto-thumbs{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
 .foto-thumb{position:relative;width:64px;height:64px;border-radius:10px;overflow:hidden;border:1px solid var(--line);animation:slidein .3s ease}
@@ -289,16 +294,25 @@ body.ingelogd .sessie{display:flex}
           <input id="titel" required maxlength="80" placeholder="Vlechtworkshop: de basisvlecht">
           <div class="rij">
             <div>
-              <label for="datum">Datum *</label>
+              <label for="datum">Datum van *</label>
               <input id="datum" type="date" required>
             </div>
+            <div>
+              <label for="datumTot">Datum tot</label>
+              <input id="datumTot" type="date">
+            </div>
+          </div>
+          <p class="foto-hint">Laat "Datum tot" leeg voor een eendaags evenement.</p>
+          <div class="rij">
             <div>
               <label for="tijd">Tijd</label>
               <input id="tijd" type="time">
             </div>
+            <div>
+              <label for="locatie">Locatie</label>
+              <input id="locatie" maxlength="80" placeholder="Buurthuis De Schakel">
+            </div>
           </div>
-          <label for="locatie">Locatie</label>
-          <input id="locatie" maxlength="80" placeholder="Buurthuis De Schakel">
           <label>Soort evenement</label>
           <div class="type-keuze">
             <label class="type-optie"><input type="radio" name="evType" value="vlechtworkshop"> 🎀 Vlechtworkshop</label>
@@ -323,8 +337,15 @@ body.ingelogd .sessie{display:flex}
             </div>
           </div>
           <p class="foto-hint">Prijs leeg = gratis. Betaallink: maak een Tikkie, bankbetaalverzoek of Mollie/Stripe payment link en plak hem hier — de betaalknop verschijnt op de evenementpagina.</p>
+          <label for="fotoalbum">Fotoalbum-link (na afloop)</label>
+          <input id="fotoalbum" type="url" maxlength="300" placeholder="https://photos.app.goo.gl/...">
+          <p class="foto-hint">Bijv. een gedeeld Google Foto's-album. Is het evenement geweest, dan verandert de inschrijfknop op de evenementpagina in "📸 Bekijk de foto's" met deze link — zo kan iedereen de foto's daar ophalen.</p>
           <label for="beschrijving">Beschrijving</label>
           <textarea id="beschrijving" maxlength="280" placeholder="Wat gaan we doen, wat neem je mee, zijn dochters welkom?"></textarea>
+          <label>Inschrijfvragen <span style="font-weight:400;color:var(--ink-soft)">(eigen vragen in het inschrijfformulier)</span></label>
+          <div id="vragenLijst"></div>
+          <button type="button" class="btn stil klein" id="vraagToevoegen">➕ Vraag toevoegen</button>
+          <p class="foto-hint">Deze vragen krijgt elke papa te zien bij het inschrijven voor dit evenement. De antwoorden zie je terug bij Inschrijvingen en in de Excel-export.</p>
           <label for="fotoKies">Foto's</label>
           <input type="file" id="fotoInput" accept="image/*" multiple hidden>
           <button type="button" class="btn stil klein" id="fotoKies">📷 Foto's toevoegen</button>
@@ -394,6 +415,7 @@ body.ingelogd .sessie{display:flex}
             </div>
           </div>
           <label class="check" id="inschrijfDochterVeld"><input type="checkbox" id="inschrijfDochter"> Dochter(s) mee</label>
+          <div id="inschrijfVragenVeld"></div>
           <label for="inschrijfOpmerking">Opmerking</label>
           <textarea id="inschrijfOpmerking" maxlength="240" placeholder="Allergieën, vragen, bijzonderheden (optioneel)"></textarea>
           <div class="form-acties">
@@ -443,7 +465,7 @@ body.ingelogd .sessie{display:flex}
           <textarea id="sjabloonTekst" required rows="9" style="min-height:180px" placeholder="Hoi {naam},&#10;&#10;Over twee weken is het zover..."></textarea>
           <label>Dynamische velden <span style="font-weight:400;color:var(--ink-soft)">(klik om in te voegen)</span></label>
           <div class="veld-chips" id="veldChips"></div>
-          <p class="foto-hint">Velden worden bij het versturen automatisch ingevuld met de gegevens van het evenement. Omdat groepsmails via BCC gaan, worden {naam} en {voornaam} daarin "papa's" en vervalt {achternaam}. {dochters} wordt "dochters zijn van harte welkom" of "dit keer zonder dochters".</p>
+          <p class="foto-hint">Velden worden bij het versturen automatisch ingevuld met de gegevens van het evenement. Omdat groepsmails via BCC gaan, worden {naam} en {voornaam} daarin "papa's" en vervalt {achternaam}. {dochters} wordt "dochters zijn van harte welkom" of "dit keer zonder dochters". {datum} toont bij een meerdaags evenement automatisch "van t/m tot". {fotoalbum} is de fotoalbum-link van het evenement (leeg als die er niet is).</p>
           <div class="form-acties">
             <button type="submit" class="btn gold" id="sjabloonOpslaanBtn">Opslaan 🎉</button>
             <button type="button" class="btn stil" id="sjabloonAnnuleerBtn" style="display:none">Annuleer</button>
@@ -526,10 +548,20 @@ function vandaag(){ const t=new Date(); t.setHours(0,0,0,0); return t; }
 function evType(e){ return e.type || (e.categorie === "Workshop" ? "vlechtworkshop" : "ander"); }
 /* Evenementen van voor dit veld (undefined) blijven dochters toestaan — alleen expliciet uitgevinkt is nee */
 function dochtersWelkom(e){ return e.dochtersWelkom !== false; }
+/* Einddatum: datumTot als die er is, anders de (start)datum — bepaalt of een evenement voorbij is */
+function eindDatum(e){ return e.datumTot || e.datum; }
+/* Eigen inschrijfvragen van een evenement (ouder evenement zonder veld → geen vragen) */
+function evVragen(e){ return Array.isArray(e && e.vragen) ? e.vragen.filter(v=>v && v.tekst) : []; }
 /* Mooie leesbare evenement-URL op basis van de titel (zelfde functie als op de publieke pagina's) */
 function slugify(t){ return (t||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,""); }
 function openLanding(id){ const e = load().find(x=>x.id===id); if(e) window.open("../evenement.html?e="+slugify(e.titel), "_blank"); }
 function fmtDatum(iso){ const d=new Date(iso); return `${d.getDate()} ${maanden[d.getMonth()]} '${String(d.getFullYear()).slice(2)}`; }
+/* "18 jul '26" of "18 jul '26 t/m 19 jul '26" — werkt met (datum, datumTot) van evenement of inschrijving */
+function fmtBereik(datum, datumTot){
+  if(!datum) return "";
+  const van = fmtDatum(datum+"T00:00:00");
+  return (datumTot && datumTot!==datum) ? `${van} t/m ${fmtDatum(datumTot+"T00:00:00")}` : van;
+}
 
 /* ---------- Inloggen & beheerders ----------
    Client-side slot: wachtwoorden worden nooit leesbaar opgeslagen, alleen
@@ -706,7 +738,7 @@ function renderStats(){
   const events = load(), signups = loadList(SIGNUP_KEY), wa = loadList(WA_KEY);
   const t = vandaag();
   zetStat("statTotaal", events.length);
-  zetStat("statKomend", events.filter(e=>new Date(e.datum+"T00:00:00")>=t).length);
+  zetStat("statKomend", events.filter(e=>new Date(eindDatum(e)+"T00:00:00")>=t).length);
   zetStat("statUitgelicht", events.filter(e=>e.uitgelicht).length);
   zetStat("statInschrijvingen", signups.length);
   document.getElementById("statWhatsapp").textContent = wa.filter(w=>w.status!=="toegevoegd").length + " nieuw";
@@ -732,8 +764,8 @@ function renderEvents(){
   const t = vandaag();
   const signups = loadList(SIGNUP_KEY);
   let toon = events;
-  if(filter==="komend") toon = events.filter(e=>new Date(e.datum+"T00:00:00")>=t);
-  if(filter==="voorbij") toon = events.filter(e=>new Date(e.datum+"T00:00:00")<t).reverse();
+  if(filter==="komend") toon = events.filter(e=>new Date(eindDatum(e)+"T00:00:00")>=t);
+  if(filter==="voorbij") toon = events.filter(e=>new Date(eindDatum(e)+"T00:00:00")<t).reverse();
 
   const lijst = document.getElementById("eventLijst");
   if(toon.length===0){
@@ -742,13 +774,15 @@ function renderEvents(){
   }
   lijst.innerHTML = toon.map(e=>{
     const d = new Date(e.datum+"T00:00:00");
-    const voorbij = d < t;
+    const voorbij = new Date(eindDatum(e)+"T00:00:00") < t;
+    const meerdaags = e.datumTot && e.datumTot!==e.datum;
+    const nVragen = evVragen(e).length;
     const n = signups.filter(s=>s.eventId===e.id).length;
     return `<div class="ev ${voorbij?"voorbij":""}" data-id="${e.id}">
       <div class="ev-datum"><div class="dag">${d.getDate()}</div><div class="mnd">${maanden[d.getMonth()]} '${String(d.getFullYear()).slice(2)}</div></div>
       <div class="ev-info">
         <h3><span class="ster ${e.uitgelicht?"aan":""}" title="Uitlichten aan/uit" onclick="toggleSter('${e.id}')">🌟</span>${esc(e.titel)}<span class="cat ${evType(e)==="vlechtworkshop"?"roze":""}">${evType(e)==="vlechtworkshop"?"🎀 vlechtworkshop":"🎪 ander evenement"}</span><span class="cat">${esc(e.categorie||"Anders")}</span></h3>
-        <div class="meta"><span>🕙 ${esc(e.tijd||"n.t.b.")}</span><span>📍 ${esc(e.locatie||"n.t.b.")}</span><span>🎟️ ${n} inschrijving${n===1?"":"en"}</span><span>💶 ${e.prijs?"€"+esc(e.prijs):"gratis"}</span><span>${dochtersWelkom(e)?"🎀 dochters mee":"👨 alleen papa's"}</span>${e.fotos&&e.fotos.length?`<span>📷 ${e.fotos.length}</span>`:""}${e.aangemaaktDoor?`<span title="Aangemaakt door">👤 ${esc(e.aangemaaktDoor)}</span>`:""}</div>
+        <div class="meta">${meerdaags?`<span>📅 ${fmtBereik(e.datum, e.datumTot)}</span>`:""}<span>🕙 ${esc(e.tijd||"n.t.b.")}</span><span>📍 ${esc(e.locatie||"n.t.b.")}</span><span>🎟️ ${n} inschrijving${n===1?"":"en"}</span>${nVragen?`<span title="Eigen inschrijfvragen">❓ ${nVragen} ${nVragen===1?"vraag":"vragen"}</span>`:""}<span>💶 ${e.prijs?"€"+esc(e.prijs):"gratis"}</span><span>${dochtersWelkom(e)?"🎀 dochters mee":"👨 alleen papa's"}</span>${e.fotos&&e.fotos.length?`<span>📷 ${e.fotos.length}</span>`:""}${e.fotoalbum?`<span title="Fotoalbum-link">📸 album</span>`:""}${e.aangemaaktDoor?`<span title="Aangemaakt door">👤 ${esc(e.aangemaaktDoor)}</span>`:""}</div>
       </div>
       <div class="ev-acties">
         <button class="icoon-btn groen" title="Landingspagina openen" onclick="openLanding('${e.id}')">🔗</button>
@@ -795,9 +829,33 @@ function renderFotoThumbs(){
 }
 function verwijderFoto(i){ formFotos.splice(i,1); renderFotoThumbs(); }
 
+/* ---------- Inschrijfvragen bij evenement ----------
+   Zelfde patroon als formFotos: een losse array die pas bij Opslaan
+   op het evenement belandt. Typen werkt de array direct bij (geen
+   re-render, anders verliest het veld de focus). */
+let formVragen = [];
+function renderVragen(){
+  document.getElementById("vragenLijst").innerHTML = formVragen.map((v,i)=>`
+    <div class="vraag-rij">
+      <input type="text" maxlength="120" placeholder="Bijv. Heb je allergieën?" value="${xmlEsc(v.tekst)}" oninput="formVragen[${i}].tekst=this.value" aria-label="Vraag ${i+1}">
+      <label class="vraag-verplicht" title="Moet verplicht beantwoord worden"><input type="checkbox" ${v.verplicht?"checked":""} onchange="formVragen[${i}].verplicht=this.checked">verplicht</label>
+      <button type="button" class="icoon-btn verwijder" title="Vraag verwijderen" onclick="verwijderVraag(${i})">🗑️</button>
+    </div>`).join("");
+}
+document.getElementById("vraagToevoegen").addEventListener("click", ()=>{
+  formVragen.push({id:"vr-"+Date.now()+"-"+formVragen.length, tekst:"", verplicht:false});
+  renderVragen();
+  const inputs = document.querySelectorAll("#vragenLijst .vraag-rij input[type=text]");
+  if(inputs.length) inputs[inputs.length-1].focus();
+});
+function verwijderVraag(i){ formVragen.splice(i,1); renderVragen(); }
+
 document.getElementById("eventForm").addEventListener("submit", ev=>{
   ev.preventDefault();
   const id = document.getElementById("editId").value;
+  const datum = document.getElementById("datum").value;
+  const datumTot = document.getElementById("datumTot").value;
+  if(datumTot && datumTot < datum){ toast("De einddatum ligt vóór de startdatum 📅"); return; }
   /* bij bewerken blijft de oorspronkelijke maker staan */
   const bestaandEvent = id ? load().find(e=>e.id===id) : null;
   const item = {
@@ -805,15 +863,18 @@ document.getElementById("eventForm").addEventListener("submit", ev=>{
     aangemaaktDoor: bestaandEvent ? bestaandEvent.aangemaaktDoor : ingelogdeNaam(),
     titel: document.getElementById("titel").value.trim(),
     type: document.querySelector('input[name="evType"]:checked').value,
-    datum: document.getElementById("datum").value,
+    datum,
+    datumTot: datumTot && datumTot !== datum ? datumTot : "",
     tijd: document.getElementById("tijd").value,
     locatie: document.getElementById("locatie").value.trim(),
     categorie: document.getElementById("categorie").value,
     prijs: document.getElementById("prijs").value.trim().replace(/^€\s*/, ""),
     betaallink: document.getElementById("betaallink").value.trim(),
+    fotoalbum: document.getElementById("fotoalbum").value.trim(),
     beschrijving: document.getElementById("beschrijving").value.trim(),
     dochtersWelkom: document.getElementById("dochtersWelkom").checked,
     uitgelicht: document.getElementById("uitgelicht").checked,
+    vragen: formVragen.map(v=>({id:v.id, tekst:v.tekst.trim(), verplicht:!!v.verplicht})).filter(v=>v.tekst),
     fotos: formFotos.slice()
   };
   let events = load();
@@ -833,14 +894,18 @@ function bewerk(id){
   document.getElementById("titel").value = e.titel;
   document.querySelector(`input[name="evType"][value="${evType(e)}"]`).checked = true;
   document.getElementById("datum").value = e.datum;
+  document.getElementById("datumTot").value = e.datumTot||"";
   document.getElementById("tijd").value = e.tijd||"";
   document.getElementById("locatie").value = e.locatie||"";
   document.getElementById("categorie").value = e.categorie||"Anders";
   document.getElementById("prijs").value = e.prijs||"";
   document.getElementById("betaallink").value = e.betaallink||"";
+  document.getElementById("fotoalbum").value = e.fotoalbum||"";
   document.getElementById("beschrijving").value = e.beschrijving||"";
   document.getElementById("dochtersWelkom").checked = dochtersWelkom(e);
   document.getElementById("uitgelicht").checked = !!e.uitgelicht;
+  formVragen = evVragen(e).map(v=>({...v}));
+  renderVragen();
   formFotos = (e.fotos||[]).slice();
   renderFotoThumbs();
   document.getElementById("formTitel").textContent = "✏️ Evenement bewerken";
@@ -875,6 +940,8 @@ function resetForm(){
   document.getElementById("editId").value = "";
   formFotos = [];
   renderFotoThumbs();
+  formVragen = [];
+  renderVragen();
   document.getElementById("formTitel").textContent = "✨ Nieuw evenement";
   document.getElementById("opslaanBtn").textContent = "Opslaan 🎉";
   document.getElementById("annuleerBtn").style.display = "none";
@@ -908,12 +975,13 @@ function renderInschrijvingen(){
       const ev = events.find(e=>e.id===eventId);
       const titel = ev ? ev.titel : (rows[0].eventTitel || "Verwijderd evenement");
       const datum = ev ? ev.datum : rows[0].eventDatum;
+      const datumTot = ev ? ev.datumTot : rows[0].eventDatumTot;
       const totaal = rows.reduce((n,s)=>n+(parseInt(s.personen)||1),0);
       const heeftPrijs = !!(ev && ev.prijs);
       const nBetaald = rows.filter(s=>s.betaald).length;
       return `<div class="groep">
         <div class="groep-kop">
-          <h3>${esc(titel)}${!ev?' <span class="status-pill nieuw">evenement verwijderd</span>':''}<span class="datum">${datum?fmtDatum(datum+"T00:00:00"):""}</span>${heeftPrijs?`<span class="status-pill ${nBetaald===rows.length?"toegevoegd":"nieuw"}">💶 ${nBetaald}/${rows.length} betaald</span>`:""}</h3>
+          <h3>${esc(titel)}${!ev?' <span class="status-pill nieuw">evenement verwijderd</span>':''}<span class="datum">${fmtBereik(datum, datumTot)}</span>${heeftPrijs?`<span class="status-pill ${nBetaald===rows.length?"toegevoegd":"nieuw"}">💶 ${nBetaald}/${rows.length} betaald</span>`:""}</h3>
           <div style="display:flex;gap:8px;align-items:center">
             <div class="mail-menu">
               <button class="btn stil klein">📧 Mail ▾</button>
@@ -927,6 +995,7 @@ function renderInschrijvingen(){
           <div>
             <div class="naam">${esc(s.naam)}${s.dochterMee?'<span class="pill">🎀 dochter mee</span>':''}${s.betaald?'<span class="pill betaald">💶 betaald</span>':(heeftPrijs?'<span class="pill open">nog niet betaald</span>':'')}</div>
             <div class="detail">${s.email?`<span>📧 ${esc(s.email)}</span>`:""}${(s.telefoon||s.contact)?`<span>📞 ${esc(s.telefoon||s.contact)}</span>`:""}${s.woonplaats?`<span>🏠 ${esc(s.woonplaats)}</span>`:""}${s.dochterLeeftijden?`<span>👧 ${esc(s.dochterLeeftijden)} jaar</span>`:""}${(parseInt(s.personen)||1)>1?`<span>👥 ${esc(s.personen)} papa's (oude inschrijving)</span>`:""}<span>🗓️ aangemeld ${fmtDatum(s.aangemeldOp)}</span>${s.betaald&&s.betaaldDoor?`<span>💶 afgevinkt door ${esc(s.betaaldDoor)}${s.betaaldOp?` op ${fmtDatum(s.betaaldOp)}`:""}</span>`:""}</div>
+            ${(s.antwoorden||[]).filter(a=>a.antwoord).map(a=>`<div class="opm">❓ ${esc(a.vraag)}: <b>${esc(a.antwoord)}</b></div>`).join("")}
             ${s.opmerking?`<div class="opm">"${esc(s.opmerking)}"</div>`:""}
           </div>
           <div class="ev-acties">
@@ -945,7 +1014,7 @@ function renderInschrijfEventOpties(){
   const huidige = select.value;
   const events = load().sort((a,b)=>a.datum.localeCompare(b.datum));
   select.innerHTML = `<option value="" disabled ${huidige?"":"selected"}>Kies een evenement…</option>`
-    + events.map(e=>`<option value="${e.id}">${esc(e.titel)} — ${fmtDatum(e.datum+"T00:00:00")}</option>`).join("");
+    + events.map(e=>`<option value="${e.id}">${esc(e.titel)} — ${fmtBereik(e.datum, e.datumTot)}</option>`).join("");
   if(huidige && events.some(e=>e.id===huidige)) select.value = huidige;
   updateInschrijfDochterVelden();
 }
@@ -962,7 +1031,22 @@ function updateInschrijfDochterVelden(forceTonen){
     document.getElementById("inschrijfDochter").checked = false;
   }
 }
-document.getElementById("inschrijfEvent").addEventListener("change", ()=>updateInschrijfDochterVelden());
+document.getElementById("inschrijfEvent").addEventListener("change", ()=>{ updateInschrijfDochterVelden(); renderInschrijfVragen(); });
+
+/* Inschrijfvragen van het gekozen evenement in het beheerformulier.
+   bestaande = eerder gegeven antwoorden (bij bewerken); bij een verwijderd
+   evenement tonen we die antwoorden zodat ze niet verloren gaan. */
+function renderInschrijfVragen(bestaande){
+  const ev = load().find(e=>e.id===document.getElementById("inschrijfEvent").value);
+  const vragen = ev ? evVragen(ev) : [];
+  const antwoorden = bestaande || [];
+  const items = vragen.length
+    ? vragen.map(v=>({tekst:v.tekst, antwoord:((antwoorden.find(a=>a.vraag===v.tekst)||{}).antwoord)||""}))
+    : antwoorden.map(a=>({tekst:a.vraag, antwoord:a.antwoord||""}));
+  document.getElementById("inschrijfVragenVeld").innerHTML = items.map((v,i)=>`
+    <label for="inschrijfVraag${i}">❓ ${esc(v.tekst)}</label>
+    <input id="inschrijfVraag${i}" data-vraag="${xmlEsc(v.tekst)}" maxlength="240" value="${xmlEsc(v.antwoord)}" placeholder="Antwoord (optioneel)">`).join("");
+}
 
 document.getElementById("inschrijfBeheerForm").addEventListener("submit", ev=>{
   ev.preventDefault();
@@ -976,6 +1060,7 @@ document.getElementById("inschrijfBeheerForm").addEventListener("submit", ev=>{
     eventId: gekozenEvent.id,
     eventTitel: gekozenEvent.titel,
     eventDatum: gekozenEvent.datum,
+    eventDatumTot: gekozenEvent.datumTot || "",
     voornaam: document.getElementById("inschrijfVoornaam").value.trim(),
     achternaam: document.getElementById("inschrijfAchternaam").value.trim(),
     naam: `${document.getElementById("inschrijfVoornaam").value.trim()} ${document.getElementById("inschrijfAchternaam").value.trim()}`.trim(),
@@ -985,6 +1070,7 @@ document.getElementById("inschrijfBeheerForm").addEventListener("submit", ev=>{
     dochterLeeftijden: document.getElementById("inschrijfLeeftijden").value.trim(),
     personen: "1",
     dochterMee: document.getElementById("inschrijfDochter").checked,
+    antwoorden: [...document.querySelectorAll("#inschrijfVragenVeld input[data-vraag]")].map(el=>({vraag: el.dataset.vraag, antwoord: el.value.trim()})),
     opmerking: document.getElementById("inschrijfOpmerking").value.trim(),
     betaald: bestaand ? !!bestaand.betaald : false,
     aangemeldOp: bestaand ? bestaand.aangemeldOp : new Date().toISOString()
@@ -1017,6 +1103,7 @@ function bewerkInschrijving(id){
   document.getElementById("inschrijfLeeftijden").value = s.dochterLeeftijden || "";
   document.getElementById("inschrijfDochter").checked = !!s.dochterMee;
   updateInschrijfDochterVelden(!!(s.dochterMee || s.dochterLeeftijden));
+  renderInschrijfVragen(s.antwoorden || []);
   document.getElementById("inschrijfOpmerking").value = s.opmerking || "";
   document.getElementById("inschrijfFormTitel").textContent = "✏️ Inschrijving bewerken";
   document.getElementById("inschrijfOpslaanBtn").textContent = "Bijwerken ✔";
@@ -1032,6 +1119,7 @@ function resetInschrijfForm(){
   document.getElementById("inschrijfOpslaanBtn").textContent = "Opslaan 🎉";
   document.getElementById("inschrijfAnnuleerBtn").style.display = "none";
   renderInschrijfEventOpties();
+  renderInschrijfVragen();
 }
 document.getElementById("inschrijfAnnuleerBtn").addEventListener("click", resetInschrijfForm);
 
@@ -1067,7 +1155,7 @@ function verwijderInschrijving(id){
    {naam} wordt in een groepsmail "papa's" (bij BCC kan er niet per
    ontvanger gepersonaliseerd worden). */
 const SJABLOON_KEY = "pp_mail_sjablonen";
-const SJABLOON_VELDEN = ["{naam}","{voornaam}","{achternaam}","{evenement}","{datum}","{tijd}","{locatie}","{categorie}","{beschrijving}","{dochters}","{link}"];
+const SJABLOON_VELDEN = ["{naam}","{voornaam}","{achternaam}","{evenement}","{datum}","{tijd}","{locatie}","{categorie}","{beschrijving}","{dochters}","{link}","{fotoalbum}"];
 const SITE_URL = "https://jantjesuper-max.github.io/papas-en-ponys";
 
 const seedSjablonen = [
@@ -1095,13 +1183,14 @@ function vulSjabloon(tekst, ev){
     "{voornaam}": "papa's",
     "{achternaam}": "",
     "{evenement}": ev ? ev.titel : "Papa & Pony's",
-    "{datum}": ev && ev.datum ? fmtDatumLang(ev.datum) : "",
+    "{datum}": ev && ev.datum ? (ev.datumTot && ev.datumTot!==ev.datum ? `${fmtDatumLang(ev.datum)} t/m ${fmtDatumLang(ev.datumTot)}` : fmtDatumLang(ev.datum)) : "",
     "{tijd}": ev ? (ev.tijd || "n.t.b.") : "",
     "{locatie}": ev ? (ev.locatie || "n.t.b.") : "",
     "{categorie}": ev ? (ev.categorie || "") : "",
     "{beschrijving}": ev ? (ev.beschrijving || "") : "",
     "{dochters}": ev ? (dochtersWelkom(ev) ? "dochters zijn van harte welkom" : "dit keer zonder dochters") : "",
-    "{link}": ev ? `${SITE_URL}/evenement.html?e=${slugify(ev.titel)}` : SITE_URL
+    "{link}": ev ? `${SITE_URL}/evenement.html?e=${slugify(ev.titel)}` : SITE_URL,
+    "{fotoalbum}": ev ? (ev.fotoalbum || "") : ""
   };
   return Object.entries(waarden).reduce((t,[veld,waarde]) => t.split(veld).join(waarde), tekst);
 }
@@ -1242,7 +1331,7 @@ document.getElementById("exportInschrijvingen").addEventListener("click", ()=>{
   const signups = loadList(SIGNUP_KEY);
   if(signups.length===0){ toast("Niets te exporteren"); return; }
   const adressen = mailAdressen(signups);
-  const kolommen = ["Voornaam","Achternaam","E-mail","Telefoon","Woonplaats","Leeftijd dochters","Dochter mee","Betaald","Opmerking","Aangemeld op"];
+  const basisKolommen = ["Voornaam","Achternaam","E-mail","Telefoon","Woonplaats","Leeftijd dochters","Dochter mee","Betaald","Opmerking","Aangemeld op"];
 
   const groepen = {};
   signups.forEach(s=>{ (groepen[s.eventId]=groepen[s.eventId]||[]).push(s); });
@@ -1252,13 +1341,18 @@ document.getElementById("exportInschrijvingen").addEventListener("click", ()=>{
     .sort((a,b)=>(a[0].eventDatum||"").localeCompare(b[0].eventDatum||""))
     .forEach(rows=>{
       const groepAdressen = mailAdressen(rows);
-      rijen += `<Row/><Row ss:Height="22"><Cell ss:StyleID="groep" ss:MergeAcross="7"><Data ss:Type="String">🗓️ ${xmlEsc(rows[0].eventTitel||"Evenement")} — ${xmlEsc(fmtDatum((rows[0].eventDatum||"2000-01-01")+"T00:00:00"))}</Data></Cell>${groepAdressen.length?`<Cell ss:StyleID="link" ss:MergeAcross="1" ss:HRef="${xmlEsc(mailtoLink(groepAdressen,"Papa & Pony's — "+(rows[0].eventTitel||"")))}"><Data ss:Type="String">📧 Mail deze groep</Data></Cell>`:""}</Row>`;
-      rijen += `<Row>${kolommen.map(k=>`<Cell ss:StyleID="kop"><Data ss:Type="String">${k}</Data></Cell>`).join("")}</Row>`;
+      /* eigen inschrijfvragen van dit evenement als extra kolommen (unie over alle rijen,
+         zodat ook antwoorden op inmiddels gewijzigde/verwijderde vragen zichtbaar blijven) */
+      const vraagKolommen = [...new Set(rows.flatMap(s=>(s.antwoorden||[]).map(a=>a.vraag)))];
+      const kolommen = basisKolommen.concat(vraagKolommen);
+      rijen += `<Row/><Row ss:Height="22"><Cell ss:StyleID="groep" ss:MergeAcross="7"><Data ss:Type="String">🗓️ ${xmlEsc(rows[0].eventTitel||"Evenement")} — ${xmlEsc(fmtBereik(rows[0].eventDatum||"2000-01-01", rows[0].eventDatumTot))}</Data></Cell>${groepAdressen.length?`<Cell ss:StyleID="link" ss:MergeAcross="1" ss:HRef="${xmlEsc(mailtoLink(groepAdressen,"Papa & Pony's — "+(rows[0].eventTitel||"")))}"><Data ss:Type="String">📧 Mail deze groep</Data></Cell>`:""}</Row>`;
+      rijen += `<Row>${kolommen.map(k=>`<Cell ss:StyleID="kop"><Data ss:Type="String">${xmlEsc(k)}</Data></Cell>`).join("")}</Row>`;
       rows.sort((a,b)=>(a.aangemeldOp||"").localeCompare(b.aangemeldOp||"")).forEach((s,i)=>{
         const stijl = i%2 ? "rijB" : "rijA";
         const cel = v=>`<Cell ss:StyleID="${stijl}"><Data ss:Type="String">${xmlEsc(v)}</Data></Cell>`;
         const naamDelen = (s.naam||"").split(" ");
-        rijen += `<Row>${cel(s.voornaam||naamDelen[0]||"")}${cel(s.achternaam||naamDelen.slice(1).join(" "))}${cel(s.email||s.contact||"")}${cel(s.telefoon||"")}${cel(s.woonplaats||"")}${cel(s.dochterLeeftijden||"")}${cel(s.dochterMee?"ja":"nee")}${cel(s.betaald?("ja"+(s.betaaldDoor?` (${s.betaaldDoor})`:"")):"nee")}${cel(s.opmerking||"")}${cel((s.aangemeldOp||"").slice(0,10))}</Row>`;
+        const antwoordCellen = vraagKolommen.map(k=>cel((((s.antwoorden||[]).find(a=>a.vraag===k))||{}).antwoord||"")).join("");
+        rijen += `<Row>${cel(s.voornaam||naamDelen[0]||"")}${cel(s.achternaam||naamDelen.slice(1).join(" "))}${cel(s.email||s.contact||"")}${cel(s.telefoon||"")}${cel(s.woonplaats||"")}${cel(s.dochterLeeftijden||"")}${cel(s.dochterMee?"ja":"nee")}${cel(s.betaald?("ja"+(s.betaaldDoor?` (${s.betaaldDoor})`:"")):"nee")}${cel(s.opmerking||"")}${cel((s.aangemeldOp||"").slice(0,10))}${antwoordCellen}</Row>`;
       });
     });
 

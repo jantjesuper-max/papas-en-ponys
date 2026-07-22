@@ -5,6 +5,20 @@ Het format volgt [Keep a Changelog](https://keepachangelog.com/nl/1.1.0/).
 
 ## [Unreleased]
 
+## [0.19.0] - 2026-07-22
+
+### Toegevoegd
+- Evenementen kunnen meerdaags zijn: nieuw optioneel veld `datumTot` ("Datum van/tot" in het beheer; leeg = eendaags)
+  - Homepage-kaart, inschrijfmodal, evenementpagina (hero, info-kaart), beheerlijsten, mailsjabloonveld `{datum}` en de Excel-export tonen het bereik ("14 t/m 16 augustus 2027")
+  - Een meerdaags evenement telt pas als "voorbij" wanneer de einddatum voorbij is (helper `eindDatum(e)`, gedupliceerd in alle drie de pagina's); het beheer weigert een einddatum vóór de startdatum
+  - Event-schema (JSON-LD) krijgt een `endDate`; inschrijvingen denormaliseren `eventDatumTot`
+- Eigen inschrijfvragen per evenement: nieuw veld `vragen` (`{id, tekst, verplicht}`), te beheren in het evenementformulier ("➕ Vraag toevoegen", per vraag een verplicht-vinkje)
+  - De vragen verschijnen als extra velden in alle drie de inschrijfformulieren (homepage-modal, evenementpagina, beheer); verplichte vragen blokkeren het versturen tot ze zijn ingevuld
+  - Antwoorden worden met de vraagtekst op de inschrijving opgeslagen (`antwoorden`), zijn zichtbaar bij Inschrijvingen in het beheer en komen als extra kolommen per evenement terug in de Excel-export
+- Fotoalbum-link per evenement: nieuw veld `fotoalbum` (bijv. een gedeeld Google Foto's-album)
+  - Is het evenement geweest, dan verandert de inschrijfknop op de evenementpagina in "📸 Bekijk de foto's" (hero én info-kaart) met deze link; alleen http(s)-links worden gerenderd
+  - Nieuw sjabloonveld `{fotoalbum}` voor bijvoorbeeld naslag-mails; de betaalknop verdwijnt bij afgelopen evenementen
+
 ## [0.18.0] - 2026-07-22
 
 ### Toegevoegd

@@ -541,6 +541,7 @@ footer .admin-link:hover{color:var(--accent-deep);border-color:var(--accent)}
         </div>
         <label class="check" id="inDochterVeld"><input type="checkbox" id="inDochter"> Dochter(s) mee</label>
         <p class="modal-sub" style="margin-top:10px">Komt er een vriend mee? Dan schrijft hij zich ook even los in.</p>
+        <div id="inVragenWrap"></div>
         <label for="inOpmerking">Opmerking</label>
         <textarea id="inOpmerking" maxlength="240" placeholder="Allergieën, vragen, of gewoon iets leuks (optioneel)"></textarea>
         <label class="check akkoord"><input type="checkbox" id="inAkkoord" required><span>Ik ga akkoord met de <a href="voorwaarden.html" target="_blank" rel="noopener">algemene voorwaarden</a>, waaronder betalen bij aanmelding *</span></label>
@@ -595,6 +596,12 @@ const maanden = ["jan","feb","mrt","apr","mei","jun","jul","aug","sep","okt","no
 function evType(e){ return e.type || (e.categorie === "Workshop" ? "vlechtworkshop" : "ander"); }
 /* Evenementen van voor dit veld (undefined) blijven dochters toestaan — alleen expliciet uitgevinkt is nee */
 function dochtersWelkom(e){ return e.dochtersWelkom !== false; }
+/* Einddatum: datumTot als die er is, anders de (start)datum — bepaalt of een evenement voorbij is */
+function eindDatum(e){ return e.datumTot || e.datum; }
+/* Eigen inschrijfvragen van een evenement (ouder evenement zonder veld → geen vragen) */
+function evVragen(e){ return Array.isArray(e && e.vragen) ? e.vragen.filter(v=>v && v.tekst) : []; }
+/* Zoals esc(), maar ook veilig binnen een attribuut met dubbele quotes */
+function escAttr(s){ return esc(s).replace(/"/g,"&quot;"); }
 /* Mooie leesbare evenement-URL op basis van de titel; ?id= blijft als fallback werken */
 function slugify(t){ return (t||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,""); }
 function eventUrl(e){ return `evenement.html?e=${slugify(e.titel)}`; }
@@ -620,7 +627,7 @@ function renderEvents(){
   const list = document.getElementById("eventList");
   const today = new Date(); today.setHours(0,0,0,0);
   const events = loadEvents()
-    .filter(e => new Date(e.datum + "T00:00:00") >= today)
+    .filter(e => new Date(eindDatum(e) + "T00:00:00") >= today)
     .sort((a,b) => a.datum.localeCompare(b.datum));
   if(events.length === 0){
     list.innerHTML = `<div class="events-empty"><span class="icon">🗓️</span>Nog geen geplande evenementen. Hou de WhatsApp-groep in de gaten!</div>`;
@@ -629,12 +636,13 @@ function renderEvents(){
   const signups = loadList(SIGNUP_KEY);
   list.innerHTML = events.map((e,i) => {
     const d = new Date(e.datum + "T00:00:00");
+    const dt = e.datumTot && e.datumTot !== e.datum ? new Date(e.datumTot + "T00:00:00") : null;
     const aantal = signups.filter(s => s.eventId === e.id).reduce((n,s) => n + (parseInt(s.personen)||1), 0);
     return `<article class="event-card reveal" style="transition-delay:${i*80}ms">
       <div class="event-date"><div class="day">${d.getDate()}</div><div class="month">${maanden[d.getMonth()]}</div></div>
       <div class="event-info">
         <h3><a href="${eventUrl(e)}">${esc(e.titel)}</a>${e.uitgelicht ? '<span class="badge">uitgelicht</span>' : ''}</h3>
-        <div class="meta"><span>🕙 ${esc(e.tijd || "n.t.b.")}</span><span>📍 ${esc(e.locatie || "n.t.b.")}</span>${e.prijs ? `<span>💶 €${esc(e.prijs)}</span>` : ""}${aantal > 0 ? `<span>👥 ${aantal} aangemeld</span>` : ""}</div>
+        <div class="meta">${dt ? `<span>📅 t/m ${dt.getDate()} ${maanden[dt.getMonth()]}</span>` : ""}<span>🕙 ${esc(e.tijd || "n.t.b.")}</span><span>📍 ${esc(e.locatie || "n.t.b.")}</span>${e.prijs ? `<span>💶 €${esc(e.prijs)}</span>` : ""}${aantal > 0 ? `<span>👥 ${aantal} aangemeld</span>` : ""}</div>
         ${e.beschrijving ? `<p class="beschrijving">${esc(e.beschrijving)}</p>` : ""}
       </div>
       <div class="event-zij">
@@ -679,11 +687,19 @@ function openInschrijf(id){
   if(!e) return;
   actiefEvent = e;
   const d = new Date(e.datum + "T00:00:00");
+  let datumTekst = `${d.getDate()} ${maanden[d.getMonth()]}`;
+  if(e.datumTot && e.datumTot !== e.datum){
+    const dt = new Date(e.datumTot + "T00:00:00");
+    datumTekst += ` t/m ${dt.getDate()} ${maanden[dt.getMonth()]}`;
+  }
   document.getElementById("modalTitel").textContent = "Inschrijven: " + e.titel;
-  document.getElementById("modalSub").textContent = `${d.getDate()} ${maanden[d.getMonth()]} · ${e.tijd || "n.t.b."} · ${e.locatie || "locatie n.t.b."}`;
+  document.getElementById("modalSub").textContent = `${datumTekst} · ${e.tijd || "n.t.b."} · ${e.locatie || "locatie n.t.b."}`;
   document.getElementById("modalFormWrap").style.display = "";
   document.getElementById("modalSucces").style.display = "none";
   document.getElementById("inschrijfForm").reset();
+  /* eigen inschrijfvragen van dit evenement */
+  document.getElementById("inVragenWrap").innerHTML = evVragen(e).map((v,i) =>
+    `<div><label for="inVraag${i}">${esc(v.tekst)}${v.verplicht ? " *" : ""}</label><input id="inVraag${i}" ${v.verplicht ? "required" : ""} maxlength="240" aria-label="${escAttr(v.tekst)}"></div>`).join("");
   const metDochters = dochtersWelkom(e);
   document.getElementById("inLeeftijdenVeld").style.display = metDochters ? "" : "none";
   document.getElementById("inDochterVeld").style.display = metDochters ? "" : "none";
@@ -704,6 +720,7 @@ document.getElementById("inschrijfForm").addEventListener("submit", ev => {
     eventId: actiefEvent.id,
     eventTitel: actiefEvent.titel,
     eventDatum: actiefEvent.datum,
+    eventDatumTot: actiefEvent.datumTot || "",
     voornaam: document.getElementById("inVoornaam").value.trim(),
     achternaam: document.getElementById("inAchternaam").value.trim(),
     naam: `${document.getElementById("inVoornaam").value.trim()} ${document.getElementById("inAchternaam").value.trim()}`.trim(),
@@ -713,6 +730,7 @@ document.getElementById("inschrijfForm").addEventListener("submit", ev => {
     dochterLeeftijden: dochtersWelkom(actiefEvent) ? document.getElementById("inLeeftijden").value.trim() : "",
     personen: "1",
     dochterMee: dochtersWelkom(actiefEvent) ? document.getElementById("inDochter").checked : false,
+    antwoorden: evVragen(actiefEvent).map((v,i) => ({vraag: v.tekst, antwoord: document.getElementById("inVraag"+i).value.trim()})),
     opmerking: document.getElementById("inOpmerking").value.trim(),
     voorwaardenAkkoord: true,
     aangemeldOp: new Date().toISOString()
