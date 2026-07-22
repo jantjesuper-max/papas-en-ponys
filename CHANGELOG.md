@@ -5,6 +5,15 @@ Het format volgt [Keep a Changelog](https://keepachangelog.com/nl/1.1.0/).
 
 ## [Unreleased]
 
+## [0.17.0] - 2026-07-22
+
+### Toegevoegd
+- GitHub Actions-workflow `.github/workflows/deploy.yml`: pusht bij elke wijziging op `main` de site automatisch via FTPS naar Strato-webhosting
+  - Vereist drie repo-secrets: `STRATO_SERVER`, `STRATO_GEBRUIKER` en `STRATO_WACHTWOORD`; zolang die ontbreken wordt de deploy netjes overgeslagen (geen mislukte runs)
+  - Uploadt alleen gewijzigde bestanden en laat serverbestanden zoals `api/config.php` en `uploads/` met rust; token, scripts en documentatie worden nooit meegestuurd
+  - Ook handmatig te starten via de Actions-tab (workflow_dispatch)
+- `Stappenplan-Strato-hosting.docx`: compleet stappenplan om de site bij Strato te hosten met MySQL-database (pakketkeuze, bestelopties, databaseschema, PHP-backend, ombouw van localStorage naar API, kosten en checklist)
+
 ## [0.16.1] - 2026-07-22
 
 ### Gewijzigd

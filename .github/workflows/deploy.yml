@@ -1,0 +1,106 @@
+# ============================================================================
+# Automatische deploy naar Strato
+# ============================================================================
+# Wat doet dit bestand?
+#   Elke keer dat er naar de branch "main" wordt gepusht (dus ook via
+#   push-naar-github.ps1), uploadt GitHub deze site automatisch via FTPS
+#   naar de Strato-webspace. Alleen gewijzigde bestanden worden overgezet.
+#
+# Wat moet JIJ nog invullen? (eenmalig, na het bestellen van Strato-hosting)
+#   Ga op github.com naar de repo -> Settings -> Secrets and variables ->
+#   Actions -> "New repository secret" en maak deze DRIE secrets aan:
+#
+#   1. STRATO_SERVER     = de FTP-servernaam van Strato.
+#                          Meestal je eigen domeinnaam (bijv. papasenponys.nl)
+#                          of de servernaam die in het Strato-klantpaneel staat
+#                          onder "Databases & Webspace" -> "Webspace-toegang".
+#   2. STRATO_GEBRUIKER  = de gebruikersnaam uit datzelfde scherm
+#                          (vaak gelijk aan je domeinnaam).
+#   3. STRATO_WACHTWOORD = het wachtwoord dat je daar hebt ingesteld.
+#
+#   Meer hoef je niet te doen: zolang de secrets ontbreken slaat de workflow
+#   de deploy netjes over (geen rood kruis), zodra ze zijn ingevuld deployt
+#   elke push vanzelf.
+#
+# Let op:
+#   - De deploy raakt de database NIET aan; er worden alleen bestanden
+#     gesynchroniseerd.
+#   - Bestanden in de "exclude"-lijst hieronder worden nooit geupload en
+#     nooit op de server verwijderd (bijv. api/config.php en uploads/).
+#   - Werkt via FTPS (versleuteld FTP). Mocht Strato dat op jouw pakket niet
+#     accepteren, zet "protocol" hieronder dan om naar sftp met een andere
+#     action (bijv. wlixcc/SFTP-Deploy-Action) — zie de comment bij protocol.
+# ============================================================================
+
+name: Deploy naar Strato
+
+on:
+  # Draait automatisch bij elke push naar main…
+  push:
+    branches: [main]
+  # …en kan ook handmatig gestart worden via de Actions-tab op GitHub
+  # (knop "Run workflow"). Handig om de allereerste deploy te testen.
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # Stap 1: haal de code van de repo op naar de GitHub-server
+      - name: Code ophalen
+        uses: actions/checkout@v4
+
+      # Stap 2: controleer of de Strato-secrets al zijn ingevuld.
+      # Zolang dat niet zo is, wordt de deploy overgeslagen in plaats van
+      # te mislukken — zo blijft de Actions-tab groen tot je zover bent.
+      - name: Controleer of de Strato-secrets zijn ingevuld
+        id: check
+        env:
+          SERVER: ${{ secrets.STRATO_SERVER }}
+        run: |
+          if [ -z "$SERVER" ]; then
+            echo "klaar=nee" >> "$GITHUB_OUTPUT"
+            echo "::notice::Strato-secrets nog niet ingevuld — deploy overgeslagen. Vul STRATO_SERVER, STRATO_GEBRUIKER en STRATO_WACHTWOORD in bij Settings -> Secrets."
+          else
+            echo "klaar=ja" >> "$GITHUB_OUTPUT"
+          fi
+
+      # Stap 3: de eigenlijke deploy. Uploadt alleen bestanden die sinds de
+      # vorige deploy zijn gewijzigd (de action houdt daarvoor zelf een
+      # statusbestandje bij op de server: .ftp-deploy-sync-state.json).
+      - name: Upload naar Strato
+        if: steps.check.outputs.klaar == 'ja'
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.STRATO_SERVER }}
+          username: ${{ secrets.STRATO_GEBRUIKER }}
+          password: ${{ secrets.STRATO_WACHTWOORD }}
+
+          # "ftps" = FTP met TLS-versleuteling; dit ondersteunt Strato.
+          # (Gewoon onversleuteld "ftp" nooit gebruiken — wachtwoord leesbaar.)
+          protocol: ftps
+
+          # Vanuit welke map in de repo er geupload wordt: de hele repo-root.
+          local-dir: ./
+
+          # Naar welke map op de Strato-webspace. "./" = de hoofdmap van je
+          # webspace. Heb je in het Strato-paneel het domein aan een submap
+          # gekoppeld (bijv. /papasenponys/), zet die submap dan hier neer.
+          server-dir: ./
+
+          # Deze bestanden/mappen worden NOOIT geupload en NOOIT op de server
+          # verwijderd. Twee soorten staan hier:
+          #  - dingen die niet op een publieke server thuishoren
+          #  - dingen die alleen op de server bestaan en die een deploy
+          #    niet mag overschrijven of wissen
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/.github/**
+            github-token.txt
+            push-naar-github.ps1
+            CLAUDE.md
+            CHANGELOG.md
+            screenshot*.png
+            api/config.php
+            uploads/**
