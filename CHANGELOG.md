@@ -5,6 +5,18 @@ Het format volgt [Keep a Changelog](https://keepachangelog.com/nl/1.1.0/).
 
 ## [Unreleased]
 
+## [0.21.0] - 2026-07-23
+
+### Toegevoegd
+- Adresveld per evenement ("Adres (voor Google Maps)", nieuw veld `adres`): de locatie op de evenementpagina (hero en info-kaart) is nu een klikbare Google Maps-link — met adres wijst die precies goed, zonder adres zoekt Maps op de locatienaam. Adres ook als `streetAddress` in het Event-schema en als nieuw sjabloonveld `{adres}`
+- Na het inschrijven kun je het evenement direct in je agenda zetten: knoppen "📅 Zet in Google Agenda" en "⬇ Agenda-bestand (.ics)" (Apple/Outlook) in het succesbericht van de evenementpagina én de homepage-modal
+  - Eendaags evenement met tijd → afspraak van 2 uur; meerdaags of zonder tijd → hele dag(en); locatie/adres en een link naar de evenementpagina gaan mee
+  - De homepage-modal sluit na inschrijven niet meer automatisch, zodat je de agenda-knoppen kunt aanklikken
+- De menubalk van de evenementpagina heeft een "Inschrijven"-knop die direct naar het inschrijfformulier springt (alleen zichtbaar zolang het evenement nog moet komen)
+
+### Opgelost
+- De "Word lid"-knop in de menubalk kon bij smallere schermen worden samengedrukt waardoor de tekst buiten de knop viel; knoppen krimpen niet meer (alle pagina's)
+
 ## [0.20.0] - 2026-07-23
 
 ### Toegevoegd

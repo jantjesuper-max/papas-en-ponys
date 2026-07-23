@@ -61,9 +61,16 @@ nav{position:sticky;top:0;z-index:100;background:rgba(255,253,249,.85);backdrop-
 .terug:hover{color:var(--ink)}
 .terug .pijl{transition:transform .25s ease;display:inline-block}
 .terug:hover .pijl{transform:translateX(-4px)}
+.nav-rechts{display:flex;align-items:center;gap:18px}
+.nav-inschrijf{padding:9px 18px;font-size:.88rem}
+@media (max-width:560px){.nav-rechts .terug{display:none}}
+/* klikbare locatie (Google Maps) */
+.locatie-link{color:inherit;text-decoration:none;border-bottom:1px dashed currentColor;transition:color .2s}
+.locatie-link:hover{color:var(--accent-deep)}
+.info-rij .adres-klein{display:block;font-size:.8rem;color:var(--ink-soft)}
 
 /* ---------- Buttons ---------- */
-.btn{display:inline-flex;align-items:center;gap:8px;background:var(--ink);color:#fff;font-weight:600;font-size:.95rem;padding:12px 22px;border-radius:999px;text-decoration:none;border:none;cursor:pointer;font-family:var(--font-display);transition:transform .2s cubic-bezier(.34,1.56,.64,1),box-shadow .2s ease,background .2s ease}
+.btn{display:inline-flex;align-items:center;gap:8px;background:var(--ink);color:#fff;font-weight:600;font-size:.95rem;padding:12px 22px;border-radius:999px;text-decoration:none;border:none;cursor:pointer;white-space:nowrap;flex-shrink:0;font-family:var(--font-display);transition:transform .2s cubic-bezier(.34,1.56,.64,1),box-shadow .2s ease,background .2s ease}
 .btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(30,36,48,.18)}
 .btn:active{transform:translateY(0) scale(.97)}
 .btn .arrow{display:inline-block;transition:transform .25s ease}
@@ -232,7 +239,10 @@ footer a:hover{color:var(--accent-deep);border-color:var(--accent)}
 <nav>
   <div class="nav-inner">
     <a class="logo" href="index.html"><span class="mark">🐴</span>Papa &amp; Pony's</a>
-    <a class="terug" href="index.html#evenementen"><span class="pijl">←</span> Alle evenementen</a>
+    <div class="nav-rechts">
+      <a class="terug" href="index.html#evenementen"><span class="pijl">←</span> Alle evenementen</a>
+      <a class="btn gold nav-inschrijf" id="navInschrijf" href="#inschrijven" style="display:none">Inschrijven <span class="arrow">→</span></a>
+    </div>
   </div>
 </nav>
 
@@ -290,6 +300,55 @@ function eindDatum(e){ return e.datumTot || e.datum; }
 function evVragen(e){ return Array.isArray(e && e.vragen) ? e.vragen.filter(v=>v && v.tekst) : []; }
 /* Zoals esc(), maar ook veilig binnen een attribuut met dubbele quotes */
 function escAttr(s){ return esc(s).replace(/"/g,"&quot;"); }
+/* Google Maps-link voor de locatie: met adres wijst hij precies, anders zoekt Maps op de locatienaam */
+function mapsUrl(e){
+  const zoek = e.adres || e.locatie || "";
+  return zoek ? "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(zoek) : "";
+}
+
+/* ---------- Agenda: "zet in je agenda" na het inschrijven ----------
+   Eendaags met tijd → afspraak van 2 uur; meerdaags of zonder tijd → hele dag(en). */
+function agendaInfo(e){
+  const fmtD = d => `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,"0")}${String(d.getDate()).padStart(2,"0")}`;
+  const fmtT = d => fmtD(d) + "T" + String(d.getHours()).padStart(2,"0") + String(d.getMinutes()).padStart(2,"0") + "00";
+  const meerdaags = e.datumTot && e.datumTot !== e.datum;
+  if(e.tijd && !meerdaags){
+    const start = new Date(`${e.datum}T${e.tijd}:00`);
+    const eind = new Date(start.getTime() + 2*60*60*1000);
+    return {start: fmtT(start), eind: fmtT(eind), heleDag: false};
+  }
+  const start = new Date(e.datum + "T00:00:00");
+  const eind = new Date(eindDatum(e) + "T00:00:00");
+  eind.setDate(eind.getDate() + 1); /* DTEND is exclusief */
+  return {start: fmtD(start), eind: fmtD(eind), heleDag: true};
+}
+function agendaGoogleUrl(e){
+  const a = agendaInfo(e);
+  const p = new URLSearchParams({
+    action: "TEMPLATE",
+    text: e.titel,
+    dates: `${a.start}/${a.eind}`,
+    location: e.adres || e.locatie || "",
+    details: (e.beschrijving ? e.beschrijving + "\n\n" : "") + "Alle info: https://jantjesuper-max.github.io/papas-en-ponys/evenement.html?e=" + slugify(e.titel)
+  });
+  return "https://calendar.google.com/calendar/render?" + p.toString();
+}
+/* .ics-bestand als data-URL — voor Apple/Outlook-agenda's */
+function agendaIcsUrl(e){
+  const a = agendaInfo(e);
+  const escIcs = s => String(s||"").replace(/\\/g,"\\\\").replace(/;/g,"\\;").replace(/,/g,"\\,").replace(/\r?\n/g,"\\n");
+  const stamp = new Date().toISOString().replace(/[-:]/g,"").slice(0,15) + "Z";
+  const ics = ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Papa en Ponys//NL","BEGIN:VEVENT",
+    `UID:${e.id}@papas-en-ponys`,
+    `DTSTAMP:${stamp}`,
+    a.heleDag ? `DTSTART;VALUE=DATE:${a.start}` : `DTSTART:${a.start}`,
+    a.heleDag ? `DTEND;VALUE=DATE:${a.eind}` : `DTEND:${a.eind}`,
+    `SUMMARY:${escIcs(e.titel)}`,
+    `LOCATION:${escIcs(e.adres || e.locatie || "")}`,
+    `DESCRIPTION:${escIcs(e.beschrijving || "")}`,
+    "END:VEVENT","END:VCALENDAR"].join("\r\n");
+  return "data:text/calendar;charset=utf-8," + encodeURIComponent(ics);
+}
 /* Mooie leesbare evenement-URL op basis van de titel; ?id= blijft als fallback werken */
 function slugify(t){ return (t||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,""); }
 
@@ -346,7 +405,9 @@ function zetSeo(ev){
     "location": {
       "@type": "Place",
       "name": ev.locatie || "Locatie volgt",
-      "address": { "@type": "PostalAddress", "addressCountry": "NL" }
+      "address": ev.adres
+        ? { "@type": "PostalAddress", "streetAddress": ev.adres, "addressCountry": "NL" }
+        : { "@type": "PostalAddress", "addressCountry": "NL" }
     },
     "organizer": { "@type": "Organization", "name": "Papa & Pony's", "url": SITE_URL, "email": "jantje.super@gmail.com" },
     "offers": {
@@ -395,6 +456,7 @@ if(!event){
   /* Betaal- en fotoalbumlink alleen gebruiken als het echte http(s)-URL's zijn */
   const betaalUrl = /^https?:\/\//i.test(event.betaallink || "") ? event.betaallink : "";
   const albumUrl = /^https?:\/\//i.test(event.fotoalbum || "") ? event.fotoalbum : "";
+  const kaartUrl = mapsUrl(event);
   const vragen = evVragen(event);
   const prijsTekst = event.prijs ? "€" + event.prijs : "";
   const eigenFotos = !!(event.fotos && event.fotos.length);
@@ -415,7 +477,7 @@ if(!event){
     ${isVlecht ? '<p class="hero-sub">Hands-on oefenen met andere papa\'s — van je eerste staartje tot een vlecht om trots op te zijn.</p>' : ''}
     <div class="ev-meta">
       <span>🕙 ${esc(event.tijd || "tijd n.t.b.")}</span>
-      <span>📍 ${esc(event.locatie || "locatie n.t.b.")}</span>
+      <span>${kaartUrl ? `<a class="locatie-link" href="${esc(kaartUrl)}" target="_blank" rel="noopener" title="Open in Google Maps">📍 ${esc(event.locatie || event.adres)}</a>` : `📍 ${esc(event.locatie || "locatie n.t.b.")}`}</span>
       ${prijsTekst ? `<span>💶 ${esc(prijsTekst)}</span>` : ""}
       ${aantal > 0 ? `<span>👥 ${aantal} aangemeld</span>` : ""}
     </div>
@@ -465,7 +527,7 @@ if(!event){
       <h3>📌 In het kort</h3>
       <div class="info-rij"><span class="lbl">datum</span><span>${datumTekst}</span></div>
       <div class="info-rij"><span class="lbl">tijd</span><span>${esc(event.tijd || "n.t.b.")}</span></div>
-      <div class="info-rij"><span class="lbl">locatie</span><span>${esc(event.locatie || "n.t.b.")}</span></div>
+      <div class="info-rij"><span class="lbl">locatie</span><span>${kaartUrl ? `<a class="locatie-link" href="${esc(kaartUrl)}" target="_blank" rel="noopener" title="Open in Google Maps">${esc(event.locatie || event.adres)} 🗺️</a>${event.adres && event.locatie ? `<span class="adres-klein">${esc(event.adres)}</span>` : ""}` : esc(event.locatie || "n.t.b.")}</span></div>
       <div class="info-rij"><span class="lbl">voor wie</span><span>${metDochters ? "meisjespapa's — dochters van harte welkom" : "alleen papa's — dit keer zonder dochters"}</span></div>
       ${isVlecht ? `<div class="info-rij"><span class="lbl">meenemen</span><span>${metDochters ? "borstel, elastiekjes en (als het kan) een geduldige dochter" : "borstel en elastiekjes"}</span></div>` : ''}
       <div class="info-rij"><span class="lbl">prijs</span><span>${prijsTekst ? esc(prijsTekst) + " per papa" : "gratis"}</span></div>
@@ -510,10 +572,17 @@ if(!event){
         <h4>Je staat op de lijst!</h4>
         <p>Tot ${startTekst} — we hebben er zin in.</p>
         ${betaalUrl ? `<a class="btn gold" style="margin-top:16px" href="${esc(betaalUrl)}" target="_blank" rel="noopener">💳 Rond je inschrijving af: betaal ${esc(prijsTekst) || "nu"}</a>` : ""}
+        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:16px">
+          <a class="btn ghost" style="color:#fff;border-color:rgba(255,255,255,.35)" href="${esc(agendaGoogleUrl(event))}" target="_blank" rel="noopener">📅 Zet in Google Agenda</a>
+          <a class="btn ghost" style="color:#fff;border-color:rgba(255,255,255,.35)" href="${agendaIcsUrl(event)}" download="${escAttr(slugify(event.titel) || "evenement")}.ics">⬇ Agenda-bestand (.ics)</a>
+        </div>
       </div>
     </div>
   </section>`}
   `;
+
+  /* Inschrijfknop in de menubalk — alleen zolang het evenement nog moet komen */
+  if(!voorbij) document.getElementById("navInschrijf").style.display = "";
 
   /* Delen */
   document.getElementById("kopieerLink").addEventListener("click", async () => {

@@ -313,6 +313,9 @@ body.ingelogd .sessie{display:flex}
               <input id="locatie" maxlength="80" placeholder="Buurthuis De Schakel">
             </div>
           </div>
+          <label for="adres">Adres (voor Google Maps)</label>
+          <input id="adres" maxlength="120" placeholder="Schakelstraat 12, 1234 AB Amsterdam">
+          <p class="foto-hint">Optioneel. De locatie op de evenementpagina wordt een klikbare Google Maps-link — met adres wijst die precies goed, zonder adres zoekt Maps op de locatienaam.</p>
           <label>Soort evenement</label>
           <div class="type-keuze">
             <label class="type-optie"><input type="radio" name="evType" value="vlechtworkshop"> 🎀 Vlechtworkshop</label>
@@ -867,6 +870,7 @@ document.getElementById("eventForm").addEventListener("submit", ev=>{
     datumTot: datumTot && datumTot !== datum ? datumTot : "",
     tijd: document.getElementById("tijd").value,
     locatie: document.getElementById("locatie").value.trim(),
+    adres: document.getElementById("adres").value.trim(),
     categorie: document.getElementById("categorie").value,
     prijs: document.getElementById("prijs").value.trim().replace(/^€\s*/, ""),
     betaallink: document.getElementById("betaallink").value.trim(),
@@ -897,6 +901,7 @@ function bewerk(id){
   document.getElementById("datumTot").value = e.datumTot||"";
   document.getElementById("tijd").value = e.tijd||"";
   document.getElementById("locatie").value = e.locatie||"";
+  document.getElementById("adres").value = e.adres||"";
   document.getElementById("categorie").value = e.categorie||"Anders";
   document.getElementById("prijs").value = e.prijs||"";
   document.getElementById("betaallink").value = e.betaallink||"";
@@ -1155,7 +1160,7 @@ function verwijderInschrijving(id){
    {naam} wordt in een groepsmail "papa's" (bij BCC kan er niet per
    ontvanger gepersonaliseerd worden). */
 const SJABLOON_KEY = "pp_mail_sjablonen";
-const SJABLOON_VELDEN = ["{naam}","{voornaam}","{achternaam}","{evenement}","{datum}","{tijd}","{locatie}","{categorie}","{beschrijving}","{dochters}","{link}","{fotoalbum}"];
+const SJABLOON_VELDEN = ["{naam}","{voornaam}","{achternaam}","{evenement}","{datum}","{tijd}","{locatie}","{adres}","{categorie}","{beschrijving}","{dochters}","{link}","{fotoalbum}"];
 const SITE_URL = "https://jantjesuper-max.github.io/papas-en-ponys";
 
 const seedSjablonen = [
@@ -1186,6 +1191,7 @@ function vulSjabloon(tekst, ev){
     "{datum}": ev && ev.datum ? (ev.datumTot && ev.datumTot!==ev.datum ? `${fmtDatumLang(ev.datum)} t/m ${fmtDatumLang(ev.datumTot)}` : fmtDatumLang(ev.datum)) : "",
     "{tijd}": ev ? (ev.tijd || "n.t.b.") : "",
     "{locatie}": ev ? (ev.locatie || "n.t.b.") : "",
+    "{adres}": ev ? (ev.adres || "") : "",
     "{categorie}": ev ? (ev.categorie || "") : "",
     "{beschrijving}": ev ? (ev.beschrijving || "") : "",
     "{dochters}": ev ? (dochtersWelkom(ev) ? "dochters zijn van harte welkom" : "dit keer zonder dochters") : "",

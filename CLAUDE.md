@@ -11,7 +11,7 @@ Community-website voor "meisjespapa's die leren vlechten". Statische site zonder
 | Bestand | Rol |
 |---|---|
 | `index.html` | Homepage: hero, missie, sfeerfoto's, evenementenlijst (schakelbaar tussen "Aankomend" en "Geweest" — bij eerdere evenementen geen inschrijfknop maar een terugblik/foto's-link naar de landingspagina), waarden, WhatsApp-aanmelding, oprichter (Faizi), contact |
-| `evenement.html` | Landingspagina per evenement via `?id=<event-id>`. Vlechtworkshops krijgen een uitgebreide variant (roze hero, krantensectie, stappenplan) |
+| `evenement.html` | Landingspagina per evenement via `?id=<event-id>`. Vlechtworkshops krijgen een uitgebreide variant (roze hero, krantensectie, stappenplan). Menubalk toont een "Inschrijven"-knop (anchor naar het formulier) zolang het evenement nog moet komen. Na inschrijven: agenda-knoppen (Google Agenda + .ics-download, helpers `agendaInfo/agendaGoogleUrl/agendaIcsUrl`, ook op de homepage-modal) |
 | `admin/index.html` | Beheer, achter een client-side inlog (tab Beheerders beheert de accounts): evenementen CRUD + foto-upload, inschrijvingen bekijken/mailen/exporteren, WhatsApp-aanmeldingen |
 | `voorwaarden.html` | Algemene voorwaarden: gedrag, de zes huisregels en de betaalverplichting. Verplicht akkoord-vinkje (`voorwaardenAkkoord: true` op het record) in het WhatsApp-formulier en beide inschrijfformulieren |
 | `word-lid.html` | Losse deelbare aanmeldpagina: uitleg over de WhatsApp-community, nagebouwde kanalenlijst (bewust géén screenshot — daar staan telefoonnummers op), podcast-teaser, WhatsApp-aanmeldformulier (zelfde `pp_wa_signups`) en contactformulier |
@@ -31,7 +31,7 @@ Community-website voor "meisjespapa's die leren vlechten". Statische site zonder
 | `pp_events` | Array van evenementen |
 | `pp_event_signups` | Array van inschrijvingen |
 | `pp_wa_signups` | Array van WhatsApp-aanmeldingen |
-| `pp_mail_sjablonen` | Array van mailsjablonen: `{id, naam, onderwerp, tekst}` met dynamische velden `{naam}`, `{voornaam}`, `{achternaam}`, `{evenement}`, `{datum}`, `{tijd}`, `{locatie}`, `{categorie}`, `{beschrijving}`, `{dochters}`, `{link}`, `{fotoalbum}` — ingevuld door `vulSjabloon()` in het beheer. `{datum}` toont bij een meerdaags evenement "van t/m tot". Bij groepsmail (BCC) worden `{naam}`/`{voornaam}` "papa's" en vervalt `{achternaam}` |
+| `pp_mail_sjablonen` | Array van mailsjablonen: `{id, naam, onderwerp, tekst}` met dynamische velden `{naam}`, `{voornaam}`, `{achternaam}`, `{evenement}`, `{datum}`, `{tijd}`, `{locatie}`, `{adres}`, `{categorie}`, `{beschrijving}`, `{dochters}`, `{link}`, `{fotoalbum}` — ingevuld door `vulSjabloon()` in het beheer. `{datum}` toont bij een meerdaags evenement "van t/m tot". Bij groepsmail (BCC) worden `{naam}`/`{voornaam}` "papa's" en vervalt `{achternaam}` |
 | `pp_beheerders` | Alleen gebruikt door het beheer (sinds v0.18): array van beheerdersaccounts `{id, naam, gebruikersnaam, salt, wachtwoordHash, aangemaaktOp, aangemaaktDoor}`. Wachtwoord = SHA-256(salt+":"+wachtwoord) via Web Crypto. Seed-account bij lege sleutel: `faizi` / `PapaPonys2026!`. Sessie in **sessionStorage** onder `pp_beheer_sessie`. **Let op: client-side slot, geen echte beveiliging** — broncode en localStorage zijn op het apparaat leesbaar |
 
 ### Vorm van een evenement
@@ -45,6 +45,7 @@ Community-website voor "meisjespapa's die leren vlechten". Statische site zonder
   datumTot: "2026-07-19",        // sinds v0.19, optioneel: einddatum voor meerdaagse evenementen. Leeg/ontbreekt = eendaags. Helper eindDatum(e) (datumTot || datum) bepaalt in alle drie de pagina's of iets voorbij is; het beheer weigert een einddatum vóór de startdatum
   tijd: "10:00",                 // optioneel
   locatie: "...", categorie: "Workshop|Uitje|Borrel|Community|Anders",
+  adres: "Straat 1, 1234 AB Plaats",  // sinds v0.21, optioneel: maakt de locatie op evenement.html een klikbare Google Maps-link (mapsUrl(e); zonder adres zoekt Maps op de locatienaam). Ook gebruikt als LOCATION in de agenda-links en als streetAddress in het Event-schema
   beschrijving: "...",
   dochtersWelkom: true|false,    // sinds v0.16; bepaalt of de inschrijfformulieren de dochtervelden tonen. Ontbreekt het veld (ouder evenement), dan geldt true — helper dochtersWelkom(e) in alle drie de pagina's
   uitgelicht: true|false,
