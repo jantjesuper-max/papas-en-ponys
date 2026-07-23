@@ -1,12 +1,16 @@
 <!DOCTYPE html>
 <!--
   Papa & Pony's — beheeromgeving (niet geïndexeerd, noindex)
-  Achter een inlog (zie "Inloggen & beheerders" in het script). Vijf tabs:
+  Achter een inlog (zie "Inloggen & beheerders" in het script). Zes tabs:
     1. Evenementen  — aanmaken/bewerken/verwijderen, foto-upload, type-tag
     2. Inschrijvingen — per evenement bekijken, mailen (BCC), Excel-export
     3. WhatsApp     — aanmeldingen voor de communitygroep, CSV-export
-    4. Sjablonen    — mailsjablonen met dynamische velden
-    5. Beheerders   — inlogaccounts aanmaken/bewerken/verwijderen
+    4. Blog         — blogberichten schrijven/bewerken/publiceren (pp_blogs)
+    5. Sjablonen    — mailsjablonen met dynamische velden
+    6. Beheerders   — inlogaccounts aanmaken/bewerken/verwijderen
+  Twee rollen (veld `rol` op het account): "beheerder" (alles, ook ontbrekend
+  veld = beheerder) en "blogger" (ziet alleen de Blog-tab en kan alleen eigen
+  blogberichten bewerken — body-class rol-blogger verbergt de rest).
   Schrijft naar dezelfde localStorage-sleutels als de publieke pagina's.
   Architectuur en datamodel: zie CLAUDE.md in de projectroot.
   Let op: de inlog is een client-side slot (er is geen server) — het houdt
@@ -211,6 +215,15 @@ body.ingelogd #loginScherm{display:none}
 .sessie{display:none;align-items:center;gap:10px;font-size:.85rem;color:var(--ink-soft)}
 body.ingelogd .sessie{display:flex}
 .sessie b{color:var(--ink)}
+.sessie .rol-pill{font-family:var(--font-mono);font-size:.66rem;background:var(--rose-soft);color:var(--rose);padding:3px 10px;border-radius:999px}
+
+/* blogger-rol: ziet alleen de Blog-tab (client-side slot, net als de inlog zelf) */
+body.rol-blogger .stats{display:none}
+body.rol-blogger .tab:not([data-tab="blogs"]){display:none}
+
+/* blogberichten in de lijst */
+.wa-kaart.concept{border-left:4px solid var(--accent)}
+.wa-kaart .samenvatting{font-size:.84rem;color:var(--ink-soft);margin-top:6px;max-width:64ch}
 
 /* toast + confetti */
 #toast{position:fixed;bottom:28px;left:50%;transform:translate(-50%,80px);background:var(--ink);color:#fff;padding:13px 24px;border-radius:999px;font-size:.9rem;font-weight:500;box-shadow:0 12px 30px rgba(30,36,48,.3);transition:transform .4s cubic-bezier(.34,1.56,.64,1);z-index:200}
@@ -259,7 +272,7 @@ body.ingelogd .sessie{display:flex}
   <div class="head-inner">
     <a class="logo" href="../index.html"><span class="mark">🐴</span>Papa &amp; Pony's<span class="badge">beheer</span></a>
     <div style="display:flex;align-items:center;gap:16px">
-      <span class="sessie">👤 <b id="sessieNaam"></b><button class="btn stil klein" id="uitlogBtn">Uitloggen</button></span>
+      <span class="sessie">👤 <b id="sessieNaam"></b><span class="rol-pill" id="sessieRol" style="display:none">✍️ blogger</span><button class="btn stil klein" id="uitlogBtn">Uitloggen</button></span>
       <a class="terug" href="../index.html"><span class="pijl">←</span> Naar de site</a>
     </div>
   </div>
@@ -278,6 +291,7 @@ body.ingelogd .sessie{display:flex}
     <button class="tab actief" data-tab="evenementen">🗓️ Evenementen</button>
     <button class="tab" data-tab="inschrijvingen">🎟️ Inschrijvingen <span class="tel" id="telInschrijvingen">0</span></button>
     <button class="tab" data-tab="whatsapp">💬 WhatsApp-aanmeldingen <span class="tel" id="telWhatsapp">0</span></button>
+    <button class="tab" data-tab="blogs">✍️ Blog <span class="tel" id="telBlogs">0</span></button>
     <button class="tab" data-tab="sjablonen">📝 Sjablonen <span class="tel" id="telSjablonen">0</span></button>
     <button class="tab" data-tab="beheerders">🔐 Beheerders <span class="tel" id="telBeheerders">0</span></button>
   </div>
@@ -452,7 +466,45 @@ body.ingelogd .sessie{display:flex}
     <div id="whatsappLijst"></div>
   </div>
 
-  <!-- TAB 4: mailsjablonen -->
+  <!-- TAB 4: blog -->
+  <div class="tabpane" id="tab-blogs">
+    <div class="ev-grid">
+      <div class="panel">
+        <h2 id="blogFormTitel">✍️ Nieuw blogbericht</h2>
+        <p class="sub">Verschijnt op de blogpagina van de site zodra het op "gepubliceerd" staat.</p>
+        <form id="blogForm">
+          <input type="hidden" id="blogEditId">
+          <label for="blogTitel">Titel *</label>
+          <input id="blogTitel" required maxlength="100" placeholder="Mijn eerste visgraatvlecht">
+          <label for="blogDatum">Publicatiedatum *</label>
+          <input id="blogDatum" type="date" required>
+          <label for="blogSamenvatting">Samenvatting *</label>
+          <textarea id="blogSamenvatting" required maxlength="220" placeholder="Korte teaser (1 à 2 zinnen) — staat onder de titel op de blogpagina."></textarea>
+          <label for="blogTekst">Verhaal *</label>
+          <textarea id="blogTekst" required rows="12" style="min-height:260px" placeholder="Schrijf je verhaal…&#10;&#10;Een lege regel begint een nieuwe alinea.&#10;&#10;## Een regel die zo begint wordt een tussenkopje"></textarea>
+          <p class="foto-hint">Een lege regel begint een nieuwe alinea. Begin een regel met <b>##&nbsp;</b> voor een tussenkopje.</p>
+          <label for="blogFotoKies">Foto's</label>
+          <input type="file" id="blogFotoInput" accept="image/*" multiple hidden>
+          <button type="button" class="btn stil klein" id="blogFotoKies">📷 Foto's toevoegen</button>
+          <div class="foto-thumbs" id="blogFotoThumbs"></div>
+          <p class="foto-hint">De eerste foto wordt de grote kop-foto op de blogpagina; de rest komt onder het verhaal. Worden automatisch verkleind.</p>
+          <label class="check"><input type="checkbox" id="blogGepubliceerd" checked> Gepubliceerd op de site 🌍</label>
+          <p class="foto-hint">Uitgevinkt = concept: alleen zichtbaar in dit beheer, niet op de blogpagina.</p>
+          <div class="form-acties">
+            <button type="submit" class="btn gold" id="blogOpslaanBtn">Opslaan 🎉</button>
+            <button type="button" class="btn stil" id="blogAnnuleerBtn" style="display:none">Annuleer</button>
+          </div>
+        </form>
+      </div>
+      <div class="lijst">
+        <h2>Alle blogberichten</h2>
+        <div id="blogLijst"></div>
+        <p class="foto-hint" style="margin-top:14px" id="blogRolHint"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 5: mailsjablonen -->
   <div class="tabpane" id="tab-sjablonen">
     <div class="ev-grid">
       <div class="panel">
@@ -482,7 +534,7 @@ body.ingelogd .sessie{display:flex}
     </div>
   </div>
 
-  <!-- TAB 5: beheerders -->
+  <!-- TAB 6: beheerders -->
   <div class="tabpane" id="tab-beheerders">
     <div class="ev-grid">
       <div class="panel">
@@ -494,6 +546,12 @@ body.ingelogd .sessie{display:flex}
           <input id="beheerderNaam" required maxlength="60" placeholder="Faizi">
           <label for="beheerderGebruiker">Gebruikersnaam *</label>
           <input id="beheerderGebruiker" required maxlength="40" autocomplete="off" placeholder="faizi">
+          <label for="beheerderRol">Rol *</label>
+          <select id="beheerderRol">
+            <option value="beheerder">🔐 Beheerder — volledig beheer</option>
+            <option value="blogger">✍️ Blogger — kan alleen blogs schrijven</option>
+          </select>
+          <p class="foto-hint">Een blogger ziet na het inloggen alleen de Blog-tab en kan alleen eigen blogberichten bewerken. Handig voor papa's die een verhaal willen delen zonder bij inschrijvingen of evenementen te kunnen.</p>
           <label for="beheerderWachtwoord">Wachtwoord</label>
           <input id="beheerderWachtwoord" type="password" maxlength="80" autocomplete="new-password" placeholder="Minimaal 8 tekens">
           <p class="foto-hint">Minimaal 8 tekens. Bij bewerken: laat dit veld leeg om het wachtwoord ongewijzigd te laten.</p>
@@ -594,10 +652,28 @@ async function seedBeheerders(){
 
 function huidigeSessie(){ try{ return JSON.parse(sessionStorage.getItem(SESSIE_KEY)); }catch(e){ return null; } }
 function ingelogdeNaam(){ const s = huidigeSessie(); return s ? s.naam : ""; }
+/* Rol van een account: ontbreekt het veld (ouder account), dan beheerder */
+function accountRol(b){ return b && b.rol === "blogger" ? "blogger" : "beheerder"; }
+/* Rol van de ingelogde gebruiker — altijd vers uit het accountrecord, niet uit de sessie */
+function ingelogdeRol(){
+  const s = huidigeSessie();
+  const b = s ? loadList(BEHEERDER_KEY).find(x=>x.id===s.beheerderId) : null;
+  return b ? accountRol(b) : "beheerder";
+}
+/* Past de rol toe op de UI: bloggers zien alleen de Blog-tab */
+function pasRolToe(){
+  const blogger = ingelogdeRol() === "blogger";
+  document.body.classList.toggle("rol-blogger", blogger);
+  document.getElementById("sessieRol").style.display = blogger ? "" : "none";
+  if(blogger && !document.querySelector('.tab[data-tab="blogs"]').classList.contains("actief")){
+    kiesTab("blogs");
+  }
+}
 
 function zetIngelogd(sessie){
   document.body.classList.add("ingelogd");
   document.getElementById("sessieNaam").textContent = sessie.naam;
+  pasRolToe();
   renderAlles();
 }
 
@@ -624,10 +700,11 @@ document.getElementById("loginForm").addEventListener("submit", async ev=>{
 document.getElementById("uitlogBtn").addEventListener("click", ()=>{
   sessionStorage.removeItem(SESSIE_KEY);
   document.body.classList.remove("ingelogd");
+  document.body.classList.remove("rol-blogger");
   document.getElementById("loginGebruiker").focus();
 });
 
-/* ---------- TAB 5: beheerders ---------- */
+/* ---------- TAB 6: beheerders ---------- */
 function renderBeheerders(){
   const beheerders = loadList(BEHEERDER_KEY);
   document.getElementById("telBeheerders").textContent = beheerders.length;
@@ -635,7 +712,7 @@ function renderBeheerders(){
   document.getElementById("beheerderLijst").innerHTML = beheerders.map(b=>`
     <div class="wa-kaart" data-id="${b.id}">
       <div>
-        <div class="naam">👤 ${esc(b.naam)}${s && s.beheerderId===b.id?'<span class="status-pill toegevoegd">dat ben jij</span>':''}</div>
+        <div class="naam">👤 ${esc(b.naam)}<span class="status-pill ${accountRol(b)==="blogger"?"nieuw":"toegevoegd"}">${accountRol(b)==="blogger"?"✍️ blogger":"🔐 beheerder"}</span>${s && s.beheerderId===b.id?'<span class="status-pill toegevoegd">dat ben jij</span>':''}</div>
         <div class="detail"><span>🔑 ${esc(b.gebruikersnaam)}</span><span>🗓️ aangemaakt ${fmtDatum(b.aangemaaktOp)}</span>${b.aangemaaktDoor?`<span>👤 door ${esc(b.aangemaaktDoor)}</span>`:""}</div>
       </div>
       <div class="ev-acties">
@@ -650,6 +727,7 @@ document.getElementById("beheerderForm").addEventListener("submit", async ev=>{
   const id = document.getElementById("beheerderEditId").value;
   const naam = document.getElementById("beheerderNaam").value.trim();
   const gebruikersnaam = document.getElementById("beheerderGebruiker").value.trim().toLowerCase();
+  const rol = document.getElementById("beheerderRol").value;
   const wachtwoord = document.getElementById("beheerderWachtwoord").value;
   let beheerders = loadList(BEHEERDER_KEY);
   if(beheerders.some(b=>(b.gebruikersnaam||"").toLowerCase()===gebruikersnaam && b.id!==id)){
@@ -661,23 +739,29 @@ document.getElementById("beheerderForm").addEventListener("submit", async ev=>{
   if(id){
     const bestaand = beheerders.find(b=>b.id===id);
     if(!bestaand) return;
-    const item = {...bestaand, naam, gebruikersnaam};
+    /* er moet altijd minstens één beheerder overblijven die accounts kan beheren */
+    if(accountRol(bestaand)==="beheerder" && rol==="blogger"
+       && !beheerders.some(b=>b.id!==id && accountRol(b)==="beheerder")){
+      toast("Er moet minstens één beheerder overblijven 🔐"); return;
+    }
+    const item = {...bestaand, naam, gebruikersnaam, rol};
     if(wachtwoord){ item.salt = maakSalt(); item.wachtwoordHash = await hashWachtwoord(wachtwoord, item.salt); }
     saveList(BEHEERDER_KEY, beheerders.map(b=>b.id===id?item:b));
     const s = huidigeSessie();
     if(s && s.beheerderId===id){ s.naam = naam; sessionStorage.setItem(SESSIE_KEY, JSON.stringify(s)); document.getElementById("sessieNaam").textContent = naam; }
-    toast(wachtwoord ? "Beheerder bijgewerkt, nieuw wachtwoord actief 🔒" : "Beheerder bijgewerkt ✏️");
+    toast(wachtwoord ? "Account bijgewerkt, nieuw wachtwoord actief 🔒" : "Account bijgewerkt ✏️");
   } else {
     const salt = maakSalt();
     beheerders.push({
-      id:"bh-"+Date.now(), naam, gebruikersnaam,
+      id:"bh-"+Date.now(), naam, gebruikersnaam, rol,
       salt, wachtwoordHash: await hashWachtwoord(wachtwoord, salt),
       aangemaaktOp:new Date().toISOString(), aangemaaktDoor: ingelogdeNaam()
     });
     saveList(BEHEERDER_KEY, beheerders);
-    toast("Beheerder aangemaakt 🎉"); confetti();
+    toast(rol==="blogger" ? "Blogger aangemaakt ✍️" : "Beheerder aangemaakt 🎉"); confetti();
   }
   resetBeheerderForm();
+  pasRolToe();
   renderAlles();
 });
 
@@ -687,6 +771,7 @@ function bewerkBeheerder(id){
   document.getElementById("beheerderEditId").value = b.id;
   document.getElementById("beheerderNaam").value = b.naam;
   document.getElementById("beheerderGebruiker").value = b.gebruikersnaam;
+  document.getElementById("beheerderRol").value = accountRol(b);
   document.getElementById("beheerderWachtwoord").value = "";
   document.getElementById("beheerderFormTitel").textContent = "✏️ Beheerder bewerken";
   document.getElementById("beheerderOpslaanBtn").textContent = "Bijwerken ✔";
@@ -701,8 +786,10 @@ function verwijderBeheerder(id){
   if(!b) return;
   const s = huidigeSessie();
   if(s && s.beheerderId===id){ toast("Je kunt jezelf niet verwijderen 🙅"); return; }
-  if(beheerders.length<=1){ toast("De laatste beheerder kan niet weg 🙅"); return; }
-  if(!confirm(`Beheerder ${b.naam} verwijderen? Die kan daarna niet meer inloggen.`)) return;
+  if(accountRol(b)==="beheerder" && !beheerders.some(x=>x.id!==id && accountRol(x)==="beheerder")){
+    toast("De laatste beheerder kan niet weg 🙅"); return;
+  }
+  if(!confirm(`Account van ${b.naam} verwijderen? ${b.naam} kan daarna niet meer inloggen.`)) return;
   const kaart = document.querySelector(`#beheerderLijst .wa-kaart[data-id="${id}"]`);
   if(kaart) kaart.classList.add("weg");
   setTimeout(()=>{
@@ -751,12 +838,13 @@ function renderStats(){
 }
 
 /* ---------- Tabs ---------- */
+function kiesTab(naam){
+  document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("actief", x.dataset.tab===naam));
+  document.querySelectorAll(".tabpane").forEach(x=>x.classList.toggle("actief", x.id==="tab-"+naam));
+}
 document.querySelectorAll(".tab").forEach(b=>{
   b.addEventListener("click", ()=>{
-    document.querySelectorAll(".tab").forEach(x=>x.classList.remove("actief"));
-    document.querySelectorAll(".tabpane").forEach(x=>x.classList.remove("actief"));
-    b.classList.add("actief");
-    document.getElementById("tab-"+b.dataset.tab).classList.add("actief");
+    kiesTab(b.dataset.tab);
     renderAlles();
   });
 });
@@ -1154,6 +1242,162 @@ function verwijderInschrijving(id){
   }, 280);
 }
 
+/* ---------- TAB 4: blog ----------
+   Blogberichten leven in pp_blogs en verschijnen op blog.html
+   (overzicht) en blogpost.html?b=<slug> (landingspagina). Beheerders
+   mogen alles; bloggers alleen hun eigen berichten (match op auteur). */
+const BLOG_KEY = "pp_blogs";
+/* zelfde QuotaExceededError-afvang als save(): blogfoto's zijn data-URLs */
+function saveBlogs(v){
+  try{ localStorage.setItem(BLOG_KEY, JSON.stringify(v)); return true; }
+  catch(e){ toast("Opslag vol! Verwijder eerst wat foto's 📦"); return false; }
+}
+/* Ontbreekt het veld, dan gepubliceerd — alleen expliciet uitgevinkt is concept */
+function blogGepubliceerd(b){ return b.gepubliceerd !== false; }
+/* Seed-blogs verwijzen naar fotos/ met relatieve paden; het beheer staat een map dieper */
+function blogFotoSrc(f){ return f.startsWith("data:") ? f : "../"+f; }
+function openBlogLanding(id){ const b = loadList(BLOG_KEY).find(x=>x.id===id); if(b) window.open("../blogpost.html?b="+slugify(b.titel), "_blank"); }
+/* Beheerders mogen alle berichten bewerken, bloggers alleen hun eigen */
+function magBlogBewerken(b){
+  if(ingelogdeRol()==="beheerder") return true;
+  const s = huidigeSessie();
+  return !!(s && b.auteur === s.naam);
+}
+
+let blogFotos = [];
+const blogFotoInput = document.getElementById("blogFotoInput");
+document.getElementById("blogFotoKies").addEventListener("click", ()=>blogFotoInput.click());
+blogFotoInput.addEventListener("change", async ()=>{
+  for(const file of blogFotoInput.files){
+    if(!file.type.startsWith("image/")) continue;
+    blogFotos.push(await verkleinFoto(file));
+  }
+  blogFotoInput.value = "";
+  renderBlogFotoThumbs();
+});
+function renderBlogFotoThumbs(){
+  document.getElementById("blogFotoThumbs").innerHTML = blogFotos.map((f,i)=>
+    `<div class="foto-thumb"><img src="${blogFotoSrc(f)}" alt="Foto ${i+1}"><button type="button" title="Foto verwijderen" onclick="verwijderBlogFoto(${i})">✕</button></div>`
+  ).join("");
+}
+function verwijderBlogFoto(i){ blogFotos.splice(i,1); renderBlogFotoThumbs(); }
+
+function renderBlogs(){
+  const blogs = loadList(BLOG_KEY).sort((a,b)=>(b.datum||"").localeCompare(a.datum||""));
+  document.getElementById("telBlogs").textContent = blogs.length;
+  document.getElementById("blogRolHint").textContent = ingelogdeRol()==="blogger"
+    ? "Je bent ingelogd als blogger: je ziet alle berichten, maar kunt alleen je eigen berichten bewerken of verwijderen."
+    : "Berichten op \"concept\" zijn alleen hier zichtbaar, niet op de site. Bloggers kunnen alleen hun eigen berichten bewerken.";
+  const lijst = document.getElementById("blogLijst");
+  if(blogs.length===0){
+    lijst.innerHTML = `<div class="leeg"><span class="icon">✍️</span>Nog geen blogberichten. Schrijf links het eerste verhaal!</div>`;
+    return;
+  }
+  lijst.innerHTML = blogs.map(b=>{
+    const pub = blogGepubliceerd(b);
+    const mag = magBlogBewerken(b);
+    return `<div class="wa-kaart ${pub?"":"concept"}" data-id="${b.id}">
+      <div>
+        <div class="naam">✍️ ${esc(b.titel)}<span class="status-pill ${pub?"toegevoegd":"nieuw"}">${pub?"🌍 gepubliceerd":"📝 concept"}</span></div>
+        <div class="detail"><span>👤 ${esc(b.auteur||"onbekend")}</span><span>🗓️ ${fmtDatum((b.datum||"2000-01-01")+"T00:00:00")}</span>${b.fotos&&b.fotos.length?`<span>📷 ${b.fotos.length}</span>`:""}</div>
+        ${b.samenvatting?`<div class="samenvatting">${esc(b.samenvatting)}</div>`:""}
+      </div>
+      <div class="ev-acties">
+        ${pub?`<button class="icoon-btn groen" title="Blogpagina openen" onclick="openBlogLanding('${b.id}')">🔗</button>`:""}
+        ${mag?`<button class="icoon-btn groen" title="${pub?"Terugzetten naar concept":"Publiceren op de site"}" onclick="toggleBlogPublicatie('${b.id}')">${pub?"🙈":"🌍"}</button>`:""}
+        ${mag?`<button class="icoon-btn bewerk" title="Bewerken" onclick="bewerkBlog('${b.id}')">✏️</button>`:""}
+        ${mag?`<button class="icoon-btn verwijder" title="Verwijderen" onclick="verwijderBlog('${b.id}')">🗑️</button>`:""}
+      </div>
+    </div>`;
+  }).join("");
+}
+
+document.getElementById("blogForm").addEventListener("submit", ev=>{
+  ev.preventDefault();
+  const id = document.getElementById("blogEditId").value;
+  const blogs = loadList(BLOG_KEY);
+  const bestaand = id ? blogs.find(b=>b.id===id) : null;
+  if(bestaand && !magBlogBewerken(bestaand)){ toast("Je kunt alleen je eigen blogberichten bewerken ✍️"); return; }
+  const item = {
+    id: id || "bl-"+Date.now(),
+    titel: document.getElementById("blogTitel").value.trim(),
+    datum: document.getElementById("blogDatum").value,
+    samenvatting: document.getElementById("blogSamenvatting").value.trim(),
+    tekst: document.getElementById("blogTekst").value.trim(),
+    auteur: bestaand ? (bestaand.auteur || ingelogdeNaam()) : ingelogdeNaam(),
+    gepubliceerd: document.getElementById("blogGepubliceerd").checked,
+    fotos: blogFotos.slice(),
+    aangemaaktOp: bestaand ? bestaand.aangemaaktOp : new Date().toISOString(),
+    aangemaaktDoor: bestaand ? bestaand.aangemaaktDoor : ingelogdeNaam()
+  };
+  let nieuw = blogs;
+  if(id){ nieuw = blogs.map(b=>b.id===id?item:b); }
+  else{ nieuw = blogs.concat([item]); }
+  if(!saveBlogs(nieuw)) return;
+  if(id){ toast("Blogbericht bijgewerkt ✏️"); }
+  else{ toast(item.gepubliceerd ? "Blogbericht gepubliceerd 🎉" : "Concept opgeslagen 📝"); confetti(); }
+  resetBlogForm();
+  renderAlles();
+});
+
+function bewerkBlog(id){
+  const b = loadList(BLOG_KEY).find(x=>x.id===id);
+  if(!b) return;
+  if(!magBlogBewerken(b)){ toast("Je kunt alleen je eigen blogberichten bewerken ✍️"); return; }
+  document.getElementById("blogEditId").value = b.id;
+  document.getElementById("blogTitel").value = b.titel;
+  document.getElementById("blogDatum").value = b.datum || "";
+  document.getElementById("blogSamenvatting").value = b.samenvatting || "";
+  document.getElementById("blogTekst").value = b.tekst || "";
+  document.getElementById("blogGepubliceerd").checked = blogGepubliceerd(b);
+  blogFotos = (b.fotos||[]).slice();
+  renderBlogFotoThumbs();
+  document.getElementById("blogFormTitel").textContent = "✏️ Blogbericht bewerken";
+  document.getElementById("blogOpslaanBtn").textContent = "Bijwerken ✔";
+  document.getElementById("blogAnnuleerBtn").style.display = "inline-flex";
+  document.querySelector("#tab-blogs .panel").scrollIntoView({behavior:"smooth", block:"start"});
+  document.getElementById("blogTitel").focus();
+}
+
+function verwijderBlog(id){
+  const b = loadList(BLOG_KEY).find(x=>x.id===id);
+  if(!b) return;
+  if(!magBlogBewerken(b)){ toast("Je kunt alleen je eigen blogberichten verwijderen ✍️"); return; }
+  if(!confirm(`Blogbericht "${b.titel}" verwijderen?`)) return;
+  const kaart = document.querySelector(`#blogLijst .wa-kaart[data-id="${id}"]`);
+  if(kaart) kaart.classList.add("weg");
+  setTimeout(()=>{
+    saveBlogs(loadList(BLOG_KEY).filter(x=>x.id!==id));
+    toast("Blogbericht verwijderd 🗑️");
+    renderAlles();
+  }, 280);
+}
+
+function toggleBlogPublicatie(id){
+  const b = loadList(BLOG_KEY).find(x=>x.id===id);
+  if(!b) return;
+  if(!magBlogBewerken(b)){ toast("Je kunt alleen je eigen blogberichten publiceren ✍️"); return; }
+  saveBlogs(loadList(BLOG_KEY).map(x=>x.id===id?{...x, gepubliceerd:!blogGepubliceerd(x)}:x));
+  toast(blogGepubliceerd(b) ? "Teruggezet naar concept 📝" : "Gepubliceerd op de site 🌍");
+  renderAlles();
+}
+
+function resetBlogForm(){
+  document.getElementById("blogForm").reset();
+  document.getElementById("blogEditId").value = "";
+  /* publicatiedatum standaard vandaag (lokale datum, geen UTC-verschuiving) */
+  const nu = new Date(); nu.setMinutes(nu.getMinutes() - nu.getTimezoneOffset());
+  document.getElementById("blogDatum").value = nu.toISOString().slice(0,10);
+  document.getElementById("blogGepubliceerd").checked = true;
+  blogFotos = [];
+  renderBlogFotoThumbs();
+  document.getElementById("blogFormTitel").textContent = "✍️ Nieuw blogbericht";
+  document.getElementById("blogOpslaanBtn").textContent = "Opslaan 🎉";
+  document.getElementById("blogAnnuleerBtn").style.display = "none";
+}
+document.getElementById("blogAnnuleerBtn").addEventListener("click", resetBlogForm);
+resetBlogForm();
+
 /* ---------- Mailsjablonen ----------
    Voorgeprogrammeerde mails met dynamische velden. De velden worden
    bij het versturen ingevuld met de gegevens van het evenement;
@@ -1232,7 +1476,7 @@ function mailKeuzesHtml(eventId){
 }
 document.getElementById("mailAlleDeelnemers").addEventListener("click", ()=>mailDeelnemers(null, null));
 
-/* ---------- TAB 4: sjablonen beheren ---------- */
+/* ---------- TAB 5: sjablonen beheren ---------- */
 function renderSjablonen(){
   const sjablonen = loadSjablonen();
   document.getElementById("telSjablonen").textContent = sjablonen.length;
@@ -1496,8 +1740,21 @@ if(!localStorage.getItem(PP_KEY)){
     {id:"seed-3", titel:"Vlechtworkshop: visgraat & invlecht", datum:"2026-09-12", tijd:"10:00", locatie:"Buurthuis De Schakel", categorie:"Workshop", beschrijving:"Vervolgworkshop voor wie de basis onder de knie heeft.", uitgelicht:false}
   ]);
 }
+/* Seed-blogs — kopie van seedBlogs in blog.html en blogpost.html (wijzig je er een, wijzig hem overal) */
+if(!localStorage.getItem(BLOG_KEY)){
+  saveBlogs([
+    {id:"seed-blog-1", titel:"Tien duimen en één droom: zo begon Papa & Pony's", datum:"2026-06-20", auteur:"Faizi", gepubliceerd:true,
+     samenvatting:"Hoe één scheef staartje voor de spiegel uitgroeide tot een community van 35 vaders die elkaar leren vlechten.",
+     tekst:"Het begon op een doordeweekse ochtend voor de spiegel. Mijn dochter wilde \"haar zoals een prinses\" en ik had tien duimen, drie elastiekjes en precies nul idee. Het staartje dat ik uiteindelijk maakte hing scheef, maar zij straalde alsof ik een kroon had opgezet.\n\n## Van keukentafel naar buurthuis\n\nIk bleek niet de enige papa met dit probleem. In de app-groep van school bekenden meer vaders dat ze stiekem tutorials keken. Dus schoven we op een avond met z'n vijven aan de keukentafel, oefenhoofd in het midden, koffie erbij. Binnen een maand waren we met vijftien en pasten we niet meer in de keuken.\n\n## Waarom het werkt\n\nVlechten is het excuus; het echte verhaal is de tijd die je met je dochter doorbrengt — en met elkaar. Tussen de strengen door gaat het over voorlezen, slaapritmes en alles waar je als vader soms mee worstelt. Niemand hoeft stoer te doen. Scheve vlechten worden hier gevierd.\n\n## En nu?\n\nInmiddels zijn we met meer dan 35 papa's, stond er een verhaal over ons in de krant en organiseren we workshops en uitjes. Nieuwsgierig? Kom een keer langs bij een evenement, of meld je aan voor de WhatsApp-community. Je hoeft niets te kunnen — alleen te willen.",
+     fotos:["fotos/twee-lachende-mannen.jpg","fotos/presenteren.jpg"]},
+    {id:"seed-blog-2", titel:"De basisvlecht in vijf stappen (voor papa's met haast)", datum:"2026-07-15", auteur:"Faizi", gepubliceerd:true,
+     samenvatting:"Een borstel, drie strengen en twee minuten geduld: de vlecht waarmee elke papa kan beginnen — stap voor stap.",
+     tekst:"Geen tijd voor een tutorial van twintig minuten? Dit is de basisvlecht zoals we hem in de workshop leren — kort, eerlijk en getest op echte, wiebelende dochters.\n\n## Stap 1: borstel eerst\n\nEen vlecht in klitterig haar is vragen om tranen (die van jou). Borstel rustig door, begin onderaan en werk omhoog. Een beetje water of anti-klitspray maakt het haar handzamer.\n\n## Stap 2: verdeel in drie strengen\n\nMaak drie gelijke strengen. \"Gelijk\" is hier een streven, geen wet. Houd links en rechts elk één streng vast en laat de middelste even hangen.\n\n## Stap 3: om en om\n\nRechterstreng over de middelste. Dan de linkerstreng over de nieuwe middelste. Dat is alles — de rest is herhalen. Zeg het ritme hardop (\"rechts, links, rechts\"), dat helpt echt.\n\n## Stap 4: niet te strak, niet te los\n\nTrek na elke wissel de strengen zachtjes aan. Te los zakt uit, te strak trekt aan de hoofdhuid — en dan is het spel snel voorbij.\n\n## Stap 5: elastiekje en vieren\n\nSluit af met een elastiekje en geef jezelf en je dochter een high five. Scheef? Prima. Morgen weer een kans. En in de WhatsApp-groep helpen we je verder als je vastloopt.",
+     fotos:["fotos/vlechten.jpg"]}
+  ]);
+}
 
-function renderAlles(){ renderStats(); renderEvents(); renderInschrijvingen(); renderInschrijfEventOpties(); renderWhatsapp(); renderSjablonen(); renderBeheerders(); }
+function renderAlles(){ renderStats(); renderEvents(); renderInschrijvingen(); renderInschrijfEventOpties(); renderWhatsapp(); renderBlogs(); renderSjablonen(); renderBeheerders(); }
 
 /* ---------- Start: eerst inloggen, dan pas renderen ---------- */
 (async function start(){

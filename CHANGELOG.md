@@ -5,6 +5,19 @@ Het format volgt [Keep a Changelog](https://keepachangelog.com/nl/1.1.0/).
 
 ## [Unreleased]
 
+## [0.22.0] - 2026-07-23
+
+### Toegevoegd
+- Blog: papa's uit de community kunnen verhalen publiceren op de site
+  - Nieuwe pagina `blog.html` (overzicht van alle gepubliceerde berichten, nieuwste eerst; het nieuwste bericht krijgt een brede uitgelichte kaart) en `blogpost.html?b=<slug>` (landingspagina per bericht met kop-foto, tussenkopjes, auteurskaart, deelknoppen en "Lees ook")
+  - Nieuwe localStorage-sleutel `pp_blogs`; twee meegeleverde seed-berichten (gedupliceerd in blog.html, blogpost.html én het beheer — zelfde patroon als de evenement-seeds)
+  - Nieuwe beheertab "✍️ Blog": berichten schrijven/bewerken/verwijderen, foto-upload (eerste foto = kop-foto), publicatiedatum en een gepubliceerd/concept-schakelaar; opmaak via lege regels (alinea's) en `## ` (tussenkopjes)
+  - "Blog" in de menubalk van de homepage en in de footers; blog.html heeft dezelfde menubalk als de homepage met Blog als actieve pagina
+  - SEO: Blog-schema (JSON-LD) op het overzicht, BlogPosting-schema + dynamische title/description/canonical/OG per bericht, noindex bij onbekende of concept-berichten; blog.html en de seed-slugs in sitemap.xml
+- Accountrollen in het beheer: nieuw veld `rol` op beheerdersaccounts — "beheerder" (alles, ook accounts zonder het veld) of "blogger" (alleen blogs schrijven)
+  - Een blogger ziet na het inloggen alleen de Blog-tab en kan alleen eigen berichten bewerken, verwijderen of publiceren (match op auteur); beheerders mogen alle berichten beheren
+  - De rol staat als pill in de beheerderslijst en in de header ("✍️ blogger"); de laatste beheerder kan niet worden verwijderd of naar blogger worden omgezet
+
 ## [0.21.0] - 2026-07-23
 
 ### Toegevoegd

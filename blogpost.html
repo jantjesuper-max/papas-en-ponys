@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<!--
+  Papa & Pony's — landingspagina per blogbericht
+  Gebruik: blogpost.html?b=<slug-van-titel> (of ?id=<blog-id> als fallback).
+  Rendert volledig client-side vanuit localStorage (pp_blogs). Alleen
+  gepubliceerde berichten worden getoond; concepten en onbekende slugs
+  krijgen een nette "niet gevonden"-pagina (noindex).
+  Opmaak van het verhaal: lege regel = nieuwe alinea, regel die met "## "
+  begint = tussenkopje. Architectuur: zie CLAUDE.md.
+
+  LET OP: seedBlogs hieronder is een kopie van die in blog.html en de
+  seed in admin/index.html — wijzig je een seed, wijzig hem overal.
+-->
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blog | Papa &amp; Pony's</title>
+<meta name="description" content="Een verhaal van een papa uit de Papa & Pony's community.">
+<link rel="canonical" href="https://jantjesuper-max.github.io/papas-en-ponys/blogpost.html" id="canonicalLink">
+<meta name="theme-color" content="#fffdf9">
+<!-- Open Graph — wordt per blogbericht dynamisch ingevuld -->
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Papa & Pony's">
+<meta property="og:title" content="Blog | Papa & Pony's">
+<meta property="og:description" content="Een verhaal van een papa uit de Papa & Pony's community.">
+<meta property="og:url" content="https://jantjesuper-max.github.io/papas-en-ponys/blogpost.html">
+<meta property="og:image" content="https://jantjesuper-max.github.io/papas-en-ponys/fotos/twee-lachende-mannen.jpg">
+<meta property="og:locale" content="nl_NL">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1e2430;
+  --ink-soft:#4a5264;
+  --paper:#fffdf9;
+  --paper-tint:#fdf6ec;
+  --accent:#e8a020;
+  --accent-deep:#c9861a;
+  --rose:#e8637e;
+  --rose-soft:#fbe9ed;
+  --line:#e9e2d6;
+  --radius:16px;
+  --font-display:'Outfit',sans-serif;
+  --font-mono:'IBM Plex Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-display);background:var(--paper);color:var(--ink);line-height:1.6;overflow-x:hidden}
+::selection{background:var(--accent);color:#fff}
+
+/* ---------- Nav ---------- */
+nav{position:sticky;top:0;z-index:100;background:rgba(255,253,249,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.nav-inner{max-width:1120px;margin:0 auto;padding:0 24px;height:72px;display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.25rem;text-decoration:none;color:var(--ink)}
+.logo .mark{width:40px;height:40px;display:grid;place-items:center;background:var(--rose-soft);border-radius:12px;font-size:1.3rem;transition:transform .4s cubic-bezier(.34,1.56,.64,1)}
+.logo:hover .mark{transform:rotate(-12deg) scale(1.1)}
+.terug{font-size:.92rem;color:var(--ink-soft);text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:color .2s}
+.terug:hover{color:var(--ink)}
+.terug .pijl{transition:transform .25s ease;display:inline-block}
+.terug:hover .pijl{transform:translateX(-4px)}
+
+/* ---------- Buttons ---------- */
+.btn{display:inline-flex;align-items:center;gap:8px;background:var(--ink);color:#fff;font-weight:600;font-size:.95rem;padding:12px 22px;border-radius:999px;text-decoration:none;border:none;cursor:pointer;white-space:nowrap;flex-shrink:0;font-family:var(--font-display);transition:transform .2s cubic-bezier(.34,1.56,.64,1),box-shadow .2s ease,background .2s ease}
+.btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(30,36,48,.18)}
+.btn:active{transform:translateY(0) scale(.97)}
+.btn .arrow{display:inline-block;transition:transform .25s ease}
+.btn:hover .arrow{transform:translateX(4px)}
+.btn.gold{background:var(--accent)}
+.btn.gold:hover{background:var(--accent-deep);box-shadow:0 8px 20px rgba(232,160,32,.35)}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+.btn.ghost:hover{border-color:var(--ink);box-shadow:none}
+
+/* ---------- Artikel-hero ---------- */
+.post-hero{max-width:780px;margin:0 auto;padding:56px 24px 8px;text-align:center}
+.post-hero .eyebrow{display:inline-flex;align-items:center;gap:10px;font-family:var(--font-mono);font-size:.76rem;color:var(--accent-deep);background:var(--paper-tint);border:1px solid var(--line);padding:6px 14px;border-radius:999px;margin-bottom:20px}
+h1{font-size:clamp(1.9rem,4.4vw,3rem);font-weight:800;line-height:1.12;letter-spacing:-.02em;margin-bottom:16px}
+.post-hero .intro{font-size:1.12rem;color:var(--ink-soft);max-width:56ch;margin:0 auto 22px}
+.auteur-pill{display:inline-flex;align-items:center;gap:8px;font-family:var(--font-mono);font-size:.78rem;color:var(--rose);background:var(--rose-soft);padding:6px 15px;border-radius:999px}
+
+/* ---------- Kop-foto ---------- */
+.post-foto{max-width:900px;margin:30px auto 0;padding:0 24px}
+.post-foto figure{margin:0;border-radius:26px;overflow:hidden;border:1px solid var(--line);box-shadow:0 28px 60px -30px rgba(30,36,48,.35)}
+.post-foto img{width:100%;display:block;aspect-ratio:16/8;object-fit:cover}
+
+/* ---------- Artikeltekst ---------- */
+.post-body{max-width:720px;margin:0 auto;padding:40px 24px 8px}
+.post-body p{font-size:1.05rem;color:var(--ink-soft);margin-bottom:20px}
+.post-body p:first-of-type::first-letter{font-size:2.6em;font-weight:800;color:var(--rose);float:left;line-height:.9;padding-right:10px;padding-top:4px}
+.post-body h2{font-size:1.35rem;font-weight:800;letter-spacing:-.01em;margin:34px 0 12px;display:flex;align-items:center;gap:10px}
+.post-body h2::before{content:"";width:22px;height:4px;border-radius:2px;background:var(--accent);flex-shrink:0}
+
+/* extra foto's onder het verhaal */
+.post-extra-fotos{max-width:900px;margin:24px auto 0;padding:0 24px;display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.post-extra-fotos figure{margin:0;border-radius:18px;overflow:hidden;border:1px solid var(--line)}
+.post-extra-fotos img{width:100%;height:100%;aspect-ratio:4/3;object-fit:cover;display:block;transition:transform .45s cubic-bezier(.22,1,.36,1)}
+.post-extra-fotos figure:hover img{transform:scale(1.045)}
+.post-extra-fotos figure:only-child{grid-column:1/-1}
+.post-extra-fotos figure:only-child img{aspect-ratio:16/8}
+
+/* ---------- Auteurkaart + delen ---------- */
+.post-voet{max-width:720px;margin:36px auto 0;padding:0 24px}
+.auteur-kaart{background:var(--paper-tint);border:1px solid var(--line);border-radius:22px;padding:24px 26px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.auteur-kaart .avatar{width:56px;height:56px;flex-shrink:0;display:grid;place-items:center;background:var(--rose-soft);border-radius:16px;font-size:1.6rem}
+.auteur-kaart .wie{flex:1;min-width:200px}
+.auteur-kaart .wie b{font-size:1.02rem}
+.auteur-kaart .wie p{font-size:.88rem;color:var(--ink-soft);margin:0}
+.deel{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:22px}
+.deel .btn{font-size:.85rem;padding:10px 18px}
+
+/* ---------- Lees ook ---------- */
+.lees-ook{max-width:1120px;margin:0 auto;padding:56px 24px 72px}
+.lees-ook h2{font-size:1.45rem;font-weight:800;letter-spacing:-.01em;margin-bottom:18px;text-align:center}
+.lees-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.lees-kaart{display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden;text-decoration:none;color:var(--ink);transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease}
+.lees-kaart:hover{transform:translateY(-4px);box-shadow:0 16px 38px -20px rgba(30,36,48,.28);border-color:var(--accent)}
+.lees-kaart .mini-foto{aspect-ratio:16/9;background:linear-gradient(135deg,var(--rose-soft),var(--paper-tint));overflow:hidden;display:grid;place-items:center;font-size:2rem}
+.lees-kaart .mini-foto img{width:100%;height:100%;object-fit:cover;display:block}
+.lees-kaart .mini-body{padding:16px 18px 18px}
+.lees-kaart .mini-body .datum{font-family:var(--font-mono);font-size:.68rem;color:var(--ink-soft)}
+.lees-kaart h3{font-size:1rem;font-weight:700;line-height:1.3;margin-top:4px}
+
+/* ---------- Niet gevonden ---------- */
+.niet-gevonden{max-width:560px;margin:0 auto;padding:96px 24px;text-align:center}
+.niet-gevonden .icon{font-size:3rem;display:block;margin-bottom:16px;animation:floaty 4s ease-in-out infinite}
+@keyframes floaty{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-12px) rotate(6deg)}}
+.niet-gevonden h1{font-size:1.8rem;margin-bottom:10px}
+.niet-gevonden p{color:var(--ink-soft);margin-bottom:26px}
+
+/* ---------- Reveal + toast + footer ---------- */
+.reveal{opacity:1;transform:none}
+@media (prefers-reduced-motion: no-preference){
+  .reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s cubic-bezier(.22,1,.36,1)}
+  .reveal.in{opacity:1;transform:none}
+}
+#toast{position:fixed;bottom:28px;left:50%;transform:translate(-50%,80px);background:var(--ink);color:#fff;padding:13px 24px;border-radius:999px;font-size:.9rem;font-weight:500;box-shadow:0 12px 30px rgba(30,36,48,.3);transition:transform .4s cubic-bezier(.34,1.56,.64,1);z-index:300}
+#toast.zichtbaar{transform:translate(-50%,0)}
+footer{border-top:1px solid var(--line);padding:32px 24px;max-width:1120px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
+footer p{font-size:.88rem;color:var(--ink-soft)}
+footer a{font-family:var(--font-mono);font-size:.78rem;color:var(--ink-soft);text-decoration:none;border-bottom:1px dashed var(--line);transition:color .2s,border-color .2s}
+footer a:hover{color:var(--accent-deep);border-color:var(--accent)}
+
+/* ---------- Responsive ---------- */
+@media (max-width:860px){
+  .lees-grid{grid-template-columns:1fr}
+  .post-extra-fotos{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a class="logo" href="index.html"><span class="mark">🐴</span>Papa &amp; Pony's</a>
+    <a class="terug" href="blog.html"><span class="pijl">←</span> Alle verhalen</a>
+  </div>
+</nav>
+
+<div id="pagina"></div>
+
+<div id="toast"></div>
+
+<footer>
+  <p>© <span id="jaar"></span> Papa &amp; Pony's · voor meisjespapa's, door meisjespapa's</p>
+  <div style="display:flex;gap:18px">
+    <a href="blog.html">blog</a>
+    <a href="voorwaarden.html">voorwaarden</a>
+    <a href="admin/index.html">beheer</a>
+  </div>
+</footer>
+
+<script>
+/* ============================================================
+   BLOGPOST-SCRIPT
+   Leest ?b=<slug> (of ?id=) uit de URL, zoekt het bericht in
+   localStorage (pp_blogs) en bouwt de pagina met innerHTML.
+   Alleen gepubliceerde berichten; onbekend of concept → nette
+   "niet gevonden"-pagina met noindex.
+   ============================================================ */
+const BLOG_KEY = "pp_blogs";
+const maanden = ["januari","februari","maart","april","mei","juni","juli","augustus","september","oktober","november","december"];
+
+/* Seed-blogs — kopie van die in blog.html en admin/index.html (wijzig je er een, wijzig hem overal) */
+const seedBlogs = [
+  {id:"seed-blog-1", titel:"Tien duimen en één droom: zo begon Papa & Pony's", datum:"2026-06-20", auteur:"Faizi", gepubliceerd:true,
+   samenvatting:"Hoe één scheef staartje voor de spiegel uitgroeide tot een community van 35 vaders die elkaar leren vlechten.",
+   tekst:"Het begon op een doordeweekse ochtend voor de spiegel. Mijn dochter wilde \"haar zoals een prinses\" en ik had tien duimen, drie elastiekjes en precies nul idee. Het staartje dat ik uiteindelijk maakte hing scheef, maar zij straalde alsof ik een kroon had opgezet.\n\n## Van keukentafel naar buurthuis\n\nIk bleek niet de enige papa met dit probleem. In de app-groep van school bekenden meer vaders dat ze stiekem tutorials keken. Dus schoven we op een avond met z'n vijven aan de keukentafel, oefenhoofd in het midden, koffie erbij. Binnen een maand waren we met vijftien en pasten we niet meer in de keuken.\n\n## Waarom het werkt\n\nVlechten is het excuus; het echte verhaal is de tijd die je met je dochter doorbrengt — en met elkaar. Tussen de strengen door gaat het over voorlezen, slaapritmes en alles waar je als vader soms mee worstelt. Niemand hoeft stoer te doen. Scheve vlechten worden hier gevierd.\n\n## En nu?\n\nInmiddels zijn we met meer dan 35 papa's, stond er een verhaal over ons in de krant en organiseren we workshops en uitjes. Nieuwsgierig? Kom een keer langs bij een evenement, of meld je aan voor de WhatsApp-community. Je hoeft niets te kunnen — alleen te willen.",
+   fotos:["fotos/twee-lachende-mannen.jpg","fotos/presenteren.jpg"]},
+  {id:"seed-blog-2", titel:"De basisvlecht in vijf stappen (voor papa's met haast)", datum:"2026-07-15", auteur:"Faizi", gepubliceerd:true,
+   samenvatting:"Een borstel, drie strengen en twee minuten geduld: de vlecht waarmee elke papa kan beginnen — stap voor stap.",
+   tekst:"Geen tijd voor een tutorial van twintig minuten? Dit is de basisvlecht zoals we hem in de workshop leren — kort, eerlijk en getest op echte, wiebelende dochters.\n\n## Stap 1: borstel eerst\n\nEen vlecht in klitterig haar is vragen om tranen (die van jou). Borstel rustig door, begin onderaan en werk omhoog. Een beetje water of anti-klitspray maakt het haar handzamer.\n\n## Stap 2: verdeel in drie strengen\n\nMaak drie gelijke strengen. \"Gelijk\" is hier een streven, geen wet. Houd links en rechts elk één streng vast en laat de middelste even hangen.\n\n## Stap 3: om en om\n\nRechterstreng over de middelste. Dan de linkerstreng over de nieuwe middelste. Dat is alles — de rest is herhalen. Zeg het ritme hardop (\"rechts, links, rechts\"), dat helpt echt.\n\n## Stap 4: niet te strak, niet te los\n\nTrek na elke wissel de strengen zachtjes aan. Te los zakt uit, te strak trekt aan de hoofdhuid — en dan is het spel snel voorbij.\n\n## Stap 5: elastiekje en vieren\n\nSluit af met een elastiekje en geef jezelf en je dochter een high five. Scheef? Prima. Morgen weer een kans. En in de WhatsApp-groep helpen we je verder als je vastloopt.",
+   fotos:["fotos/vlechten.jpg"]}
+];
+
+function loadBlogs(){
+  try{
+    const raw = localStorage.getItem(BLOG_KEY);
+    if(!raw){ localStorage.setItem(BLOG_KEY, JSON.stringify(seedBlogs)); return seedBlogs; }
+    return JSON.parse(raw);
+  }catch(e){ return seedBlogs; }
+}
+/* HTML-escaper: alle gebruikersinvoer gaat hierdoorheen voordat het in innerHTML belandt (XSS) */
+function esc(s){ const d=document.createElement("div"); d.textContent=s??""; return d.innerHTML; }
+function blogGepubliceerd(b){ return b.gepubliceerd !== false; }
+function slugify(t){ return (t||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,""); }
+function fmtDatumLang(iso){ const d = new Date(iso+"T00:00:00"); return `${d.getDate()} ${maanden[d.getMonth()]} ${d.getFullYear()}`; }
+
+/* Verhaal → HTML: lege regel = nieuwe alinea, "## " aan het begin van een
+   regel = tussenkopje. Alles gaat eerst door esc() (XSS). */
+function verhaalHtml(tekst){
+  return (tekst||"").split(/\n\s*\n/).map(blok=>{
+    const b = blok.trim();
+    if(!b) return "";
+    if(b.startsWith("## ")) return `<h2>${esc(b.slice(3).trim())}</h2>`;
+    return `<p>${esc(b).replace(/\n/g,"<br>")}</p>`;
+  }).join("");
+}
+
+const params = new URLSearchParams(location.search);
+const alleBlogs = loadBlogs();
+/* Zoek op leesbare slug (?b=titel-als-slug); ?id= blijft als fallback werken.
+   Concepten zijn op de site onvindbaar. */
+const post = (params.get("id")
+  ? alleBlogs.find(b => b.id === params.get("id"))
+  : alleBlogs.find(b => slugify(b.titel) === params.get("b"))) || null;
+const zichtbaar = post && blogGepubliceerd(post) ? post : null;
+if(zichtbaar){
+  try{ history.replaceState(null, "", `blogpost.html?b=${slugify(zichtbaar.titel)}`); }catch(err){ /* file:// staat dit soms niet toe */ }
+}
+const pagina = document.getElementById("pagina");
+
+/* ---------- SEO: per bericht de juiste meta, canonical en BlogPosting-schema ---------- */
+const SITE_URL = "https://jantjesuper-max.github.io/papas-en-ponys";
+function zetMeta(attr, naam, inhoud){
+  let el = document.querySelector(`meta[${attr}="${naam}"]`);
+  if(!el){ el = document.createElement("meta"); el.setAttribute(attr, naam); document.head.appendChild(el); }
+  el.setAttribute("content", inhoud);
+}
+function zetSeo(b){
+  const url = `${SITE_URL}/blogpost.html?b=${slugify(b.titel)}`;
+  const titel = `${b.titel} | Blog — Papa & Pony's`;
+  const omschrijving = b.samenvatting || `Een verhaal van ${b.auteur || "een papa"} uit de Papa & Pony's community.`;
+  document.title = titel;
+  document.getElementById("canonicalLink").href = url;
+  zetMeta("name", "description", omschrijving);
+  zetMeta("property", "og:title", titel);
+  zetMeta("property", "og:description", omschrijving);
+  zetMeta("property", "og:url", url);
+  const foto = (b.fotos||[]).find(f=>!f.startsWith("data:"));
+  if(foto) zetMeta("property", "og:image", `${SITE_URL}/${foto}`);
+
+  /* BlogPosting-schema (schema.org) voor Google */
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": b.titel,
+    "description": omschrijving,
+    "datePublished": b.datum,
+    "inLanguage": "nl",
+    "url": url,
+    ...(foto ? {"image": [`${SITE_URL}/${foto}`]} : {}),
+    "author": { "@type": "Person", "name": b.auteur || "Papa & Pony's" },
+    "publisher": { "@id": `${SITE_URL}/#organisatie` },
+    "isPartOf": { "@type": "Blog", "name": "Papa & Pony's Blog", "url": `${SITE_URL}/blog.html` }
+  };
+  const s = document.createElement("script");
+  s.type = "application/ld+json";
+  s.textContent = JSON.stringify(schema);
+  document.head.appendChild(s);
+}
+
+/* ---------- Renderen ---------- */
+function renderNietGevonden(){
+  const m = document.createElement("meta");
+  m.name = "robots"; m.content = "noindex";
+  document.head.appendChild(m);
+  pagina.innerHTML = `
+    <div class="niet-gevonden">
+      <span class="icon">🔍</span>
+      <h1>Dit verhaal kunnen we niet vinden</h1>
+      <p>Misschien is het bericht verwijderd, of klopt de link niet helemaal. Op de blogpagina staan alle verhalen van de community.</p>
+      <a class="btn gold" href="blog.html">Naar alle verhalen <span class="arrow">→</span></a>
+    </div>`;
+}
+
+function renderPost(b){
+  zetSeo(b);
+  const fotos = b.fotos || [];
+  const kopFoto = fotos[0];
+  const extraFotos = fotos.slice(1);
+  const anderen = alleBlogs.filter(x => x.id !== b.id && blogGepubliceerd(x))
+    .sort((x,y)=>(y.datum||"").localeCompare(x.datum||"")).slice(0,3);
+
+  pagina.innerHTML = `
+    <header class="post-hero">
+      <span class="eyebrow">✍️ blog <span aria-hidden="true">·</span> ${fmtDatumLang(b.datum||"2000-01-01")}</span>
+      <h1>${esc(b.titel)}</h1>
+      ${b.samenvatting ? `<p class="intro">${esc(b.samenvatting)}</p>` : ""}
+      <span class="auteur-pill">👤 door ${esc(b.auteur||"een papa uit de community")}</span>
+    </header>
+    ${kopFoto ? `
+    <div class="post-foto reveal in">
+      <figure><img src="${esc(kopFoto)}" alt="Foto bij het verhaal: ${esc(b.titel)}" fetchpriority="high" decoding="async"></figure>
+    </div>` : ""}
+    <article class="post-body">${verhaalHtml(b.tekst)}</article>
+    ${extraFotos.length ? `
+    <div class="post-extra-fotos">
+      ${extraFotos.map((f,i)=>`<figure class="reveal"><img src="${esc(f)}" alt="Extra foto ${i+1} bij het verhaal" loading="lazy" decoding="async"></figure>`).join("")}
+    </div>` : ""}
+    <div class="post-voet">
+      <div class="auteur-kaart reveal">
+        <span class="avatar">👨‍👧</span>
+        <div class="wie">
+          <b>${esc(b.auteur||"Een papa uit de community")}</b>
+          <p>Papa uit de Papa &amp; Pony's community — schrijft over vlechten, vaderschap en alles daartussenin.</p>
+        </div>
+        <a class="btn ghost" href="index.html#community">Word ook lid</a>
+      </div>
+      <div class="deel">
+        <button class="btn ghost" id="kopieerLink">🔗 Kopieer link</button>
+        <a class="btn ghost" id="deelWhatsapp" target="_blank" rel="noopener">💬 Deel via WhatsApp</a>
+      </div>
+    </div>
+    ${anderen.length ? `
+    <section class="lees-ook">
+      <h2>Lees ook</h2>
+      <div class="lees-grid">
+        ${anderen.map(x=>{
+          const f = (x.fotos||[])[0];
+          return `<a class="lees-kaart reveal" href="blogpost.html?b=${slugify(x.titel)}">
+            <div class="mini-foto">${f?`<img src="${esc(f)}" alt="${esc(x.titel)}" loading="lazy" decoding="async">`:"🎀"}</div>
+            <div class="mini-body">
+              <span class="datum">🗓️ ${fmtDatumLang(x.datum||"2000-01-01")}</span>
+              <h3>${esc(x.titel)}</h3>
+            </div>
+          </a>`;
+        }).join("")}
+      </div>
+    </section>` : `<div style="height:56px"></div>`}`;
+
+  /* delen */
+  const deelUrl = `${SITE_URL}/blogpost.html?b=${slugify(b.titel)}`;
+  document.getElementById("deelWhatsapp").href =
+    "https://wa.me/?text=" + encodeURIComponent(`${b.titel} — een verhaal van de Papa & Pony's blog: ${deelUrl}`);
+  document.getElementById("kopieerLink").addEventListener("click", async ()=>{
+    try{ await navigator.clipboard.writeText(deelUrl); toast("Link gekopieerd 🔗"); }
+    catch(e){ toast("Kopiëren lukte niet — de link staat in de adresbalk"); }
+  });
+}
+
+if(zichtbaar){ renderPost(zichtbaar); } else { renderNietGevonden(); }
+
+/* ---------- Toast ---------- */
+let toastTimer;
+function toast(txt){
+  const t = document.getElementById("toast");
+  t.textContent = txt;
+  t.classList.add("zichtbaar");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove("zichtbaar"), 2600);
+}
+
+document.getElementById("jaar").textContent = new Date().getFullYear();
+
+/* Secties schuiven zachtjes in beeld bij het scrollen */
+(function(){
+  const els = document.querySelectorAll(".reveal:not(.in)");
+  if(!("IntersectionObserver" in window)){ els.forEach(el => el.classList.add("in")); return; }
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add("in"); obs.unobserve(e.target); } });
+  }, {threshold:.12});
+  els.forEach(el => obs.observe(el));
+})();
+</script>
+</body>
+</html>
