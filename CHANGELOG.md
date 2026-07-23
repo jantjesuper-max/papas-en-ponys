@@ -5,6 +5,16 @@ Het format volgt [Keep a Changelog](https://keepachangelog.com/nl/1.1.0/).
 
 ## [Unreleased]
 
+## [0.23.0] - 2026-07-23
+
+### Toegevoegd
+- Opmaakbalk boven het verhaal-veld in de blogtab: vet, cursief, onderstrepen, markeren, tussenkopjes (H2/H3), opsomming, genummerde lijst, citaat, link, foto invoegen en scheidingslijn — de knoppen zetten opmaaktekens om de selectie heen
+  - Het verhaal ondersteunt nu `**vet**`, `*cursief*`, `__onderstreept__`, `==markeren==`, `[tekst](https://...)`-links (alleen http(s)), `- ` opsommingen, `1. ` genummerde lijsten, `> ` citaten, `---` scheidingslijnen en `### ` kleine kopjes; gerenderd door `verhaalHtml()`/`inlineOpmaak()` (gedupliceerd in blogpost.html én het beheer)
+- Foto's midden in het verhaal: de 📷-knop in de opmaakbalk voegt `[foto:N]` in (kies uit de geüploade foto's); die foto verschijnt op die plek in het verhaal en wordt niet nóg eens onderaan herhaald
+- Voorbeeld bekijken vóór publicatie:
+  - 👁️ Voorbeeld-knop in het blogformulier: modal die het bericht (ook ongeopslagen wijzigingen) rendert zoals op de echte blogpagina
+  - 👁️-knop bij concepten in de lijst: opent `blogpost.html?voorbeeld=<id>` — de échte landingspagina in voorbeeldmodus, met conceptbanner en noindex; concepten blijven voor bezoekers onvindbaar
+
 ## [0.22.0] - 2026-07-23
 
 ### Toegevoegd

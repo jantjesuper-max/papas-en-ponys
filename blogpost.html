@@ -5,8 +5,15 @@
   Rendert volledig client-side vanuit localStorage (pp_blogs). Alleen
   gepubliceerde berichten worden getoond; concepten en onbekende slugs
   krijgen een nette "niet gevonden"-pagina (noindex).
-  Opmaak van het verhaal: lege regel = nieuwe alinea, regel die met "## "
-  begint = tussenkopje. Architectuur: zie CLAUDE.md.
+  Opmaak van het verhaal (zie verhaalHtml(), gedupliceerd in admin/index.html
+  voor het voorbeeld): lege regel = alinea, "## "/"### " = tussenkopje,
+  **vet**, *cursief*, __onderstreept__, ==markeren==, [tekst](https://...),
+  "- " = opsomming, "1. " = genummerde lijst, "> " = citaat, "---" =
+  scheidingslijn, "[foto:N]" op een eigen regel = foto N uit de fotolijst
+  midden in het verhaal.
+  Voorbeeldmodus: blogpost.html?voorbeeld=<id> toont ook concepten, met een
+  conceptbanner en noindex — zo kun je vanuit het beheer kijken hoe een
+  bericht eruit komt te zien. Architectuur: zie CLAUDE.md.
 
   LET OP: seedBlogs hieronder is een kopie van die in blog.html en de
   seed in admin/index.html — wijzig je een seed, wijzig hem overal.
@@ -91,6 +98,24 @@ h1{font-size:clamp(1.9rem,4.4vw,3rem);font-weight:800;line-height:1.12;letter-sp
 .post-body p:first-of-type::first-letter{font-size:2.6em;font-weight:800;color:var(--rose);float:left;line-height:.9;padding-right:10px;padding-top:4px}
 .post-body h2{font-size:1.35rem;font-weight:800;letter-spacing:-.01em;margin:34px 0 12px;display:flex;align-items:center;gap:10px}
 .post-body h2::before{content:"";width:22px;height:4px;border-radius:2px;background:var(--accent);flex-shrink:0}
+.post-body h3{font-size:1.12rem;font-weight:700;letter-spacing:-.01em;margin:26px 0 10px}
+.post-body ul,.post-body ol{margin:0 0 20px 24px;color:var(--ink-soft);font-size:1.05rem}
+.post-body li{margin-bottom:8px}
+.post-body ul li::marker{color:var(--accent)}
+.post-body ol li::marker{color:var(--accent-deep);font-weight:700}
+.post-body blockquote{margin:26px 0;padding:16px 22px;background:var(--rose-soft);border-left:4px solid var(--rose);border-radius:0 16px 16px 0;font-size:1.08rem;color:var(--ink);font-style:italic}
+.post-body hr{border:none;border-top:1.5px dashed var(--line);margin:32px auto;width:60%}
+.post-body a{color:var(--accent-deep);text-decoration:none;border-bottom:1px dashed var(--accent);transition:color .2s}
+.post-body a:hover{color:var(--rose)}
+.post-body mark{background:var(--rose-soft);color:var(--ink);padding:1px 5px;border-radius:6px}
+.post-body u{text-decoration-color:var(--accent);text-decoration-thickness:2px;text-underline-offset:3px}
+/* foto's midden in het verhaal via [foto:N] */
+.post-body .verhaal-foto{margin:28px 0;border-radius:18px;overflow:hidden;border:1px solid var(--line);box-shadow:0 20px 44px -26px rgba(30,36,48,.35)}
+.post-body .verhaal-foto img{width:100%;display:block}
+
+/* banner boven een conceptvoorbeeld (?voorbeeld=<id>) */
+.concept-banner{max-width:720px;margin:24px auto -20px;padding:0 24px}
+.concept-banner .inner{background:#fdf3e0;border:1.5px dashed var(--accent);color:var(--accent-deep);border-radius:14px;padding:12px 18px;font-size:.9rem;display:flex;align-items:center;gap:10px}
 
 /* extra foto's onder het verhaal */
 .post-extra-fotos{max-width:900px;margin:24px auto 0;padding:0 24px;display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
@@ -210,26 +235,60 @@ function blogGepubliceerd(b){ return b.gepubliceerd !== false; }
 function slugify(t){ return (t||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,""); }
 function fmtDatumLang(iso){ const d = new Date(iso+"T00:00:00"); return `${d.getDate()} ${maanden[d.getMonth()]} ${d.getFullYear()}`; }
 
-/* Verhaal → HTML: lege regel = nieuwe alinea, "## " aan het begin van een
-   regel = tussenkopje. Alles gaat eerst door esc() (XSS). */
-function verhaalHtml(tekst){
+/* Opmaak bínnen een regel (op al ge-esc()apte tekst): **vet**, *cursief*,
+   __onderstreept__, ==markeren== en [tekst](https://...)-links (alleen http(s)).
+   LET OP: gedupliceerd in admin/index.html voor het voorbeeld — wijzig je
+   iets, wijzig het daar ook. */
+function inlineOpmaak(t){
+  return t
+    .replace(/\[([^\]]+)\]\((https?:[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>')
+    .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+    .replace(/__([^_]+)__/g, "<u>$1</u>")
+    .replace(/==([^=]+)==/g, "<mark>$1</mark>")
+    .replace(/\*([^*]+)\*/g, "<em>$1</em>");
+}
+/* Verhaal → HTML. Blokken gescheiden door een lege regel:
+   "## "/"### " = kopje, "- " = opsomming, "1. " = genummerde lijst,
+   "> " = citaat, "---" = scheidingslijn, "[foto:N]" = foto N (1 = kop-foto)
+   midden in het verhaal, anders een alinea. Alles gaat eerst door esc() (XSS). */
+function verhaalHtml(tekst, fotos){
+  fotos = fotos || [];
   return (tekst||"").split(/\n\s*\n/).map(blok=>{
     const b = blok.trim();
     if(!b) return "";
-    if(b.startsWith("## ")) return `<h2>${esc(b.slice(3).trim())}</h2>`;
-    return `<p>${esc(b).replace(/\n/g,"<br>")}</p>`;
+    if(/^-{3,}$/.test(b)) return "<hr>";
+    const fotoMatch = b.match(/^\[foto:(\d+)\]$/i);
+    if(fotoMatch){
+      const f = fotos[parseInt(fotoMatch[1],10)-1];
+      return f ? `<figure class="verhaal-foto"><img src="${esc(f)}" alt="Foto ${fotoMatch[1]} bij het verhaal" loading="lazy" decoding="async"></figure>` : "";
+    }
+    if(b.startsWith("### ")) return `<h3>${inlineOpmaak(esc(b.slice(4).trim()))}</h3>`;
+    if(b.startsWith("## ")) return `<h2>${inlineOpmaak(esc(b.slice(3).trim()))}</h2>`;
+    const regels = b.split("\n").map(r=>r.trim()).filter(Boolean);
+    if(regels.every(r=>/^- /.test(r))) return `<ul>${regels.map(r=>`<li>${inlineOpmaak(esc(r.slice(2)))}</li>`).join("")}</ul>`;
+    if(regels.every(r=>/^\d+[.)] /.test(r))) return `<ol>${regels.map(r=>`<li>${inlineOpmaak(esc(r.replace(/^\d+[.)] /,"")))}</li>`).join("")}</ol>`;
+    if(regels.every(r=>/^> ?/.test(r))) return `<blockquote>${regels.map(r=>inlineOpmaak(esc(r.replace(/^> ?/,"")))).join("<br>")}</blockquote>`;
+    return `<p>${inlineOpmaak(esc(b)).replace(/\n/g,"<br>")}</p>`;
   }).join("");
+}
+/* Welke foto's (1-based indexen) staan al via [foto:N] in het verhaal? */
+function inlineFotoIndexen(tekst){
+  return [...(tekst||"").matchAll(/^\[foto:(\d+)\]$/gim)].map(m=>parseInt(m[1],10));
 }
 
 const params = new URLSearchParams(location.search);
 const alleBlogs = loadBlogs();
-/* Zoek op leesbare slug (?b=titel-als-slug); ?id= blijft als fallback werken.
-   Concepten zijn op de site onvindbaar. */
-const post = (params.get("id")
-  ? alleBlogs.find(b => b.id === params.get("id"))
-  : alleBlogs.find(b => slugify(b.titel) === params.get("b"))) || null;
-const zichtbaar = post && blogGepubliceerd(post) ? post : null;
-if(zichtbaar){
+/* Voorbeeldmodus (?voorbeeld=<id>, vanuit het beheer): toont ook concepten,
+   met banner en noindex. Normaal: zoek op slug (?b=), ?id= als fallback —
+   concepten zijn dan onvindbaar. */
+const voorbeeldId = params.get("voorbeeld");
+const post = (voorbeeldId
+  ? alleBlogs.find(b => b.id === voorbeeldId)
+  : params.get("id")
+    ? alleBlogs.find(b => b.id === params.get("id"))
+    : alleBlogs.find(b => slugify(b.titel) === params.get("b"))) || null;
+const zichtbaar = post && (voorbeeldId || blogGepubliceerd(post)) ? post : null;
+if(zichtbaar && !voorbeeldId){
   try{ history.replaceState(null, "", `blogpost.html?b=${slugify(zichtbaar.titel)}`); }catch(err){ /* file:// staat dit soms niet toe */ }
 }
 const pagina = document.getElementById("pagina");
@@ -290,13 +349,25 @@ function renderNietGevonden(){
 
 function renderPost(b){
   zetSeo(b);
+  /* voorbeeldmodus: nooit indexeren en een duidelijke banner erboven */
+  if(voorbeeldId){
+    const m = document.createElement("meta");
+    m.name = "robots"; m.content = "noindex";
+    document.head.appendChild(m);
+  }
   const fotos = b.fotos || [];
   const kopFoto = fotos[0];
-  const extraFotos = fotos.slice(1);
+  /* foto's die al via [foto:N] in het verhaal staan niet nóg eens onderaan tonen */
+  const inline = inlineFotoIndexen(b.tekst);
+  const extraFotos = fotos.filter((f,i)=>i>0 && !inline.includes(i+1));
   const anderen = alleBlogs.filter(x => x.id !== b.id && blogGepubliceerd(x))
     .sort((x,y)=>(y.datum||"").localeCompare(x.datum||"")).slice(0,3);
 
   pagina.innerHTML = `
+    ${voorbeeldId ? `
+    <div class="concept-banner">
+      <div class="inner">👁️ <b>Voorbeeld</b> — zo komt dit bericht op de site te staan.${blogGepubliceerd(b) ? "" : " Het staat nog op concept en is voor bezoekers onzichtbaar."}</div>
+    </div>` : ""}
     <header class="post-hero">
       <span class="eyebrow">✍️ blog <span aria-hidden="true">·</span> ${fmtDatumLang(b.datum||"2000-01-01")}</span>
       <h1>${esc(b.titel)}</h1>
@@ -307,7 +378,7 @@ function renderPost(b){
     <div class="post-foto reveal in">
       <figure><img src="${esc(kopFoto)}" alt="Foto bij het verhaal: ${esc(b.titel)}" fetchpriority="high" decoding="async"></figure>
     </div>` : ""}
-    <article class="post-body">${verhaalHtml(b.tekst)}</article>
+    <article class="post-body">${verhaalHtml(b.tekst, fotos)}</article>
     ${extraFotos.length ? `
     <div class="post-extra-fotos">
       ${extraFotos.map((f,i)=>`<figure class="reveal"><img src="${esc(f)}" alt="Extra foto ${i+1} bij het verhaal" loading="lazy" decoding="async"></figure>`).join("")}

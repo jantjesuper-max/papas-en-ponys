@@ -225,6 +225,55 @@ body.rol-blogger .tab:not([data-tab="blogs"]){display:none}
 .wa-kaart.concept{border-left:4px solid var(--accent)}
 .wa-kaart .samenvatting{font-size:.84rem;color:var(--ink-soft);margin-top:6px;max-width:64ch}
 
+/* opmaakbalk boven het verhaal-veld */
+.opmaak-balk{display:flex;flex-wrap:wrap;align-items:center;gap:2px;border:1.5px solid var(--line);border-bottom:none;border-radius:10px 10px 0 0;padding:5px 6px;background:var(--paper-tint)}
+.opmaak-balk button{font-family:var(--font-display);font-size:.82rem;font-weight:700;min-width:30px;height:30px;padding:0 8px;border:none;border-radius:7px;background:transparent;color:var(--ink-soft);cursor:pointer;transition:background .15s,color .15s,transform .15s}
+.opmaak-balk button:hover{background:#fff;color:var(--ink);transform:translateY(-1px)}
+.opmaak-balk button:active{transform:scale(.94)}
+.opmaak-balk .scheiding{width:1px;align-self:stretch;background:var(--line);margin:3px 4px}
+#blogTekst{border-top-left-radius:0;border-top-right-radius:0}
+/* foto-kiezer: dropdown onder de 📷-knop in de balk */
+.foto-kiezer{position:relative;display:inline-block}
+.foto-kiezer .keuzes{position:absolute;top:calc(100% + 6px);left:0;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 16px 38px -14px rgba(30,36,48,.35);padding:8px;display:none;z-index:80;width:max-content;max-width:240px}
+.foto-kiezer.open .keuzes{display:flex;flex-wrap:wrap;gap:6px}
+.foto-kiezer .keuzes .kies-foto{position:relative;width:52px;height:52px;padding:0;border:1.5px solid var(--line);border-radius:8px;overflow:hidden;cursor:pointer;background:none;transition:border-color .15s,transform .15s}
+.foto-kiezer .keuzes .kies-foto:hover{border-color:var(--accent);transform:scale(1.06)}
+.foto-kiezer .keuzes .kies-foto img{width:100%;height:100%;object-fit:cover;display:block}
+.foto-kiezer .keuzes .kies-foto .nr{position:absolute;bottom:2px;right:2px;font-family:var(--font-mono);font-size:.6rem;background:rgba(30,36,48,.8);color:#fff;padding:1px 5px;border-radius:5px}
+.foto-kiezer .keuzes .geen{font-size:.8rem;color:var(--ink-soft);padding:4px 8px;max-width:200px}
+
+/* voorbeeld-modal: zelfde typografie als blogpost.html, in het klein */
+#voorbeeldModal{position:fixed;inset:0;z-index:350;background:rgba(30,36,48,.55);backdrop-filter:blur(4px);display:none;padding:24px;overflow-y:auto}
+#voorbeeldModal.open{display:block}
+.voorbeeld-kaart{max-width:840px;margin:0 auto;background:var(--paper);border-radius:24px;padding:0 0 44px;overflow:hidden;animation:slidein .3s ease}
+.voorbeeld-top{position:sticky;top:0;z-index:5;display:flex;justify-content:space-between;align-items:center;gap:12px;background:#fdf3e0;border-bottom:1.5px dashed var(--accent);color:var(--accent-deep);padding:12px 22px;font-size:.9rem;font-weight:600}
+.voorbeeld-scroll{padding:34px 44px 0}
+.voorbeeld-hero{text-align:center;margin-bottom:8px}
+.voorbeeld-hero .v-eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:var(--font-mono);font-size:.74rem;color:var(--accent-deep);background:var(--paper-tint);border:1px solid var(--line);padding:5px 13px;border-radius:999px;margin-bottom:16px}
+.voorbeeld-hero h1{font-size:clamp(1.5rem,3.4vw,2.2rem);font-weight:800;line-height:1.15;letter-spacing:-.02em;margin-bottom:12px}
+.voorbeeld-hero .v-intro{color:var(--ink-soft);font-size:1.02rem;max-width:56ch;margin:0 auto 14px}
+.voorbeeld-hero .v-auteur{display:inline-flex;align-items:center;gap:8px;font-family:var(--font-mono);font-size:.74rem;color:var(--rose);background:var(--rose-soft);padding:5px 14px;border-radius:999px}
+.voorbeeld-kopfoto{border-radius:18px;overflow:hidden;border:1px solid var(--line);margin:20px 0 8px;box-shadow:0 20px 44px -26px rgba(30,36,48,.35)}
+.voorbeeld-kopfoto img{width:100%;display:block;aspect-ratio:16/8;object-fit:cover}
+.voorbeeld-body{max-width:640px;margin:18px auto 0}
+.voorbeeld-body p{font-size:1rem;color:var(--ink-soft);margin-bottom:16px}
+.voorbeeld-body p:first-of-type::first-letter{font-size:2.4em;font-weight:800;color:var(--rose);float:left;line-height:.9;padding-right:9px;padding-top:3px}
+.voorbeeld-body h2{font-size:1.25rem;font-weight:800;letter-spacing:-.01em;margin:28px 0 10px;display:flex;align-items:center;gap:10px}
+.voorbeeld-body h2::before{content:"";width:20px;height:4px;border-radius:2px;background:var(--accent);flex-shrink:0}
+.voorbeeld-body h3{font-size:1.06rem;font-weight:700;margin:22px 0 8px}
+.voorbeeld-body ul,.voorbeeld-body ol{margin:0 0 16px 22px;color:var(--ink-soft);font-size:1rem}
+.voorbeeld-body li{margin-bottom:6px}
+.voorbeeld-body ul li::marker{color:var(--accent)}
+.voorbeeld-body ol li::marker{color:var(--accent-deep);font-weight:700}
+.voorbeeld-body blockquote{margin:22px 0;padding:14px 20px;background:var(--rose-soft);border-left:4px solid var(--rose);border-radius:0 14px 14px 0;font-size:1.02rem;color:var(--ink);font-style:italic}
+.voorbeeld-body hr{border:none;border-top:1.5px dashed var(--line);margin:26px auto;width:60%}
+.voorbeeld-body a{color:var(--accent-deep);text-decoration:none;border-bottom:1px dashed var(--accent)}
+.voorbeeld-body mark{background:var(--rose-soft);color:var(--ink);padding:1px 5px;border-radius:6px}
+.voorbeeld-body u{text-decoration-color:var(--accent);text-decoration-thickness:2px;text-underline-offset:3px}
+.voorbeeld-body .verhaal-foto{margin:22px 0;border-radius:14px;overflow:hidden;border:1px solid var(--line)}
+.voorbeeld-body .verhaal-foto img{width:100%;display:block}
+@media (max-width:640px){.voorbeeld-scroll{padding:26px 20px 0}}
+
 /* toast + confetti */
 #toast{position:fixed;bottom:28px;left:50%;transform:translate(-50%,80px);background:var(--ink);color:#fff;padding:13px 24px;border-radius:999px;font-size:.9rem;font-weight:500;box-shadow:0 12px 30px rgba(30,36,48,.3);transition:transform .4s cubic-bezier(.34,1.56,.64,1);z-index:200}
 #toast.zichtbaar{transform:translate(-50%,0)}
@@ -481,17 +530,38 @@ body.rol-blogger .tab:not([data-tab="blogs"]){display:none}
           <label for="blogSamenvatting">Samenvatting *</label>
           <textarea id="blogSamenvatting" required maxlength="220" placeholder="Korte teaser (1 à 2 zinnen) — staat onder de titel op de blogpagina."></textarea>
           <label for="blogTekst">Verhaal *</label>
-          <textarea id="blogTekst" required rows="12" style="min-height:260px" placeholder="Schrijf je verhaal…&#10;&#10;Een lege regel begint een nieuwe alinea.&#10;&#10;## Een regel die zo begint wordt een tussenkopje"></textarea>
-          <p class="foto-hint">Een lege regel begint een nieuwe alinea. Begin een regel met <b>##&nbsp;</b> voor een tussenkopje.</p>
+          <div class="opmaak-balk" role="toolbar" aria-label="Opmaak van het verhaal">
+            <button type="button" title="Vet" aria-label="Vet" onclick="opmaakWrap('**','**','vetgedrukte tekst')"><b>B</b></button>
+            <button type="button" title="Cursief" aria-label="Cursief" onclick="opmaakWrap('*','*','cursieve tekst')"><i>I</i></button>
+            <button type="button" title="Onderstrepen" aria-label="Onderstrepen" onclick="opmaakWrap('__','__','onderstreepte tekst')"><u>U</u></button>
+            <button type="button" title="Markeren" aria-label="Markeren" onclick="opmaakWrap('==','==','gemarkeerde tekst')">✨</button>
+            <span class="scheiding"></span>
+            <button type="button" title="Tussenkopje" aria-label="Tussenkopje" onclick="opmaakBlok('## ','Tussenkopje')">H2</button>
+            <button type="button" title="Klein kopje" aria-label="Klein kopje" onclick="opmaakBlok('### ','Klein kopje')">H3</button>
+            <span class="scheiding"></span>
+            <button type="button" title="Opsomming" aria-label="Opsomming" onclick="opmaakLijst(false)">•&hairsp;—</button>
+            <button type="button" title="Genummerde lijst" aria-label="Genummerde lijst" onclick="opmaakLijst(true)">1.</button>
+            <button type="button" title="Citaat" aria-label="Citaat" onclick="opmaakCitaat()">❝</button>
+            <span class="scheiding"></span>
+            <button type="button" title="Link invoegen" aria-label="Link invoegen" onclick="opmaakLink()">🔗</button>
+            <span class="foto-kiezer" id="fotoKiezer">
+              <button type="button" title="Foto in het verhaal invoegen" aria-label="Foto in het verhaal invoegen" onclick="toggleFotoKiezer(event)">📷 ▾</button>
+              <span class="keuzes" id="fotoKiezerKeuzes"></span>
+            </span>
+            <button type="button" title="Scheidingslijn" aria-label="Scheidingslijn" onclick="opmaakScheidingslijn()">―</button>
+          </div>
+          <textarea id="blogTekst" required rows="12" style="min-height:260px" placeholder="Schrijf je verhaal…&#10;&#10;Een lege regel begint een nieuwe alinea. Selecteer tekst en klik een knop in de balk hierboven voor vet, kopjes, lijstjes, citaten en meer."></textarea>
+          <p class="foto-hint">Selecteer tekst en klik een knop in de balk (of typ zelf: <b>**vet**</b>, <b>*cursief*</b>, <b>##&nbsp;kopje</b>, <b>-&nbsp;opsomming</b>, <b>&gt;&nbsp;citaat</b>). Met 📷 zet je een geüploade foto midden in het verhaal. Bekijk het resultaat met 👁️&nbsp;Voorbeeld.</p>
           <label for="blogFotoKies">Foto's</label>
           <input type="file" id="blogFotoInput" accept="image/*" multiple hidden>
           <button type="button" class="btn stil klein" id="blogFotoKies">📷 Foto's toevoegen</button>
           <div class="foto-thumbs" id="blogFotoThumbs"></div>
-          <p class="foto-hint">De eerste foto wordt de grote kop-foto op de blogpagina; de rest komt onder het verhaal. Worden automatisch verkleind.</p>
+          <p class="foto-hint">De eerste foto wordt de grote kop-foto op de blogpagina. De andere foto's zet je met de 📷-knop in de opmaakbalk midden in het verhaal; wat je niet invoegt komt onder het verhaal te staan. Worden automatisch verkleind.</p>
           <label class="check"><input type="checkbox" id="blogGepubliceerd" checked> Gepubliceerd op de site 🌍</label>
-          <p class="foto-hint">Uitgevinkt = concept: alleen zichtbaar in dit beheer, niet op de blogpagina.</p>
+          <p class="foto-hint">Uitgevinkt = concept: alleen zichtbaar in dit beheer, niet op de blogpagina. Met 👁️ Voorbeeld zie je alvast hoe het eruit komt te zien.</p>
           <div class="form-acties">
             <button type="submit" class="btn gold" id="blogOpslaanBtn">Opslaan 🎉</button>
+            <button type="button" class="btn stil" id="blogVoorbeeldBtn">👁️ Voorbeeld</button>
             <button type="button" class="btn stil" id="blogAnnuleerBtn" style="display:none">Annuleer</button>
           </div>
         </form>
@@ -571,6 +641,17 @@ body.rol-blogger .tab:not([data-tab="blogs"]){display:none}
 </main>
 
 <div id="toast"></div>
+
+<!-- Voorbeeld van een blogbericht: gerenderd zoals op blogpost.html -->
+<div id="voorbeeldModal" role="dialog" aria-modal="true" aria-label="Voorbeeld van het blogbericht">
+  <div class="voorbeeld-kaart">
+    <div class="voorbeeld-top">
+      <span>👁️ Voorbeeld — zo komt het bericht op de site te staan</span>
+      <button class="btn stil klein" id="voorbeeldSluitBtn">✕ Sluiten</button>
+    </div>
+    <div class="voorbeeld-scroll" id="voorbeeldInhoud"></div>
+  </div>
+</div>
 
 <script>
 /* ============================================================
@@ -1303,7 +1384,8 @@ function renderBlogs(){
         ${b.samenvatting?`<div class="samenvatting">${esc(b.samenvatting)}</div>`:""}
       </div>
       <div class="ev-acties">
-        ${pub?`<button class="icoon-btn groen" title="Blogpagina openen" onclick="openBlogLanding('${b.id}')">🔗</button>`:""}
+        ${pub?`<button class="icoon-btn groen" title="Blogpagina openen" onclick="openBlogLanding('${b.id}')">🔗</button>`
+             :`<button class="icoon-btn groen" title="Voorbeeld bekijken — zo komt het op de site te staan" onclick="openBlogVoorbeeld('${b.id}')">👁️</button>`}
         ${mag?`<button class="icoon-btn groen" title="${pub?"Terugzetten naar concept":"Publiceren op de site"}" onclick="toggleBlogPublicatie('${b.id}')">${pub?"🙈":"🌍"}</button>`:""}
         ${mag?`<button class="icoon-btn bewerk" title="Bewerken" onclick="bewerkBlog('${b.id}')">✏️</button>`:""}
         ${mag?`<button class="icoon-btn verwijder" title="Verwijderen" onclick="verwijderBlog('${b.id}')">🗑️</button>`:""}
@@ -1397,6 +1479,153 @@ function resetBlogForm(){
 }
 document.getElementById("blogAnnuleerBtn").addEventListener("click", resetBlogForm);
 resetBlogForm();
+
+/* ---------- Opmaakbalk bij het verhaal-veld ----------
+   De knoppen zetten opmaaktekens om de selectie heen (of voegen een
+   voorbeeldtekst in). De opmaak zelf wordt gerenderd door verhaalHtml()
+   hieronder én op blogpost.html. */
+const blogTekstEl = document.getElementById("blogTekst");
+/* selectie omringen met opmaaktekens (vet, cursief, onderstreept, markeren, link) */
+function opmaakWrap(voor, na, placeholder){
+  const el = blogTekstEl;
+  const start = el.selectionStart ?? el.value.length;
+  const eind = el.selectionEnd ?? start;
+  const sel = el.value.slice(start, eind) || placeholder;
+  el.value = el.value.slice(0, start) + voor + sel + na + el.value.slice(eind);
+  el.focus();
+  el.setSelectionRange(start + voor.length, start + voor.length + sel.length);
+}
+/* zorgt dat iets op een eigen alinea belandt (lege regels eromheen);
+   geeft {start} van het blok en {naBlok} (positie ná de lege regel erachter) terug */
+function alsEigenBlok(inhoud){
+  const el = blogTekstEl;
+  const start = el.selectionStart ?? el.value.length;
+  const eind = el.selectionEnd ?? start;
+  const voorTekst = el.value.slice(0, start);
+  const naTekst = el.value.slice(eind);
+  const pad = voorTekst && !/\n\n$/.test(voorTekst) ? (/\n$/.test(voorTekst) ? "\n" : "\n\n") : "";
+  const padNa = naTekst ? (/^\n/.test(naTekst) ? "" : "\n\n") : "\n\n";
+  el.value = voorTekst + pad + inhoud + padNa + naTekst;
+  el.focus();
+  const blokStart = (voorTekst + pad).length;
+  return {start: blokStart, naBlok: blokStart + inhoud.length + padNa.length};
+}
+/* kopjes: van de selectie (of een voorbeeldtekst) een eigen blok met prefix maken */
+function opmaakBlok(prefix, placeholder){
+  const el = blogTekstEl;
+  const sel = el.value.slice(el.selectionStart ?? 0, el.selectionEnd ?? 0) || placeholder;
+  const {start} = alsEigenBlok(prefix + sel);
+  el.setSelectionRange(start + prefix.length, start + prefix.length + sel.length);
+}
+/* lijsten: elke geselecteerde regel een streepje of nummer geven */
+function opmaakLijst(genummerd){
+  const el = blogTekstEl;
+  const sel = el.value.slice(el.selectionStart ?? 0, el.selectionEnd ?? 0) || "eerste punt\ntweede punt\nderde punt";
+  const nieuw = sel.split("\n").filter(r=>r.trim()).map((r,i)=>(genummerd ? `${i+1}. ` : "- ") + r.trim()).join("\n");
+  const {start} = alsEigenBlok(nieuw);
+  el.setSelectionRange(start, start + nieuw.length);
+}
+function opmaakCitaat(){
+  const el = blogTekstEl;
+  const sel = el.value.slice(el.selectionStart ?? 0, el.selectionEnd ?? 0) || "Een mooie uitspraak van een papa of dochter.";
+  const nieuw = sel.split("\n").filter(r=>r.trim()).map(r=>"> " + r.trim()).join("\n");
+  const {start} = alsEigenBlok(nieuw);
+  el.setSelectionRange(start, start + nieuw.length);
+}
+function opmaakScheidingslijn(){
+  const {naBlok} = alsEigenBlok("---");
+  blogTekstEl.setSelectionRange(naBlok, naBlok);
+}
+function opmaakLink(){
+  const url = prompt("Link-adres (begint met https://):", "https://");
+  if(!url) return;
+  if(!/^https?:\/\/./.test(url.trim())){ toast("Alleen links die met http(s):// beginnen 🔗"); return; }
+  opmaakWrap("[", `](${url.trim()})`, "linktekst");
+}
+
+/* foto-kiezer: kies een geüploade foto om als [foto:N] in het verhaal te zetten */
+function toggleFotoKiezer(ev){
+  ev.stopPropagation();
+  const kiezer = document.getElementById("fotoKiezer");
+  const keuzes = document.getElementById("fotoKiezerKeuzes");
+  keuzes.innerHTML = blogFotos.length
+    ? blogFotos.map((f,i)=>`<button type="button" class="kies-foto" title="Foto ${i+1} invoegen" onclick="voegFotoIn(${i})"><img src="${blogFotoSrc(f)}" alt="Foto ${i+1}"><span class="nr">${i+1}</span></button>`).join("")
+    : `<span class="geen">Nog geen foto's — upload er eerst een via "📷 Foto's toevoegen" hieronder.</span>`;
+  kiezer.classList.toggle("open");
+}
+function voegFotoIn(i){
+  const {naBlok} = alsEigenBlok(`[foto:${i+1}]`);
+  blogTekstEl.setSelectionRange(naBlok, naBlok);
+  document.getElementById("fotoKiezer").classList.remove("open");
+}
+document.addEventListener("click", ev=>{
+  const kiezer = document.getElementById("fotoKiezer");
+  if(!kiezer.contains(ev.target)) kiezer.classList.remove("open");
+});
+
+/* ---------- Verhaal renderen (voorbeeld) ----------
+   Kopie van inlineOpmaak()/verhaalHtml() in blogpost.html — wijzig je iets,
+   wijzig het daar ook. Enig verschil: blogFotoSrc() voor de fotopaden,
+   omdat het beheer een map dieper staat. */
+function inlineOpmaak(t){
+  return t
+    .replace(/\[([^\]]+)\]\((https?:[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>')
+    .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+    .replace(/__([^_]+)__/g, "<u>$1</u>")
+    .replace(/==([^=]+)==/g, "<mark>$1</mark>")
+    .replace(/\*([^*]+)\*/g, "<em>$1</em>");
+}
+function verhaalHtml(tekst, fotos){
+  fotos = fotos || [];
+  return (tekst||"").split(/\n\s*\n/).map(blok=>{
+    const b = blok.trim();
+    if(!b) return "";
+    if(/^-{3,}$/.test(b)) return "<hr>";
+    const fotoMatch = b.match(/^\[foto:(\d+)\]$/i);
+    if(fotoMatch){
+      const f = fotos[parseInt(fotoMatch[1],10)-1];
+      return f ? `<figure class="verhaal-foto"><img src="${esc(blogFotoSrc(f))}" alt="Foto ${fotoMatch[1]} bij het verhaal"></figure>` : "";
+    }
+    if(b.startsWith("### ")) return `<h3>${inlineOpmaak(esc(b.slice(4).trim()))}</h3>`;
+    if(b.startsWith("## ")) return `<h2>${inlineOpmaak(esc(b.slice(3).trim()))}</h2>`;
+    const regels = b.split("\n").map(r=>r.trim()).filter(Boolean);
+    if(regels.every(r=>/^- /.test(r))) return `<ul>${regels.map(r=>`<li>${inlineOpmaak(esc(r.slice(2)))}</li>`).join("")}</ul>`;
+    if(regels.every(r=>/^\d+[.)] /.test(r))) return `<ol>${regels.map(r=>`<li>${inlineOpmaak(esc(r.replace(/^\d+[.)] /,"")))}</li>`).join("")}</ol>`;
+    if(regels.every(r=>/^> ?/.test(r))) return `<blockquote>${regels.map(r=>inlineOpmaak(esc(r.replace(/^> ?/,"")))).join("<br>")}</blockquote>`;
+    return `<p>${inlineOpmaak(esc(b)).replace(/\n/g,"<br>")}</p>`;
+  }).join("");
+}
+
+/* ---------- 👁️ Voorbeeld: het formulier gerenderd zoals op blogpost.html ---------- */
+function toonVoorbeeld(){
+  const titel = document.getElementById("blogTitel").value.trim();
+  const datum = document.getElementById("blogDatum").value;
+  const samenvatting = document.getElementById("blogSamenvatting").value.trim();
+  const tekst = document.getElementById("blogTekst").value;
+  const editId = document.getElementById("blogEditId").value;
+  const bestaand = editId ? loadList(BLOG_KEY).find(b=>b.id===editId) : null;
+  const auteur = bestaand ? (bestaand.auteur || ingelogdeNaam()) : ingelogdeNaam();
+  const kopFoto = blogFotos[0];
+  document.getElementById("voorbeeldInhoud").innerHTML = `
+    <div class="voorbeeld-hero">
+      <span class="v-eyebrow">✍️ blog <span aria-hidden="true">·</span> ${datum ? fmtDatumLang(datum) : "publicatiedatum"}</span>
+      <h1>${esc(titel || "(nog geen titel)")}</h1>
+      ${samenvatting ? `<p class="v-intro">${esc(samenvatting)}</p>` : ""}
+      <span class="v-auteur">👤 door ${esc(auteur || "een papa uit de community")}</span>
+    </div>
+    ${kopFoto ? `<div class="voorbeeld-kopfoto"><img src="${esc(blogFotoSrc(kopFoto))}" alt="Kop-foto bij het verhaal"></div>` : ""}
+    <div class="voorbeeld-body">${verhaalHtml(tekst, blogFotos) || '<p style="text-align:center;color:var(--ink-soft)">Nog geen verhaal — begin met typen en kijk dan nog eens.</p>'}</div>`;
+  document.getElementById("voorbeeldModal").classList.add("open");
+  document.getElementById("voorbeeldModal").scrollTop = 0;
+}
+function sluitVoorbeeld(){ document.getElementById("voorbeeldModal").classList.remove("open"); }
+document.getElementById("blogVoorbeeldBtn").addEventListener("click", toonVoorbeeld);
+document.getElementById("voorbeeldSluitBtn").addEventListener("click", sluitVoorbeeld);
+document.getElementById("voorbeeldModal").addEventListener("click", ev=>{ if(ev.target.id==="voorbeeldModal") sluitVoorbeeld(); });
+document.addEventListener("keydown", ev=>{ if(ev.key==="Escape") sluitVoorbeeld(); });
+
+/* 👁️ bij een concept in de lijst: de echte landingspagina in voorbeeldmodus */
+function openBlogVoorbeeld(id){ window.open("../blogpost.html?voorbeeld="+id, "_blank"); }
 
 /* ---------- Mailsjablonen ----------
    Voorgeprogrammeerde mails met dynamische velden. De velden worden
