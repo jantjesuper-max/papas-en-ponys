@@ -10,7 +10,7 @@ Community-website voor "meisjespapa's die leren vlechten". Statische site zonder
 
 | Bestand | Rol |
 |---|---|
-| `index.html` | Homepage: hero, missie, sfeerfoto's, evenementenlijst, waarden, WhatsApp-aanmelding, oprichter (Faizi), contact |
+| `index.html` | Homepage: hero, missie, sfeerfoto's, evenementenlijst (schakelbaar tussen "Aankomend" en "Geweest" — bij eerdere evenementen geen inschrijfknop maar een terugblik/foto's-link naar de landingspagina), waarden, WhatsApp-aanmelding, oprichter (Faizi), contact |
 | `evenement.html` | Landingspagina per evenement via `?id=<event-id>`. Vlechtworkshops krijgen een uitgebreide variant (roze hero, krantensectie, stappenplan) |
 | `admin/index.html` | Beheer, achter een client-side inlog (tab Beheerders beheert de accounts): evenementen CRUD + foto-upload, inschrijvingen bekijken/mailen/exporteren, WhatsApp-aanmeldingen |
 | `voorwaarden.html` | Algemene voorwaarden: gedrag, de zes huisregels en de betaalverplichting. Verplicht akkoord-vinkje (`voorwaardenAkkoord: true` op het record) in het WhatsApp-formulier en beide inschrijfformulieren |

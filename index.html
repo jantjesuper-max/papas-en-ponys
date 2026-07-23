@@ -202,6 +202,12 @@ h2{font-size:clamp(1.8rem,3.4vw,2.5rem);font-weight:800;letter-spacing:-.02em;li
 
 /* ---------- Evenementen ---------- */
 #evenementen{padding-top:64px}
+.ev-filters{display:flex;gap:8px;margin-top:20px}
+.ev-filter{font-family:var(--font-mono);font-size:.78rem;padding:8px 18px;border-radius:999px;border:1.5px solid var(--line);background:#fff;cursor:pointer;color:var(--ink-soft);transition:all .2s}
+.ev-filter:hover{border-color:var(--accent);color:var(--ink)}
+.ev-filter.actief{background:var(--ink);color:#fff;border-color:var(--ink)}
+.event-card.geweest .event-date{opacity:.7}
+a.btn-inschrijf{text-decoration:none;display:inline-block}
 .event-list{display:grid;gap:14px}
 .event-card{display:grid;grid-template-columns:96px 1fr auto;gap:24px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:22px 26px;transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease;position:relative}
 .event-card:hover{transform:translateX(6px);border-color:var(--accent);box-shadow:-6px 10px 30px -18px rgba(30,36,48,.3)}
@@ -408,8 +414,12 @@ footer .admin-link:hover{color:var(--accent-deep);border-color:var(--accent)}
 
 <section id="evenementen" class="reveal">
   <div class="section-head">
-    <h2>Aankomende evenementen</h2>
-    <p>Meld je aan via de WhatsApp-groep. Vol is vol, dochters welkom waar aangegeven.</p>
+    <h2 id="eventsTitel">Aankomende evenementen</h2>
+    <p id="eventsSub">Meld je aan via de WhatsApp-groep. Vol is vol, dochters welkom waar aangegeven.</p>
+    <div class="ev-filters" role="tablist" aria-label="Evenementen filteren">
+      <button class="ev-filter actief" data-f="komend">📅 Aankomend</button>
+      <button class="ev-filter" data-f="voorbij">📸 Geweest</button>
+    </div>
   </div>
   <div class="event-list" id="eventList"></div>
 </section>
@@ -623,14 +633,30 @@ function zetEventsSchema(events){
     }))
   });
 }
+/* Bezoekers kunnen wisselen tussen aankomende en eerdere evenementen
+   (bij eerdere evenementen kom je via de landingspagina bij de foto's) */
+let eventFilter = "komend";
 function renderEvents(){
   const list = document.getElementById("eventList");
   const today = new Date(); today.setHours(0,0,0,0);
-  const events = loadEvents()
+  const alle = loadEvents();
+  const komend = alle
     .filter(e => new Date(eindDatum(e) + "T00:00:00") >= today)
     .sort((a,b) => a.datum.localeCompare(b.datum));
+  const geweest = alle
+    .filter(e => new Date(eindDatum(e) + "T00:00:00") < today)
+    .sort((a,b) => b.datum.localeCompare(a.datum));
+  const toonGeweest = eventFilter === "voorbij";
+  const events = toonGeweest ? geweest : komend;
+  document.getElementById("eventsTitel").textContent = toonGeweest ? "Eerdere evenementen" : "Aankomende evenementen";
+  document.getElementById("eventsSub").textContent = toonGeweest
+    ? "Al geweest — klik door naar de evenementpagina voor de sfeer en de foto's."
+    : "Meld je aan via de WhatsApp-groep. Vol is vol, dochters welkom waar aangegeven.";
+  zetEventsSchema(komend);
   if(events.length === 0){
-    list.innerHTML = `<div class="events-empty"><span class="icon">🗓️</span>Nog geen geplande evenementen. Hou de WhatsApp-groep in de gaten!</div>`;
+    list.innerHTML = toonGeweest
+      ? `<div class="events-empty"><span class="icon">📸</span>Nog geen eerdere evenementen — de eerste volgt vanzelf!</div>`
+      : `<div class="events-empty"><span class="icon">🗓️</span>Nog geen geplande evenementen. Hou de WhatsApp-groep in de gaten!</div>`;
     return;
   }
   const signups = loadList(SIGNUP_KEY);
@@ -638,7 +664,7 @@ function renderEvents(){
     const d = new Date(e.datum + "T00:00:00");
     const dt = e.datumTot && e.datumTot !== e.datum ? new Date(e.datumTot + "T00:00:00") : null;
     const aantal = signups.filter(s => s.eventId === e.id).reduce((n,s) => n + (parseInt(s.personen)||1), 0);
-    return `<article class="event-card reveal" style="transition-delay:${i*80}ms">
+    return `<article class="event-card reveal ${toonGeweest ? "geweest" : ""}" style="transition-delay:${i*80}ms">
       <div class="event-date"><div class="day">${d.getDate()}</div><div class="month">${maanden[d.getMonth()]}</div></div>
       <div class="event-info">
         <h3><a href="${eventUrl(e)}">${esc(e.titel)}</a>${e.uitgelicht ? '<span class="badge">uitgelicht</span>' : ''}</h3>
@@ -648,15 +674,22 @@ function renderEvents(){
       <div class="event-zij">
         <span class="event-type ${evType(e)==="vlechtworkshop"?"":"ander"}">${evType(e)==="vlechtworkshop"?"🎀 vlechtworkshop":"🎪 ander evenement"}</span>
         <span class="event-cat">${esc(e.categorie || "Activiteit")}</span>
-        <button class="btn-inschrijf" data-id="${e.id}">Inschrijven</button>
-        <a class="event-meer" href="${eventUrl(e)}">meer info →</a>
+        ${toonGeweest
+          ? (/^https?:\/\//i.test(e.fotoalbum || "") ? `<a class="btn-inschrijf" href="${eventUrl(e)}">📸 Bekijk foto's</a>` : "")
+          : `<button class="btn-inschrijf" data-id="${e.id}">Inschrijven</button>`}
+        <a class="event-meer" href="${eventUrl(e)}">${toonGeweest ? "terugblik →" : "meer info →"}</a>
       </div>
     </article>`;
   }).join("");
-  list.querySelectorAll(".btn-inschrijf").forEach(b => b.addEventListener("click", () => openInschrijf(b.dataset.id)));
-  zetEventsSchema(events);
+  list.querySelectorAll("button.btn-inschrijf").forEach(b => b.addEventListener("click", () => openInschrijf(b.dataset.id)));
   observeReveals();
 }
+document.querySelectorAll(".ev-filter").forEach(b => b.addEventListener("click", () => {
+  document.querySelectorAll(".ev-filter").forEach(x => x.classList.remove("actief"));
+  b.classList.add("actief");
+  eventFilter = b.dataset.f;
+  renderEvents();
+}));
 /* HTML-escaper: alle gebruikersinvoer gaat hierdoorheen voordat het in innerHTML belandt (XSS) */
 function esc(s){ const d=document.createElement("div"); d.textContent=s??""; return d.innerHTML; }
 

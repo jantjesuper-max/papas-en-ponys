@@ -5,7 +5,15 @@ Het format volgt [Keep a Changelog](https://keepachangelog.com/nl/1.1.0/).
 
 ## [Unreleased]
 
-## [0.19.0] - 2026-07-22
+## [0.20.0] - 2026-07-23
+
+### Toegevoegd
+- De homepage-evenementenlijst heeft twee schakelknoppen: "📅 Aankomend" (standaard) en "📸 Geweest"
+  - Bij "Geweest" staan de eerdere evenementen (nieuwste eerst) met een "terugblik →"-link naar de landingspagina; heeft het evenement een fotoalbum-link, dan staat er ook een knop "📸 Bekijk foto's" — zo kan iedereen via de landingspagina bij de foto's
+  - Bij eerdere evenementen verdwijnt de inschrijfknop; kop en introtekst wisselen mee ("Eerdere evenementen")
+  - Het ItemList-schema (SEO) blijft alleen de aankomende evenementen bevatten
+
+## [0.19.0] - 2026-07-23
 
 ### Toegevoegd
 - Evenementen kunnen meerdaags zijn: nieuw optioneel veld `datumTot` ("Datum van/tot" in het beheer; leeg = eendaags)
