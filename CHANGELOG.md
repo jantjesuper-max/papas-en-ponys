@@ -5,6 +5,12 @@ Het format volgt [Keep a Changelog](https://keepachangelog.com/nl/1.1.0/).
 
 ## [Unreleased]
 
+## [0.24.0] - 2026-07-23
+
+### Toegevoegd
+- Vergroot-knop (⤢) op elk bewerk/nieuw-paneel in het beheer (Evenementen, Inschrijvingen, Blog, Sjablonen, Beheerders): het formulier krijgt de hele paginabreedte en de lijst ernaast verdwijnt even — fijn voor het schrijven van langere blogberichten en sjablonen (de tekstvelden groeien mee)
+  - Terugschakelen kan met dezelfde knop (⤡); na opslaan of annuleren springt de tab automatisch terug naar de compacte weergave (via de `reset*Form`-functies → `toggleVol(tab, false)`)
+
 ## [0.23.0] - 2026-07-23
 
 ### Toegevoegd

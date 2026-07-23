@@ -71,6 +71,22 @@ main{max-width:1060px;margin:0 auto;padding:36px 24px 80px}
 /* evenementen-tab layout */
 .ev-grid{display:grid;grid-template-columns:380px 1fr;gap:28px;align-items:start}
 
+/* vergroot formulier: het paneel krijgt de hele pagina, de lijst verdwijnt even.
+   Opslaan of annuleren zet de tab automatisch terug naar compact (toggleVol). */
+.panel-kop{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.vergroot-btn{flex-shrink:0;width:34px;height:34px;display:grid;place-items:center;border:1.5px solid var(--line);background:#fff;border-radius:10px;cursor:pointer;font-size:1.05rem;line-height:1;color:var(--ink-soft);transition:transform .2s cubic-bezier(.34,1.56,.64,1),border-color .2s,color .2s}
+.vergroot-btn:hover{transform:translateY(-2px);border-color:var(--accent);color:var(--ink)}
+.vergroot-btn:active{transform:scale(.9)}
+.tabpane.vol .ev-grid{grid-template-columns:1fr}
+.tabpane.vol .lijst{display:none}
+.tabpane.vol .panel{position:static;max-width:880px;margin:0 auto;padding:34px 40px;animation:fadein .3s ease}
+.tabpane.vol textarea{min-height:140px}
+#blogTekst{min-height:260px}
+#sjabloonTekst{min-height:180px}
+.tabpane.vol #blogTekst{min-height:56vh}
+.tabpane.vol #blogSamenvatting{min-height:90px}
+.tabpane.vol #sjabloonTekst{min-height:44vh}
+
 /* form */
 .panel{background:#fff;border:1px solid var(--line);border-radius:18px;padding:26px;position:sticky;top:92px}
 .panel h2{font-size:1.2rem;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:8px}
@@ -349,7 +365,10 @@ body.rol-blogger .tab:not([data-tab="blogs"]){display:none}
   <div class="tabpane actief" id="tab-evenementen">
     <div class="ev-grid">
       <div class="panel">
-        <h2 id="formTitel">✨ Nieuw evenement</h2>
+        <div class="panel-kop">
+          <h2 id="formTitel">✨ Nieuw evenement</h2>
+          <button type="button" class="vergroot-btn" title="Vergroten — gebruik de hele pagina" aria-label="Formulier vergroten" onclick="toggleVol('evenementen')">⤢</button>
+        </div>
         <p class="sub">Verschijnt direct op de homepagina.</p>
         <form id="eventForm">
           <input type="hidden" id="editId">
@@ -444,7 +463,10 @@ body.rol-blogger .tab:not([data-tab="blogs"]){display:none}
   <div class="tabpane" id="tab-inschrijvingen">
     <div class="ev-grid">
       <div class="panel">
-        <h2 id="inschrijfFormTitel">🎟️ Nieuwe inschrijving</h2>
+        <div class="panel-kop">
+          <h2 id="inschrijfFormTitel">🎟️ Nieuwe inschrijving</h2>
+          <button type="button" class="vergroot-btn" title="Vergroten — gebruik de hele pagina" aria-label="Formulier vergroten" onclick="toggleVol('inschrijvingen')">⤢</button>
+        </div>
         <p class="sub">Voor papa's die zich telefonisch of persoonlijk aanmelden.</p>
         <form id="inschrijfBeheerForm">
           <input type="hidden" id="inschrijfEditId">
@@ -519,7 +541,10 @@ body.rol-blogger .tab:not([data-tab="blogs"]){display:none}
   <div class="tabpane" id="tab-blogs">
     <div class="ev-grid">
       <div class="panel">
-        <h2 id="blogFormTitel">✍️ Nieuw blogbericht</h2>
+        <div class="panel-kop">
+          <h2 id="blogFormTitel">✍️ Nieuw blogbericht</h2>
+          <button type="button" class="vergroot-btn" title="Vergroten — gebruik de hele pagina" aria-label="Formulier vergroten" onclick="toggleVol('blogs')">⤢</button>
+        </div>
         <p class="sub">Verschijnt op de blogpagina van de site zodra het op "gepubliceerd" staat.</p>
         <form id="blogForm">
           <input type="hidden" id="blogEditId">
@@ -550,7 +575,7 @@ body.rol-blogger .tab:not([data-tab="blogs"]){display:none}
             </span>
             <button type="button" title="Scheidingslijn" aria-label="Scheidingslijn" onclick="opmaakScheidingslijn()">―</button>
           </div>
-          <textarea id="blogTekst" required rows="12" style="min-height:260px" placeholder="Schrijf je verhaal…&#10;&#10;Een lege regel begint een nieuwe alinea. Selecteer tekst en klik een knop in de balk hierboven voor vet, kopjes, lijstjes, citaten en meer."></textarea>
+          <textarea id="blogTekst" required rows="12" placeholder="Schrijf je verhaal…&#10;&#10;Een lege regel begint een nieuwe alinea. Selecteer tekst en klik een knop in de balk hierboven voor vet, kopjes, lijstjes, citaten en meer."></textarea>
           <p class="foto-hint">Selecteer tekst en klik een knop in de balk (of typ zelf: <b>**vet**</b>, <b>*cursief*</b>, <b>##&nbsp;kopje</b>, <b>-&nbsp;opsomming</b>, <b>&gt;&nbsp;citaat</b>). Met 📷 zet je een geüploade foto midden in het verhaal. Bekijk het resultaat met 👁️&nbsp;Voorbeeld.</p>
           <label for="blogFotoKies">Foto's</label>
           <input type="file" id="blogFotoInput" accept="image/*" multiple hidden>
@@ -578,7 +603,10 @@ body.rol-blogger .tab:not([data-tab="blogs"]){display:none}
   <div class="tabpane" id="tab-sjablonen">
     <div class="ev-grid">
       <div class="panel">
-        <h2 id="sjabloonFormTitel">📝 Nieuw sjabloon</h2>
+        <div class="panel-kop">
+          <h2 id="sjabloonFormTitel">📝 Nieuw sjabloon</h2>
+          <button type="button" class="vergroot-btn" title="Vergroten — gebruik de hele pagina" aria-label="Formulier vergroten" onclick="toggleVol('sjablonen')">⤢</button>
+        </div>
         <p class="sub">Voorgeprogrammeerde mails die je steeds opnieuw kunt gebruiken via de mailknoppen bij Inschrijvingen.</p>
         <form id="sjabloonForm">
           <input type="hidden" id="sjabloonEditId">
@@ -587,7 +615,7 @@ body.rol-blogger .tab:not([data-tab="blogs"]){display:none}
           <label for="sjabloonOnderwerp">Onderwerp *</label>
           <input id="sjabloonOnderwerp" required maxlength="120" placeholder="Over twee weken: {evenement} 🎀">
           <label for="sjabloonTekst">Bericht *</label>
-          <textarea id="sjabloonTekst" required rows="9" style="min-height:180px" placeholder="Hoi {naam},&#10;&#10;Over twee weken is het zover..."></textarea>
+          <textarea id="sjabloonTekst" required rows="9" placeholder="Hoi {naam},&#10;&#10;Over twee weken is het zover..."></textarea>
           <label>Dynamische velden <span style="font-weight:400;color:var(--ink-soft)">(klik om in te voegen)</span></label>
           <div class="veld-chips" id="veldChips"></div>
           <p class="foto-hint">Velden worden bij het versturen automatisch ingevuld met de gegevens van het evenement. Omdat groepsmails via BCC gaan, worden {naam} en {voornaam} daarin "papa's" en vervalt {achternaam}. {dochters} wordt "dochters zijn van harte welkom" of "dit keer zonder dochters". {datum} toont bij een meerdaags evenement automatisch "van t/m tot". {fotoalbum} is de fotoalbum-link van het evenement (leeg als die er niet is).</p>
@@ -608,7 +636,10 @@ body.rol-blogger .tab:not([data-tab="blogs"]){display:none}
   <div class="tabpane" id="tab-beheerders">
     <div class="ev-grid">
       <div class="panel">
-        <h2 id="beheerderFormTitel">🔐 Nieuwe beheerder</h2>
+        <div class="panel-kop">
+          <h2 id="beheerderFormTitel">🔐 Nieuwe beheerder</h2>
+          <button type="button" class="vergroot-btn" title="Vergroten — gebruik de hele pagina" aria-label="Formulier vergroten" onclick="toggleVol('beheerders')">⤢</button>
+        </div>
         <p class="sub">Extra inlogaccounts voor dit beheer. Iedere beheerder logt in met een eigen gebruikersnaam en wachtwoord.</p>
         <form id="beheerderForm">
           <input type="hidden" id="beheerderEditId">
@@ -886,6 +917,7 @@ function resetBeheerderForm(){
   document.getElementById("beheerderFormTitel").textContent = "🔐 Nieuwe beheerder";
   document.getElementById("beheerderOpslaanBtn").textContent = "Opslaan 🎉";
   document.getElementById("beheerderAnnuleerBtn").style.display = "none";
+  toggleVol("beheerders", false);
 }
 document.getElementById("beheerderAnnuleerBtn").addEventListener("click", resetBeheerderForm);
 
@@ -916,6 +948,23 @@ function renderStats(){
   document.getElementById("telInschrijvingen").textContent = signups.length;
   document.getElementById("telWhatsapp").textContent = wa.length;
   statsGeanimeerd = true;
+}
+
+/* ---------- Vergroot formulier ----------
+   Elke tab met een bewerk/nieuw-paneel heeft een ⤢-knop: het formulier
+   krijgt dan de hele pagina (de lijst verdwijnt even). Nog een klik — of
+   opslaan/annuleren (via de reset*Form-functies) — zet het terug. */
+function toggleVol(tab, geforceerd){
+  const pane = document.getElementById("tab-" + tab);
+  if(!pane) return;
+  const vol = geforceerd !== undefined ? geforceerd : !pane.classList.contains("vol");
+  pane.classList.toggle("vol", vol);
+  const btn = pane.querySelector(".vergroot-btn");
+  if(btn){
+    btn.textContent = vol ? "⤡" : "⤢";
+    btn.title = vol ? "Terug naar de compacte weergave" : "Vergroten — gebruik de hele pagina";
+    btn.setAttribute("aria-label", btn.title);
+  }
 }
 
 /* ---------- Tabs ---------- */
@@ -1119,6 +1168,7 @@ function resetForm(){
   document.getElementById("formTitel").textContent = "✨ Nieuw evenement";
   document.getElementById("opslaanBtn").textContent = "Opslaan 🎉";
   document.getElementById("annuleerBtn").style.display = "none";
+  toggleVol("evenementen", false);
 }
 document.getElementById("annuleerBtn").addEventListener("click", resetForm);
 
@@ -1292,6 +1342,7 @@ function resetInschrijfForm(){
   document.getElementById("inschrijfFormTitel").textContent = "🎟️ Nieuwe inschrijving";
   document.getElementById("inschrijfOpslaanBtn").textContent = "Opslaan 🎉";
   document.getElementById("inschrijfAnnuleerBtn").style.display = "none";
+  toggleVol("inschrijvingen", false);
   renderInschrijfEventOpties();
   renderInschrijfVragen();
 }
@@ -1476,6 +1527,7 @@ function resetBlogForm(){
   document.getElementById("blogFormTitel").textContent = "✍️ Nieuw blogbericht";
   document.getElementById("blogOpslaanBtn").textContent = "Opslaan 🎉";
   document.getElementById("blogAnnuleerBtn").style.display = "none";
+  toggleVol("blogs", false);
 }
 document.getElementById("blogAnnuleerBtn").addEventListener("click", resetBlogForm);
 resetBlogForm();
@@ -1778,6 +1830,7 @@ function resetSjabloonForm(){
   document.getElementById("sjabloonFormTitel").textContent = "📝 Nieuw sjabloon";
   document.getElementById("sjabloonOpslaanBtn").textContent = "Opslaan 🎉";
   document.getElementById("sjabloonAnnuleerBtn").style.display = "none";
+  toggleVol("sjablonen", false);
 }
 document.getElementById("sjabloonAnnuleerBtn").addEventListener("click", resetSjabloonForm);
 
